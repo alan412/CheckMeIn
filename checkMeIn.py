@@ -11,6 +11,10 @@ class CheckMeIn(object):
    @cherrypy.expose
    def station(self):
       return self.template('station.html')
+
+   @cherrypy.expose
+   def who_is_here(self):
+      return self.template('who_is_here.html')
    
    @cherrypy.expose
    def index(self):
