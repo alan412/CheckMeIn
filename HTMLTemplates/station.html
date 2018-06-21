@@ -6,6 +6,16 @@
      <CENTER><H1>Welcome to TFI Headquarters</H1>
      <H2><div id="clockbox"></div></H2>
 </H1></CENTER>
+<form action="barCode">
+     <input id="member_id" type="text" name="id" placeholder="Member ID"/><br/>
+</form>
+
+<table style="width:100%">
+<TR>
+<TD style="width:80%">
+  Recent Activity
+</TD>
+<TD style="width:20%">
 <table>
   <TR>
     <TH>Keyholder</TH>
@@ -13,7 +23,7 @@
   </TR>
   <TR>
     <TH># people in building</TH>
-    <TH>12</TH>
+    <TD>12</TD>
   </TR>
   <TR>
     <TH>Total people today</TH>
@@ -21,13 +31,14 @@
   </TR>
   <TR>
     <TH>Scan for list of who is here</TH>
-    <TD><IMG SRC="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK8AAACvAQMAAACxXBw2AAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABc0lEQVRIx+2WMY6DMBBFP6Jw6SP4IhG+VgokkChyLaNcxEdw6QLl79hswiZbhkG7UkYUntdgj+fPN/CJPx2eZGIAhmiXmqjjDmjKyixIj0QZW84pt6TgvibHYF4jWtpRBTNmwC4H4VJLE5wZC36utxKuHZNPzkwx9S9dpYRrmGvk6H4p5V3smZskVeXE1IZHYTUxbIY1RYDSnZ5jo499Gua7ANsAc8N+uKvft9KadN7aRw3DXlgFKKspYAg4AOfOwsd6nbdSDHXcwZBmEQE6Fs1zR9yQN3BxWUxg9HUoq+N0lsSXwkojcTwAiwBgcXK5d+ixNbIilg6V85PCkvQtw45YJmKwMh7RO1E2Lwfgzl7ERmWQwaVh24kmrsHgOEU5v30ygXfx6inyyzYWG80d1PHqnKe6nwVVEOp4tRong7r4AO+DWhvzSsOY2pkvL6VdcCyvuWnevEETl8LKRZZTirjPP+9SCa/P8qUUtkrhAPyJ/xZfgDutHWs/43EAAAAASUVORK5CYII"/></TD>
+    <TD><A HREF="http://tfi.ev3hub.com/who_is_here"><IMG ALT="qr-code" SRC="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK8AAACvAQMAAACxXBw2AAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABc0lEQVRIx+2WMY6DMBBFP6Jw6SP4IhG+VgokkChyLaNcxEdw6QLl79hswiZbhkG7UkYUntdgj+fPN/CJPx2eZGIAhmiXmqjjDmjKyixIj0QZW84pt6TgvibHYF4jWtpRBTNmwC4H4VJLE5wZC36utxKuHZNPzkwx9S9dpYRrmGvk6H4p5V3smZskVeXE1IZHYTUxbIY1RYDSnZ5jo499Gua7ANsAc8N+uKvft9KadN7aRw3DXlgFKKspYAg4AOfOwsd6nbdSDHXcwZBmEQE6Fs1zR9yQN3BxWUxg9HUoq+N0lsSXwkojcTwAiwBgcXK5d+ixNbIilg6V85PCkvQtw45YJmKwMh7RO1E2Lwfgzl7ERmWQwaVh24kmrsHgOEU5v30ygXfx6inyyzYWG80d1PHqnKe6nwVVEOp4tRong7r4AO+DWhvzSsOY2pkvL6VdcCyvuWnevEETl8LKRZZTirjPP+9SCa/P8qUUtkrhAPyJ/xZfgDutHWs/43EAAAAASUVORK5CYII"/></A></TD>
   </TR>
+  </table>
+</TD>
+</TR>
 </table>
-<form action="barCode">
-     <input id="member_id" type="text" name="id" placeholder="Member ID"/><br/>
-  </form>
 </html> 
+
 <script type="text/javascript">
 tday=new Array("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday");
 tmonth=new Array("January","February","March","April","May","June","July","August","September","October","November","December");
