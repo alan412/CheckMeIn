@@ -1,0 +1,55 @@
+<html>
+  <head>
+     <title>CheckMeIn</title>
+  </head>
+  <body>
+     <CENTER><H1>Welcome to TFI Headquarters</H1>
+     <H2><div id="clockbox"></div></H2>
+</H1></CENTER>
+<table>
+  <TR>
+    <TH>Keyholder</TH>
+    <TD>Sample Keyholder</TD>
+  </TR>
+  <TR>
+    <TH># people in building</TH>
+    <TH>12</TH>
+  </TR>
+  <TR>
+    <TH>Total people today</TH>
+    <TD>42</TD>
+  </TR>
+  <TR>
+    <TH>Scan for list of who is here</TH>
+    <TD><IMG SRC="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK8AAACvAQMAAACxXBw2AAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABc0lEQVRIx+2WMY6DMBBFP6Jw6SP4IhG+VgokkChyLaNcxEdw6QLl79hswiZbhkG7UkYUntdgj+fPN/CJPx2eZGIAhmiXmqjjDmjKyixIj0QZW84pt6TgvibHYF4jWtpRBTNmwC4H4VJLE5wZC36utxKuHZNPzkwx9S9dpYRrmGvk6H4p5V3smZskVeXE1IZHYTUxbIY1RYDSnZ5jo499Gua7ANsAc8N+uKvft9KadN7aRw3DXlgFKKspYAg4AOfOwsd6nbdSDHXcwZBmEQE6Fs1zR9yQN3BxWUxg9HUoq+N0lsSXwkojcTwAiwBgcXK5d+ixNbIilg6V85PCkvQtw45YJmKwMh7RO1E2Lwfgzl7ERmWQwaVh24kmrsHgOEU5v30ygXfx6inyyzYWG80d1PHqnKe6nwVVEOp4tRong7r4AO+DWhvzSsOY2pkvL6VdcCyvuWnevEETl8LKRZZTirjPP+9SCa/P8qUUtkrhAPyJ/xZfgDutHWs/43EAAAAASUVORK5CYII"/></TD>
+  </TR>
+</table>
+<form action="barCode">
+     <input id="member_id" type="text" name="id" placeholder="Member ID"/><br/>
+  </form>
+</html> 
+<script type="text/javascript">
+tday=new Array("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday");
+tmonth=new Array("January","February","March","April","May","June","July","August","September","October","November","December");
+
+function GetClock(){
+var d=new Date();
+var nday=d.getDay(),nmonth=d.getMonth(),ndate=d.getDate(),nyear=d.getFullYear();
+var nhour=d.getHours(),nmin=d.getMinutes(),nsec=d.getSeconds(),ap;
+
+if(nhour==0){ap=" AM";nhour=12;}
+else if(nhour<12){ap=" AM";}
+else if(nhour==12){ap=" PM";}
+else if(nhour>12){ap=" PM";nhour-=12;}
+
+if(nmin<=9) nmin="0"+nmin;
+if(nsec<=9) nsec="0"+nsec;
+
+document.getElementById('clockbox').innerHTML=""+tday[nday]+", "+tmonth[nmonth]+" "+ndate+", "+nyear+"<br/>"+nhour+":"+nmin+":"+nsec+ap+"";
+}
+
+window.onload=function(){
+GetClock();
+setInterval(GetClock,1000);
+}
+</script>
