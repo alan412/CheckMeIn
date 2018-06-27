@@ -59,9 +59,9 @@ class Members(object):
      return listPresent
   def recent(self, number):
      if number > len(self.recentTransactions):
-        return self.recentTransactions;
+        return self.recentTransactions[::-1];  # reversed
      else:
-        return self.recentTransactions[-number];
+        return self.recentTransactions[-number][::-1];
 
 # unit test
 if __name__ == "__main__":         

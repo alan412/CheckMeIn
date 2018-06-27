@@ -6,28 +6,34 @@
      <CENTER><H1>Welcome to TFI Headquarters</H1>
      <H2><div id="clockbox"></div></H2>
 </H1></CENTER>
-<form action="barCode">
-     <input id="member_id" type="text" name="id" placeholder="Member ID"/><br/>
+<form action="scanned">
+     <input id="member_id" type="text" name="barcode" placeholder="Member ID"/><br/>
 </form>
 
 <table style="width:100%">
 <TR>
-<TD style="width:80%">
-  Recent Activity
+<TD style="width:80%" valign="top">
+  <H2>Recent Activity</H2>
+  <TABLE>
+    <TR><TH>Time</TH><TH>Name</TH><TH>Description</TH></TR>
+  % for trans in members.recent(20):
+    <TR><TD>${trans.time.strftime("%I %M %p")}</TD><TD>${trans.name}</TD><TD>${trans.description}</TD></TR> 
+  % endfor
+  </TABLE>
 </TD>
 <TD style="width:20%">
 <table>
   <TR>
     <TH>Keyholder</TH>
-    <TD>Sample Keyholder</TD>
+    <TD>N/A Keyholder</TD>
   </TR>
   <TR>
     <TH># people in building</TH>
-    <TD>12</TD>
+    <TD>${len(members.whoIsHere())}</TD>
   </TR>
   <TR>
     <TH>Total people today</TH>
-    <TD>42</TD>
+    <TD>N/A</TD>
   </TR>
   <TR>
     <TH>Scan for list of who is here</TH>

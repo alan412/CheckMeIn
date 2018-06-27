@@ -3,6 +3,17 @@
      <title>CheckMeIn - Who is here</title>
   </head>
   <body>
-     Not implemented yet!
+  <H1>Currently Checked In:</H1>
+  <H2>As of ${now.strftime("%I:%M %p")}: 
+  % if len(whoIsHere) == 1:
+  <H2>1 person</H2>
+  % else:
+  <H2>${len(whoIsHere)} people</H2>
+  % endif
+  <table class="members">
+      % for member in whoIsHere:
+        <TR><TD><input type="checkbox"/></TD><TD>${member}</TD></TR>
+      % endfor
+  </table>
   </body>
 </html>
