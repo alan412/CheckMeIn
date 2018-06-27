@@ -106,3 +106,6 @@ venv.bak/
 
 # user data
 data/
+
+# process files
+nohup.out
