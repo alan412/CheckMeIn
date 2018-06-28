@@ -15,10 +15,10 @@
 <TR>
 <TD style="width:80%" valign="top">
   <H2>Recent Activity</H2>
-  <TABLE>
+  <TABLE style="width:80%">
     <TR><TH>Time</TH><TH>Name</TH><TH>Description</TH></TR>
   % for trans in members.recent(20):
-    <TR><TD>${trans.time.strftime("%I:%M %p")}</TD><TD>${trans.name}</TD><TD>${trans.description}</TD></TR> 
+    <TR class="${trans.description}"><TD>${trans.time.strftime("%I:%M %p")}</TD><TD>${trans.name}</TD><TD>${trans.description}</TD></TR> 
   % endfor
   </TABLE>
 </TD>

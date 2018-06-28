@@ -11,3 +11,9 @@ h1 { font-size: 34px; line-height: 120%; }
 h2 { font-size: 20px; }
 p  { font-size: 14px; }
 
+tr.In td {
+   background: white
+}
+tr.Out td {
+   background: #FFC
+}
