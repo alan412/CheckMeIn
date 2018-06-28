@@ -1,8 +1,9 @@
-<html>
-  <head>
-     <title>CheckMeIn - Who is here</title>
-  </head>
-  <body>
+<%def name="scripts()">
+</%def>
+
+<%def name="title()">CheckMeIn - Who is here</%def>
+<%inherit file="base.html"/>
+
   <H1>Currently Checked In:</H1>
   <H2>As of ${now.strftime("%I:%M %p")}: 
   % if len(whoIsHere) == 1:
@@ -15,5 +16,3 @@
         <TR><TD><input type="checkbox"/></TD><TD>${member}</TD></TR>
       % endfor
   </table>
-  </body>
-</html>
