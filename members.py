@@ -57,7 +57,7 @@ class Members(object):
   def uniqueVisitorsToday(self):
     now = datetime.datetime.now()
     startDate = now.replace(hour=0,minute=0,second=0,microsecond=0);
-    endDate = now.replace(hour=11,minute=59,second=59,microsecond=999999);
+    endDate = now.replace(hour=23,minute=59,second=59,microsecond=999999);
     return self.uniqueVisitors(startDate, endDate);
   def uniqueVisitors(self, startDate, endDate):
      print("Unique", startDate, "-", endDate);
