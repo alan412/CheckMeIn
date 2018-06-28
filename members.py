@@ -1,21 +1,9 @@
 import csv
 import datetime
+import sqlite3
+import os
 
-class MemberList(object):
-  def __init__(self, filename, barcode, display):
-     self.dict = dict()
-     with open(filename, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-         self.dict[row[barcode]] = row[display]
-  def print(self):
-     for barcode, display in self.dict.items():
-          print(barcode, " - ", display) 
-  def findName(self,barcode):
-     try:
-          return self.dict[barcode]
-     except:
-          return 'Not Found'
+DB_STRING = "data/checkMeIn.db"
 
 class Transaction(object):
   def __init__(self, barcode, name, description):
@@ -24,39 +12,59 @@ class Transaction(object):
     self.name = name;
     self.description = description;
 
-class PresentMembers(object):
-  def __init__(self):
-     # at some point later read from file
-     self.listPresent = [];
-  def inList(self,barcode):
-     return barcode in self.listPresent;
-  def addToList(self, barcode):
-     self.listPresent.append(barcode);
-  def delFromList(self, barcode): 
-     self.listPresent.remove(barcode);
-  def getList(self):
-     return self.listPresent;
-   
 class Members(object):
+  def createDB(self, filename, barcode, display):
+     with sqlite3.connect(DB_STRING) as c:
+        c.execute('''CREATE TABLE members
+                     (barcode text, displayName text)''')
+        c.execute('''CREATE TABLE visits
+                     (start timestamp, leave timestamp, barcode text, status text)''')
+        with open(filename, newline='') as csvfile:
+           reader = csv.DictReader(csvfile)
+           for row in reader:
+              c.execute("INSERT INTO members VALUES (?,?)", (row[barcode], row[display])); 
   def __init__(self, filename, barcode, display):
-     self.memberList = MemberList(filename, barcode, display);
-     self.presentMembers = PresentMembers();
      self.recentTransactions = [];
+     if not os.path.exists('data/checkMeIn.db'):
+          self.createDB(filename, barcode, display);
+   
   def scanned(self, barcode):
-     name = self.memberList.findName(barcode);
-     if self.presentMembers.inList(barcode):
-         self.recentTransactions.append(Transaction(barcode, name, "Out"));
-         self.presentMembers.delFromList(barcode); 
-     else:
-         self.recentTransactions.append(Transaction(barcode, name, "In"));
-         self.presentMembers.addToList(barcode);
-  def nameFromBarcode(self, barcode):
-     return self.memberList.findName(barcode);
+     now = datetime.datetime.now();
+     with sqlite3.connect(DB_STRING) as c:
+        data = c.execute("SELECT displayName FROM members WHERE barcode==?", (barcode,)).fetchone();
+        name = data[0];
+        data = c.execute("SELECT * FROM visits WHERE (barcode==?) and (status=='In')", (barcode,)).fetchone();
+        if data is None:
+           c.execute("INSERT INTO visits VALUES (?,?,?,'In')", (now, now, barcode));
+           self.recentTransactions.append(Transaction(barcode, name, "In"))    # Obviously needs to be changed
+        else:
+           c.execute("UPDATE visits SET leave = ?, status = 'Out' WHERE (barcode==?) AND (status=='In')",(now, barcode)) 
+           self.recentTransactions.append(Transaction(barcode, name, "Out")) 
+  def emptyBuilding(self):
+     now = datetime.datetime.now()
+     with sqlite3.connect(DB_STRING) as c:
+        c.execute("UPDATE visits SET leave = ?, status = 'Forgot' WHERE status=='In'", (now,))
+
+     # empty list of recent transactions when building automatically emptied
+     self.recentTransactions = [];
+
   def whoIsHere(self):
      listPresent = [];
-     for barcode in self.presentMembers.getList():
-        listPresent.append(self.memberList.findName(barcode));
+     with sqlite3.connect(DB_STRING) as c:
+        for row in c.execute("SELECT displayName FROM visits INNER JOIN members ON members.barcode = visits.barcode WHERE status=='In' ORDER BY displayName"):
+          listPresent.append(row[0]);
      return listPresent
+  def uniqueVisitorsToday(self):
+    now = datetime.datetime.now()
+    startDate = now.replace(hour=0,minute=0,second=0,microsecond=0);
+    endDate = now.replace(hour=11,minute=59,second=59,microsecond=999999);
+    return self.uniqueVisitors(startDate, endDate);
+  def uniqueVisitors(self, startDate, endDate):
+     print("Unique", startDate, "-", endDate);
+     with sqlite3.connect(DB_STRING) as c:
+        numUniqueVisitors = c.execute("SELECT COUNT(DISTINCT barcode) FROM visits WHERE (start BETWEEN ? AND ?)", (startDate, endDate)).fetchone()[0]
+     return numUniqueVisitors 
+
   def recent(self, number):
      if number > len(self.recentTransactions):
         return self.recentTransactions[::-1];  # reversed
@@ -66,16 +74,24 @@ class Members(object):
 # unit test
 if __name__ == "__main__":         
 	members = Members('data/members.csv', 'TFI Barcode', 'TFI Display Name');
-	print(members.whoIsHere());
+	print('1',members.whoIsHere());
 	members.scanned('100091');
-	print(members.whoIsHere());
+	print('2',members.whoIsHere());
 	members.scanned('100090');
-	print(members.whoIsHere());
+	print('3',members.whoIsHere());
 	members.scanned('100090');
-	print( members.whoIsHere());
+	print('4', members.whoIsHere());
 	members.scanned('100091');
-	print( members.whoIsHere());
+	print('5', members.whoIsHere());
 	transactions =  members.recent(9);
 	for trans in transactions:
 	   print(trans.time, ' : ', trans.name, ' - ', trans.description);
+        
+	members.scanned('100090');   # check in
+	print('6', members.whoIsHere());
+	members.emptyBuilding();
+	print('7', members.whoIsHere());
 
+	transactions =  members.recent(9);
+	for trans in transactions:
+	   print(trans.time, ' : ', trans.name, ' - ', trans.description);

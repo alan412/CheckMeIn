@@ -18,7 +18,7 @@
   <TABLE>
     <TR><TH>Time</TH><TH>Name</TH><TH>Description</TH></TR>
   % for trans in members.recent(20):
-    <TR><TD>${trans.time.strftime("%I %M %p")}</TD><TD>${trans.name}</TD><TD>${trans.description}</TD></TR> 
+    <TR><TD>${trans.time.strftime("%I:%M %p")}</TD><TD>${trans.name}</TD><TD>${trans.description}</TD></TR> 
   % endfor
   </TABLE>
 </TD>
@@ -34,7 +34,7 @@
   </TR>
   <TR>
     <TH>Total people today</TH>
-    <TD>N/A</TD>
+    <TD>${members.uniqueVisitorsToday()}</TD>
   </TR>
   <TR>
     <TH>Scan for list of who is here</TH>
