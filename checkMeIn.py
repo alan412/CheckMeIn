@@ -28,7 +28,7 @@ class CheckMeIn(object):
        
    @cherrypy.expose
    def index(self):
-      return self.station(); 
+      return self.who_is_here(); 
 
 if __name__ == '__main__':
    parser = argparse.ArgumentParser(description="CheckMeIn - building check in and out system")
