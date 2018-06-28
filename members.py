@@ -50,9 +50,9 @@ class Members(object):
 
   def whoIsHere(self):
      listPresent = [];
-     with sqlite3.connect(DB_STRING) as c:
-        for row in c.execute("SELECT displayName FROM visits INNER JOIN members ON members.barcode = visits.barcode WHERE status=='In' ORDER BY displayName"):
-          listPresent.append(row[0]);
+     with sqlite3.connect(DB_STRING,detect_types=sqlite3.PARSE_DECLTYPES) as c:
+        for row in c.execute("SELECT displayName,start FROM visits INNER JOIN members ON members.barcode = visits.barcode WHERE status=='In' ORDER BY displayName"):
+          listPresent.append(row[0] + ' - ( ' + row[1].strftime("%I:%M %p")  +' )');
      return listPresent
   def uniqueVisitorsToday(self):
     now = datetime.datetime.now()
