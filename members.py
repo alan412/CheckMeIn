@@ -43,6 +43,15 @@ class Members(object):
            c.execute("UPDATE visits SET leave = ?, status = 'Out' WHERE (barcode==?) AND (status=='In')",(now, barcode)) 
            self.recentTransactions.append(Transaction(barcode, name, "Out")) 
         return ''; 
+
+  def getName(self, barcode):
+     with sqlite3.connect(DB_STRING) as c:
+        data = c.execute("SELECT displayName FROM members WHERE barcode==?", (barcode,)).fetchone();
+        if data is None:
+           return 'Invalid: ' + barcode;
+        else:
+           return data[0];
+
   def emptyBuilding(self):
      now = datetime.datetime.now()
      with sqlite3.connect(DB_STRING) as c:
@@ -57,11 +66,13 @@ class Members(object):
         for row in c.execute("SELECT displayName,start FROM visits INNER JOIN members ON members.barcode = visits.barcode WHERE status=='In' ORDER BY displayName"):
           listPresent.append(row[0] + ' - ( ' + row[1].strftime("%I:%M %p")  +' )');
      return listPresent
+
   def uniqueVisitorsToday(self):
     now = datetime.datetime.now()
     startDate = now.replace(hour=0,minute=0,second=0,microsecond=0);
     endDate = now.replace(hour=23,minute=59,second=59,microsecond=999999);
     return self.uniqueVisitors(startDate, endDate);
+
   def uniqueVisitors(self, startDate, endDate):
      print("Unique", startDate, "-", endDate);
      with sqlite3.connect(DB_STRING) as c:
