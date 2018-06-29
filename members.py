@@ -69,6 +69,10 @@ class Members(object):
      return numUniqueVisitors 
 
   def recent(self, number):
+     if len(self.recentTransactions):
+        now = datetime.datetime.now()
+        if now.hour == 3:   # If between 3am and 4am
+           self.emptyBuilding();
      if number > len(self.recentTransactions):
         return self.recentTransactions[::-1];  # reversed
      else:
