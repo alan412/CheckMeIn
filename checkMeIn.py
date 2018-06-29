@@ -13,8 +13,8 @@ class CheckMeIn(object):
       return self.lookup.get_template(name).render(**kwargs);
 
    @cherrypy.expose
-   def station(self):
-      return self.template('station.html',members=self.members)
+   def station(self,error=''):
+      return self.template('station.html',members=self.members,error=error)
 
    @cherrypy.expose
    def who_is_here(self):
@@ -23,8 +23,8 @@ class CheckMeIn(object):
    @cherrypy.expose
    # later change this to be more ajaxy, but for now...
    def scanned(self, barcode):
-      self.members.scanned(barcode); 
-      return self.station();
+      error = self.members.scanned(barcode[:6]); 
+      return self.station(error);
        
    @cherrypy.expose
    def index(self):

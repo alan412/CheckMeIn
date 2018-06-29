@@ -32,6 +32,8 @@ class Members(object):
      now = datetime.datetime.now();
      with sqlite3.connect(DB_STRING) as c:
         data = c.execute("SELECT displayName FROM members WHERE barcode==?", (barcode,)).fetchone();
+        if data is None:
+           return 'Invalid barcode: ' + barcode;
         name = data[0];
         data = c.execute("SELECT * FROM visits WHERE (barcode==?) and (status=='In')", (barcode,)).fetchone();
         if data is None:
@@ -40,6 +42,7 @@ class Members(object):
         else:
            c.execute("UPDATE visits SET leave = ?, status = 'Out' WHERE (barcode==?) AND (status=='In')",(now, barcode)) 
            self.recentTransactions.append(Transaction(barcode, name, "Out")) 
+        return ''; 
   def emptyBuilding(self):
      now = datetime.datetime.now()
      with sqlite3.connect(DB_STRING) as c:
