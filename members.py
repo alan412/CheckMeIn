@@ -5,6 +5,56 @@ import os
 
 DB_STRING = "data/checkMeIn.db"
 
+class Person(object):
+  def __init__(self, name, start, leave):
+    self.name = name;
+    self.hours = 0.0;
+    self.addVisit(start, leave);
+  def addVisit(self, start, leave):
+    dTime = leave - start;
+    self.hours += dTime.seconds / (60 * 60);  # to convert from seconds to hours
+
+class Statistics(object):
+  def __init__(self, beginDate, endDate):
+   # obviously this needs to generate these stats instead of just making them up. :-)
+      self.beginDate = beginDate;
+      self.endDate = endDate;
+      self.visitors = {};
+      
+      with sqlite3.connect(DB_STRING,detect_types=sqlite3.PARSE_DECLTYPES) as c:
+        for row in c.execute(
+'''
+SELECT start, leave, displayName, members.barcode 
+FROM visits
+INNER JOIN members ON members.barcode = visits.barcode
+WHERE (start BETWEEN ? AND ?)
+''', (beginDate, endDate)):
+           try:
+             self.visitors[row[3]].addVisit(row[0],row[1]);
+           except:
+             self.visitors[row[3]] = Person(row[2], row[0], row[1]);
+      
+      self.totalHours = 0.0;
+      
+      for bar, person in self.visitors.items():
+          self.totalHours += person.hours;
+ 
+      self.uniqueVisitors = len(self.visitors); 
+      self.avgTime = self.totalHours / self.uniqueVisitors; 
+      
+      sortedList = sorted(list(self.visitors.values()), key=lambda x: x.hours, reverse=True);
+    
+      half = len(sortedList) // 2; 
+      if len(sortedList) % 2:
+         self.medianTime = sortedList[half].hours;
+      else:
+         self.medianTime = (sortedList[half - 1].hours + sortedList[half].hours) / 2.0 
+ 
+      if len(sortedList) > 10:
+         self.top10 = sortedList[:9];
+      else:
+         self.top10 = sortedList;
+
 class Transaction(object):
   def __init__(self, barcode, name, description):
     self.time = datetime.datetime.now();
@@ -74,7 +124,6 @@ class Members(object):
     return self.uniqueVisitors(startDate, endDate);
 
   def uniqueVisitors(self, startDate, endDate):
-     print("Unique", startDate, "-", endDate);
      with sqlite3.connect(DB_STRING) as c:
         numUniqueVisitors = c.execute("SELECT COUNT(DISTINCT barcode) FROM visits WHERE (start BETWEEN ? AND ?)", (startDate, endDate)).fetchone()[0]
      return numUniqueVisitors 
@@ -88,6 +137,9 @@ class Members(object):
         return self.recentTransactions[::-1];  # reversed
      else:
         return self.recentTransactions[-number:][::-1];
+  
+  def getStats(self, beginDate, endDate):
+     return Statistics(beginDate, endDate);
 
 # unit test
 if __name__ == "__main__":         

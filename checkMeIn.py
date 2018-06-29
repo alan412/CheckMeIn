@@ -67,7 +67,23 @@ class CheckMeIn(object):
       else:
          error = self.members.scanned(barcode); 
       return self.station(error);
-      
+
+   @cherrypy.expose
+   def admin(self):
+      firstDate = datetime.date(2018,6,20).isoformat()   # needs to get from database
+      todayDate = datetime.date.today().isoformat() 
+      forgotDates = [];
+      return self.template('admin.html',members=self.members,forgotDates=forgotDates,
+                            firstDate=firstDate,todayDate=todayDate );
+
+   @cherrypy.expose
+   def reports(self, startDate, endDate):
+      return self.template('reports.html', stats=self.members.getStats(startDate, endDate)); 
+
+   @cherrypy.expose
+   def reports(self, startDate):
+      return self.reports(self, startDate, startDate);
+
    @cherrypy.expose
    def index(self):
       return self.who_is_here(); 
