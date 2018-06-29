@@ -80,9 +80,6 @@ class CheckMeIn(object):
    def reports(self, startDate, endDate):
       return self.template('reports.html', stats=self.members.getStats(startDate, endDate)); 
 
-   @cherrypy.expose
-   def reports(self, startDate):
-      return self.reports(self, startDate, startDate);
 
    @cherrypy.expose
    def index(self):
