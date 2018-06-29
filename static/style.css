@@ -11,6 +11,7 @@ h1 { font-size: 34px; line-height: 120%; }
 h2 { font-size: 20px; }
 p  { font-size: 14px; }
 
+
 #member_id {
    text-align: center;
 }
@@ -22,10 +23,10 @@ tr.Out td {
    background: #005Cb9;
    color: #FFF;
 }
-th {
+table.recent th {
     border-bottom: 1px solid black;
 }
-td {
+table.recent td {
    border-bottom: 1px solid #eee;
  }
 

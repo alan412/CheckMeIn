@@ -4,10 +4,13 @@
 </%def>
 <%def name="title()">CheckMeIn - Who is here</%def>
 <%inherit file="base.html"/>
-
-  <H1>Currently Checked In:</H1>
-  <H2>As of ${now.strftime("%I:%M %p")}: 
-  <input type="button" value="Reload Page" onClick="document.location.reload(true)"/>
+<table class="header">
+<TR>
+  <TD><IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="150"/></TD>
+  <TD><input type="button" value="Refresh" onClick="document.location.reload(true)"/></TD>
+</TR>
+</table>
+  <H2>Checked in at ${now.strftime("%I:%M %p")}:</H2>
   % if len(whoIsHere) == 1:
   <H2>1 person</H2>
   % else:
