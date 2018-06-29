@@ -12,8 +12,32 @@ h2 { font-size: 20px; }
 p  { font-size: 14px; }
 
 tr.In td {
-   background: white
+   background: white;
 }
 tr.Out td {
-   background: #FFC
+   background: #005Cb9;
+   color: #FFF;
 }
+th {
+    border-bottom: 1px solid black;
+}
+td {
+   border-bottom: 1px solid #eee;
+ }
+
+table.side {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+table.side th{
+   background: #DDD;
+   border: 1px solid black;
+   padding: 10px;
+}
+table.side td{
+   border: 1px solid black;
+   padding: 10px;
+}
+
+   
