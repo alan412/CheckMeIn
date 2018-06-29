@@ -11,6 +11,10 @@ h1 { font-size: 34px; line-height: 120%; }
 h2 { font-size: 20px; }
 p  { font-size: 14px; }
 
+#member_id {
+   text-align: center;
+}
+
 tr.In td {
    background: white;
 }
@@ -25,19 +29,22 @@ td {
    border-bottom: 1px solid #eee;
  }
 
+td.who_is_here p, td.who_is_here a{
+  color: blue;
+}
+
 table.side {
   border: 1px solid black;
   border-collapse: collapse;
 }
 
-table.side th{
-   background: #DDD;
+table.side th, table.side td{
    border: 1px solid black;
    padding: 10px;
 }
-table.side td{
-   border: 1px solid black;
-   padding: 10px;
+
+table.side th{
+   background: #DDD;
 }
 
    

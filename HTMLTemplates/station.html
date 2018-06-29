@@ -1,25 +1,31 @@
 <%def name="scripts()">
 </%def>
+<%def name="head()">
+</%def>
 
 <%def name="title()">CheckMeIn Station</%def>
 <%inherit file="base.html"/>
 <TABLE>
 <TR><TD WIDTH="20%">
-<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/></TD>
+<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/><br/>
+<div id="member_id">
+<form action="scanned">
+     <input id="member_id" type="text" name="barcode" size="8" autofocus placeholder="Member ID"/><br/>
+</form>
+</div>
+</TD>
 <TD WIDTH="60%">
      <CENTER><H1>Welcome to TFI Headquarters</H1>
      <H2><div id="clockbox"></div></H2>
 </TD>
-    <TD valign=center><CENTER><P style="color:blue">To see who is here:</P>
-<A HREF="http://tfi.ev3hub.com/who_is_here"><IMG ALT="qr-code" WIDTH="100" SRC="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK8AAACvAQMAAACxXBw2AAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABc0lEQVRIx+2WMY6DMBBFP6Jw6SP4IhG+VgokkChyLaNcxEdw6QLl79hswiZbhkG7UkYUntdgj+fPN/CJPx2eZGIAhmiXmqjjDmjKyixIj0QZW84pt6TgvibHYF4jWtpRBTNmwC4H4VJLE5wZC36utxKuHZNPzkwx9S9dpYRrmGvk6H4p5V3smZskVeXE1IZHYTUxbIY1RYDSnZ5jo499Gua7ANsAc8N+uKvft9KadN7aRw3DXlgFKKspYAg4AOfOwsd6nbdSDHXcwZBmEQE6Fs1zR9yQN3BxWUxg9HUoq+N0lsSXwkojcTwAiwBgcXK5d+ixNbIilg6V85PCkvQtw45YJmKwMh7RO1E2Lwfgzl7ERmWQwaVh24kmrsHgOEU5v30ygXfx6inyyzYWG80d1PHqnKe6nwVVEOp4tRong7r4AO+DWhvzSsOY2pkvL6VdcCyvuWnevEETl8LKRZZTirjPP+9SCa/P8qUUtkrhAPyJ/xZfgDutHWs/43EAAAAASUVORK5CYII"/></A>
+    <TD class="who_is_here" valign=center><CENTER><P>To see who is here:</P>
+<A HREF="http://tfi.ev3hub.com/"><IMG ALT="qr-code" WIDTH="100" SRC="static/qrcode-who_is_here.png"/></A>
+<br/>
 <A HREF="http://tfi.ev3hub.com">http://tfi.ev3hub.com</A>
 <center/>
 </TD>
 
 </TR></TABLE>
-<form action="scanned">
-     <input id="member_id" type="text" name="barcode" autofocus placeholder="Member ID"/><br/>
-</form>
 
 <table style="width:100%">
 <TR>

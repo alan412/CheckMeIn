@@ -1,16 +1,19 @@
 <%def name="scripts()">
 </%def>
-
+<%def name="head()">
+</%def>
 <%def name="title()">CheckMeIn - Who is here</%def>
 <%inherit file="base.html"/>
 
   <H1>Currently Checked In:</H1>
   <H2>As of ${now.strftime("%I:%M %p")}: 
+  <input type="button" value="Reload Page" onClick="document.location.reload(true)"/>
   % if len(whoIsHere) == 1:
   <H2>1 person</H2>
   % else:
   <H2>${len(whoIsHere)} people</H2>
   % endif
+
   <table class="members">
       % for member in whoIsHere:
         <TR><TD><input type="checkbox"/></TD><TD>${member}</TD></TR>
