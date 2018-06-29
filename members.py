@@ -40,20 +40,25 @@ WHERE (start BETWEEN ? AND ?)
           self.totalHours += person.hours;
  
       self.uniqueVisitors = len(self.visitors); 
-      self.avgTime = self.totalHours / self.uniqueVisitors; 
+      if self.uniqueVisitors == 0:
+        self.avgTime = 0;
+        self.medianTime = 0;
+        self.top10 = [];
+      else:
+         self.avgTime = self.totalHours / self.uniqueVisitors; 
       
-      sortedList = sorted(list(self.visitors.values()), key=lambda x: x.hours, reverse=True);
+         sortedList = sorted(list(self.visitors.values()), key=lambda x: x.hours, reverse=True);
     
-      half = len(sortedList) // 2; 
-      if len(sortedList) % 2:
-         self.medianTime = sortedList[half].hours;
-      else:
-         self.medianTime = (sortedList[half - 1].hours + sortedList[half].hours) / 2.0 
+         half = len(sortedList) // 2; 
+         if len(sortedList) % 2:
+            self.medianTime = sortedList[half].hours;
+         else:
+            self.medianTime = (sortedList[half - 1].hours + sortedList[half].hours) / 2.0 
  
-      if len(sortedList) > 10:
-         self.top10 = sortedList[:9];
-      else:
-         self.top10 = sortedList;
+         if len(sortedList) > 10:
+            self.top10 = sortedList[:9];
+         else:
+            self.top10 = sortedList;
 
 class Transaction(object):
   def __init__(self, barcode, name, description):
