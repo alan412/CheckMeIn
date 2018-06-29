@@ -1,0 +1,24 @@
+<%def name="scripts()">
+<script>
+window.onload = setTimeout(function(){location.href="station"},1000*60*1);  // if still here in 1 min 
+</script>
+</%def>
+<%def name="head()">
+</%def>
+
+<%def name="title()">CheckMeIn Shop Steward</%def>
+<%inherit file="base.html"/>
+<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
+
+<H1>Change Shop Steward</H1>
+<P>
+You have several choices, but be quick (1 minute time limit):</P>
+<UL>
+<LI>Scan Shop Steward button again.<br/>   This means that there is no longer a shop steward on duty.
+<LI>Scan button of new Shop Steward.<br/>  This makes them the shop steward.  Please give them the shop steward button.
+<LI>Scan your own button.<br/> This means you are staying the shop steward.
+<LI>Let the page timeout.<br/> This means the old shop steward stays the shop steward.
+</UL>
+<form action="shop_steward">
+     <input id="member_id" type="text" name="barcode" size="8" autofocus placeholder="Member ID"/><br/>
+</form>
