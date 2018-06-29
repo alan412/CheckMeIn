@@ -72,7 +72,7 @@ class Members(object):
      if number > len(self.recentTransactions):
         return self.recentTransactions[::-1];  # reversed
      else:
-        return self.recentTransactions[-number][::-1];
+        return self.recentTransactions[-number:][::-1];
 
 # unit test
 if __name__ == "__main__":         
