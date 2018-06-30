@@ -20,7 +20,7 @@ class CheckMeIn(object):
    @cherrypy.expose
    def station(self,error=''):
       return self.template('station.html',members=self.members,
-                           keyholder_name=self.keyholder_name,shop_steward_name=self.shop_steward_name, 
+                           keyholder_name=self.keyholder_name,shop_steward_name=self.shop_steward_name,
                            error=error)
 
    @cherrypy.expose
@@ -53,7 +53,7 @@ class CheckMeIn(object):
               return self.template('shop_steward.html', error=result);
           self.shop_steward_name = result
       return self.station();
-   
+
    @cherrypy.expose
    # later change this to be more ajaxy, but for now...
    def scanned(self, barcode):
@@ -61,33 +61,39 @@ class CheckMeIn(object):
 # strip whitespace before or after barcode digits (occasionally a space comes before or after
       barcode = barcode.strip();
       if barcode == KEYHOLDER_BARCODE:
-         return self.template('keyholder.html'); 
+         return self.template('keyholder.html');
       elif barcode == SHOP_STEWARD_BARCODE:
          return self.template('shop_steward.html');
       else:
-         error = self.members.scanned(barcode); 
+         error = self.members.scanned(barcode);
       return self.station(error);
 
    @cherrypy.expose
    def admin(self):
-      firstDate = datetime.date(2018,6,20).isoformat()   # needs to get from database
-      todayDate = datetime.date.today().isoformat() 
-      forgotDates = [];
+      firstDate = self.members.getEarliestDate().isoformat()
+      todayDate = datetime.date.today().isoformat()
+      forgotDates = []
+      for date in self.members.getForgottenDates():
+          forgotDates.append(date.isoformat())
       return self.template('admin.html',members=self.members,forgotDates=forgotDates,
                             firstDate=firstDate,todayDate=todayDate );
 
    @cherrypy.expose
    def reports(self, startDate, endDate):
-      return self.template('reports.html', stats=self.members.getStats(startDate, endDate)); 
+      return self.template('reports.html', stats=self.members.getStats(startDate, endDate));
 
+   @cherrypy.expose
+   def fixData(self, date):
+       data = self.members.getData(date);
+       return self.template('fixData.html', date=date,data=data)
 
    @cherrypy.expose
    def index(self):
-      return self.who_is_here(); 
+      return self.who_is_here();
 
 if __name__ == '__main__':
    parser = argparse.ArgumentParser(description="CheckMeIn - building check in and out system")
    parser.add_argument('conf')
    args = parser.parse_args()
-   
+
    cherrypy.quickstart(CheckMeIn(),'',args.conf)

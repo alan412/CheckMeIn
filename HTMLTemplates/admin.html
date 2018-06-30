@@ -12,7 +12,7 @@
 <H2>Fix "forgot" data</H2>
 %if len(forgotDates):
   <FORM action="fixData">
-  <SELECT id="date-select">
+  <SELECT id="date-select" name="date">
 %for date in forgotDates:
     <OPTION value="${date}">${date}</OPTION>
 %endfor

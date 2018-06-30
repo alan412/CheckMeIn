@@ -1,0 +1,16 @@
+<%def name="scripts()">
+</%def>
+<%def name="head()">
+</%def>
+
+<%def name="title()">CheckMeIn Fix Data</%def>
+<%inherit file="base.html"/>
+<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
+
+<H1>Fix Data Page for ${date}</H1>
+<TABLE>
+  <TR><TH>Display Name</TH><TH>Start</TH><TH>Leave</TH></TR>
+% for row in data:
+  <TR class="${row.status}"><TD>${row.name}</TD><TD>${row.start.strftime("%I:%M %p")}</TD><TD>${row.leave.strftime("%I:%M %p")}</TD></TR>
+% endfor
+</TABLE>

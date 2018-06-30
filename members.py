@@ -67,6 +67,13 @@ class Transaction(object):
     self.name = name;
     self.description = description;
 
+class Datum(object):
+    def __init__(self, start, leave, name, status):
+        self.start = start
+        self.leave = leave
+        self.name = name
+        self.status = status
+
 class Members(object):
   def createDB(self, filename, barcode, display):
      with sqlite3.connect(DB_STRING) as c:
@@ -149,6 +156,31 @@ class Members(object):
 
   def getStats(self, beginDate, endDate):
      return Statistics(beginDate, endDate);
+
+  def getForgottenDates(self):
+      dates = [];
+      with sqlite3.connect(DB_STRING,detect_types=sqlite3.PARSE_DECLTYPES) as c:
+          for row in c.execute("SELECT start FROM visits WHERE status=='Forgot'"):
+              day = row[0].date();
+              if day not in dates:
+                  dates.append(day)
+      return dates;
+  def getEarliestDate(self):
+      return datetime.date(2018, 6,25);  # this should get from database, but for now....
+
+  def getData(self, dateStr):
+    data = [];
+    date = datetime.datetime(int(dateStr[0:4]),int(dateStr[5:7]),int(dateStr[8:10]))
+    startDate = date.replace(hour=0,minute=0,second=0,microsecond=0);
+    endDate = date.replace(hour=23,minute=59,second=59,microsecond=999999);
+
+    with sqlite3.connect(DB_STRING,detect_types=sqlite3.PARSE_DECLTYPES) as c:
+        for row in c.execute('''SELECT displayName,start,leave,status
+        FROM visits
+        INNER JOIN members ON members.barcode = visits.barcode
+        WHERE (start BETWEEN ? AND ?) ORDER BY start''', (startDate, endDate)):
+           data.append(Datum(start=row[1],leave=row[2],name=row[0],status=row[3]));
+    return data;
 
 # unit test
 if __name__ == "__main__":
