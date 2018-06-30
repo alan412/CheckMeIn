@@ -17,8 +17,8 @@ class Person(object):
 class Statistics(object):
   def __init__(self, beginDate, endDate):
    # obviously this needs to generate these stats instead of just making them up. :-)
-      self.beginDate = beginDate;
-      self.endDate = endDate;
+      self.beginDate = beginDate.date();
+      self.endDate = endDate.date();
       self.visitors = {};
 
       with sqlite3.connect(DB_STRING,detect_types=sqlite3.PARSE_DECLTYPES) as c:
@@ -154,8 +154,13 @@ class Members(object):
      else:
         return self.recentTransactions[-number:][::-1];
 
-  def getStats(self, beginDate, endDate):
-     return Statistics(beginDate, endDate);
+  def getStats(self, beginDateStr, endDateStr):
+    startDate = datetime.datetime(int(beginDateStr[0:4]),int(beginDateStr[5:7]),int(beginDateStr[8:10])).replace(
+                    hour=0,minute=0,second=0,microsecond=0);
+    endDate = datetime.datetime(int(endDateStr[0:4]),int(endDateStr[5:7]),int(endDateStr[8:10])).replace(
+                    hour=23,minute=59,second=59,microsecond=999999);
+
+    return Statistics(startDate, endDate);
 
   def getForgottenDates(self):
       dates = [];
