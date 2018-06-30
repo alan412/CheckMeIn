@@ -43,6 +43,7 @@ class CheckMeIn(object):
               return self.template('keyholder.html', error=result);
           self.keyholder_name = result
           self.keyholder_barcode = barcode
+          self.members.addIfNotHere(self.keyholder_barcode, self.keyholder_name)
       return self.station();
 
    @cherrypy.expose
@@ -58,6 +59,7 @@ class CheckMeIn(object):
               return self.template('shop_steward.html', error=result);
           self.shop_steward_name = result
           self.shop_steward_barcode = barcode
+          self.members.addIfNotHere(self.shop_steward_barcode, self.shop_steward_name)
       return self.station();
 
    @cherrypy.expose

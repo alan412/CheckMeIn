@@ -117,11 +117,20 @@ class Members(object):
   def emptyBuilding(self,keyholder_barcode):
      now = datetime.datetime.now()
      with sqlite3.connect(DB_STRING) as c:
+        print("barcode:", keyholder_barcode)
         c.execute("UPDATE visits SET leave = ?, status = 'Forgot' WHERE status=='In'", (now,))
-        c.execute("UPDATE visits SET status = 'Out' WHERE barcode==?, leave==?", (keyholder_barcode, now))
+        c.execute("UPDATE visits SET status = 'Out' WHERE barcode==? AND leave==?", (keyholder_barcode, now))
 
      # empty list of recent transactions when building automatically emptied
      self.recentTransactions = [];
+
+  def addIfNotHere(self, barcode, name):
+     now = datetime.datetime.now()
+     with sqlite3.connect(DB_STRING) as c:
+         data = c.execute("SELECT * FROM visits WHERE (barcode==?) and (status=='In')", (barcode,)).fetchone();
+         if data is None:
+             c.execute("INSERT INTO visits VALUES (?,?,?,'In')", (now, now, barcode));
+             self.recentTransactions.append(Transaction(barcode, name, "In"))    # Obviously needs to be changed
 
   def whoIsHere(self):
      listPresent = [];
