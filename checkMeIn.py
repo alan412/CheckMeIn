@@ -12,7 +12,9 @@ class CheckMeIn(object):
       self.lookup = TemplateLookup(directories=['HTMLTemplates'],default_filters=['h'])
       self.members = Members('data/members.csv', 'TFI Barcode', 'TFI Display Name');
       self.keyholder_name = 'N/A';
+      self.keyholder_barcode = KEYHOLDER_BARCODE;
       self.shop_steward_name = 'N/A';
+      self.shop_steward_barcode = SHOP_STEWARD_BARCODE;
 
    def template(self, name, **kwargs):
       return self.lookup.get_template(name).render(**kwargs);
@@ -33,12 +35,14 @@ class CheckMeIn(object):
       barcode = barcode.strip();
       if barcode == KEYHOLDER_BARCODE:
           self.keyholder_name = 'N/A';
-          self.members.emptyBuilding();
+          self.members.emptyBuilding(self.keyholder_barcode);
+          self.keyholder_barcode = KEYHOLDER_BARCODE;
       else:
           result = self.members.getName(barcode);
           if result.startswith('Invalid'):
               return self.template('keyholder.html', error=result);
           self.keyholder_name = result
+          self.keyholder_barcode = barcode
       return self.station();
 
    @cherrypy.expose
@@ -47,11 +51,13 @@ class CheckMeIn(object):
       barcode = barcode.strip();
       if barcode == SHOP_STEWARD_BARCODE:
           self.shop_steward_name = 'N/A';
+          self.shop_steward_barcode = SHOP_STEWARD_BARCODE;
       else:
           result = self.members.getName(barcode);
           if result.startswith('Invalid'):
               return self.template('shop_steward.html', error=result);
           self.shop_steward_name = result
+          self.shop_steward_barcode = barcode
       return self.station();
 
    @cherrypy.expose
@@ -60,9 +66,9 @@ class CheckMeIn(object):
       error = ''
 # strip whitespace before or after barcode digits (occasionally a space comes before or after
       barcode = barcode.strip();
-      if barcode == KEYHOLDER_BARCODE:
+      if (barcode == KEYHOLDER_BARCODE) or (barcode == self.keyholder_barcode):
          return self.template('keyholder.html');
-      elif barcode == SHOP_STEWARD_BARCODE:
+      elif (barcode == SHOP_STEWARD_BARCODE) or (barcode == self.shop_steward_barcode):
          return self.template('shop_steward.html');
       else:
          error = self.members.scanned(barcode);

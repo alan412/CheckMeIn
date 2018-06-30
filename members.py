@@ -114,10 +114,11 @@ class Members(object):
         else:
            return data[0];
 
-  def emptyBuilding(self):
+  def emptyBuilding(self,keyholder_barcode):
      now = datetime.datetime.now()
      with sqlite3.connect(DB_STRING) as c:
         c.execute("UPDATE visits SET leave = ?, status = 'Forgot' WHERE status=='In'", (now,))
+        c.execute("UPDATE visits SET status = 'Out' WHERE barcode==?, leave==?", (keyholder_barcode, now))
 
      # empty list of recent transactions when building automatically emptied
      self.recentTransactions = [];
