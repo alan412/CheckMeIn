@@ -109,3 +109,6 @@ data/
 
 # process files
 nohup.out
+
+# annoying mac
+.DS_Store
