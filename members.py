@@ -20,11 +20,11 @@ class Statistics(object):
       self.beginDate = beginDate;
       self.endDate = endDate;
       self.visitors = {};
-      
+
       with sqlite3.connect(DB_STRING,detect_types=sqlite3.PARSE_DECLTYPES) as c:
         for row in c.execute(
 '''
-SELECT start, leave, displayName, members.barcode 
+SELECT start, leave, displayName, members.barcode
 FROM visits
 INNER JOIN members ON members.barcode = visits.barcode
 WHERE (start BETWEEN ? AND ?)
@@ -33,28 +33,28 @@ WHERE (start BETWEEN ? AND ?)
              self.visitors[row[3]].addVisit(row[0],row[1]);
            except:
              self.visitors[row[3]] = Person(row[2], row[0], row[1]);
-      
+
       self.totalHours = 0.0;
-      
+
       for bar, person in self.visitors.items():
           self.totalHours += person.hours;
- 
-      self.uniqueVisitors = len(self.visitors); 
+
+      self.uniqueVisitors = len(self.visitors);
       if self.uniqueVisitors == 0:
         self.avgTime = 0;
         self.medianTime = 0;
         self.top10 = [];
       else:
-         self.avgTime = self.totalHours / self.uniqueVisitors; 
-      
+         self.avgTime = self.totalHours / self.uniqueVisitors;
+
          sortedList = sorted(list(self.visitors.values()), key=lambda x: x.hours, reverse=True);
-    
-         half = len(sortedList) // 2; 
+
+         half = len(sortedList) // 2;
          if len(sortedList) % 2:
             self.medianTime = sortedList[half].hours;
          else:
-            self.medianTime = (sortedList[half - 1].hours + sortedList[half].hours) / 2.0 
- 
+            self.medianTime = (sortedList[half - 1].hours + sortedList[half].hours) / 2.0
+
          if len(sortedList) > 10:
             self.top10 = sortedList[:9];
          else:
@@ -77,12 +77,12 @@ class Members(object):
         with open(filename, newline='') as csvfile:
            reader = csv.DictReader(csvfile)
            for row in reader:
-              c.execute("INSERT INTO members VALUES (?,?)", (row[barcode], row[display])); 
+              c.execute("INSERT INTO members VALUES (?,?)", (row[barcode], row[display]));
   def __init__(self, filename, barcode, display):
      self.recentTransactions = [];
      if not os.path.exists('data/checkMeIn.db'):
           self.createDB(filename, barcode, display);
-   
+
   def scanned(self, barcode):
      now = datetime.datetime.now();
      with sqlite3.connect(DB_STRING) as c:
@@ -95,9 +95,9 @@ class Members(object):
            c.execute("INSERT INTO visits VALUES (?,?,?,'In')", (now, now, barcode));
            self.recentTransactions.append(Transaction(barcode, name, "In"))    # Obviously needs to be changed
         else:
-           c.execute("UPDATE visits SET leave = ?, status = 'Out' WHERE (barcode==?) AND (status=='In')",(now, barcode)) 
-           self.recentTransactions.append(Transaction(barcode, name, "Out")) 
-        return ''; 
+           c.execute("UPDATE visits SET leave = ?, status = 'Out' WHERE (barcode==?) AND (status=='In')",(now, barcode))
+           self.recentTransactions.append(Transaction(barcode, name, "Out"))
+        return '';
 
   def getName(self, barcode):
      with sqlite3.connect(DB_STRING) as c:
@@ -131,42 +131,46 @@ class Members(object):
   def uniqueVisitors(self, startDate, endDate):
      with sqlite3.connect(DB_STRING) as c:
         numUniqueVisitors = c.execute("SELECT COUNT(DISTINCT barcode) FROM visits WHERE (start BETWEEN ? AND ?)", (startDate, endDate)).fetchone()[0]
-     return numUniqueVisitors 
+     return numUniqueVisitors
 
   def recent(self, number):
      if len(self.recentTransactions):
         now = datetime.datetime.now()
         if now.hour == 3:   # If between 3am and 4am
            self.emptyBuilding();
+        elif ((now.day > self.recentTransactions[-1].time.day) and
+             (now.hour >= 3)):
+           self.emptyBuilding();
+
      if number > len(self.recentTransactions):
         return self.recentTransactions[::-1];  # reversed
      else:
         return self.recentTransactions[-number:][::-1];
-  
+
   def getStats(self, beginDate, endDate):
      return Statistics(beginDate, endDate);
 
 # unit test
-if __name__ == "__main__":         
-	members = Members('data/members.csv', 'TFI Barcode', 'TFI Display Name');
-	print('1',members.whoIsHere());
-	members.scanned('100091');
-	print('2',members.whoIsHere());
-	members.scanned('100090');
-	print('3',members.whoIsHere());
-	members.scanned('100090');
-	print('4', members.whoIsHere());
-	members.scanned('100091');
-	print('5', members.whoIsHere());
-	transactions =  members.recent(9);
-	for trans in transactions:
-	   print(trans.time, ' : ', trans.name, ' - ', trans.description);
-        
-	members.scanned('100090');   # check in
-	print('6', members.whoIsHere());
-	members.emptyBuilding();
-	print('7', members.whoIsHere());
+if __name__ == "__main__":
+    members = Members('data/members.csv', 'TFI Barcode', 'TFI Display Name');
+    print('1',members.whoIsHere());
+    members.scanned('100091');
+    print('2',members.whoIsHere());
+    members.scanned('100090');
+    print('3',members.whoIsHere());
+    members.scanned('100090');
+    print('4', members.whoIsHere());
+    members.scanned('100091');
+    print('5', members.whoIsHere());
+    transactions =  members.recent(9);
+    for trans in transactions:
+       print(trans.time, ' : ', trans.name, ' - ', trans.description);
 
-	transactions =  members.recent(9);
-	for trans in transactions:
-	   print(trans.time, ' : ', trans.name, ' - ', trans.description);
+    members.scanned('100090');   # check in
+    print('6', members.whoIsHere());
+    members.emptyBuilding();
+    print('7', members.whoIsHere());
+
+    transactions =  members.recent(9);
+    for trans in transactions:
+       print(trans.time, ' : ', trans.name, ' - ', trans.description);
