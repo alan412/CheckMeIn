@@ -37,6 +37,8 @@ class CheckMeIn(object):
           self.keyholder_name = 'N/A';
           self.members.emptyBuilding(self.keyholder_barcode);
           self.keyholder_barcode = KEYHOLDER_BARCODE;
+          self.shop_steward_name = 'N/A'
+          self.shop_steward_barcode = SHOP_STEWARD_BARCODE;
       else:
           result = self.members.getName(barcode);
           if result.startswith('Invalid'):
