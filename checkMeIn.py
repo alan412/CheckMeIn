@@ -98,6 +98,11 @@ class CheckMeIn(object):
        return self.template('fixData.html', date=date,data=data)
 
    @cherrypy.expose
+   def fixed(self, output):
+       self.members.fix(output);
+       return self.admin();
+
+   @cherrypy.expose
    def index(self):
       return self.who_is_here();
 
