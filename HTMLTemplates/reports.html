@@ -33,3 +33,10 @@
 
 <H2>Graph building usage by day/time</H2>
 <P>Coming soon!</P>
+
+<H2>Full List</H2>
+<TABLE>
+    % for person in stats.sortedList:
+       <TR><TD>${person.name}</TD><TD>${'% 6.1f' % person.hours}</TD></TR>
+    % endfor
+</TABLE>

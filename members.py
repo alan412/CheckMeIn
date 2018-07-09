@@ -17,7 +17,6 @@ class Person(object):
 
 class Statistics(object):
   def __init__(self, beginDate, endDate):
-   # obviously this needs to generate these stats instead of just making them up. :-)
       self.beginDate = beginDate.date();
       self.endDate = endDate.date();
       self.visitors = {};
@@ -44,22 +43,22 @@ WHERE (start BETWEEN ? AND ?)
       if self.uniqueVisitors == 0:
         self.avgTime = 0;
         self.medianTime = 0;
-        self.top10 = [];
+        self.top = [];
       else:
          self.avgTime = self.totalHours / self.uniqueVisitors;
 
-         sortedList = sorted(list(self.visitors.values()), key=lambda x: x.hours, reverse=True);
+         self.sortedList = sorted(list(self.visitors.values()), key=lambda x: x.hours, reverse=True);
 
-         half = len(sortedList) // 2;
-         if len(sortedList) % 2:
-            self.medianTime = sortedList[half].hours;
+         half = len(self.sortedList) // 2;
+         if len(self.sortedList) % 2:
+            self.medianTime = self.sortedList[half].hours;
          else:
-            self.medianTime = (sortedList[half - 1].hours + sortedList[half].hours) / 2.0
+            self.medianTime = (self.sortedList[half - 1].hours + self.sortedList[half].hours) / 2.0
 
-         if len(sortedList) > 10:
-            self.top10 = sortedList[:9];
+         if len(self.sortedList) > 10:
+            self.top10 = self.sortedList[:9];
          else:
-            self.top10 = sortedList;
+            self.top10 = self.sortedList;
 
 class Transaction(object):
   def __init__(self, barcode, name, description):
