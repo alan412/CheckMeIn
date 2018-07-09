@@ -214,8 +214,6 @@ class Members(object):
                if(newLeave < newStart):
                   newLeave += datetime.timedelta(days=1)
 
-               data = c.execute('SELECT start FROM visits WHERE visits.rowid = ?', (rowID)).fetchone();
-
                c.execute('''UPDATE visits SET start = ?, leave = ?, status = 'Out'
                             WHERE (visits.rowid==?)''',(newStart, newLeave, rowID))
 
