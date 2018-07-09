@@ -152,14 +152,14 @@ class Members(object):
         numUniqueVisitors = c.execute("SELECT COUNT(DISTINCT barcode) FROM visits WHERE (start BETWEEN ? AND ?)", (startDate, endDate)).fetchone()[0]
      return numUniqueVisitors
 
-  def recent(self, number):
+  def recent(self, number, keyholder):
      if len(self.recentTransactions):
         now = datetime.datetime.now()
         if now.hour == 3:   # If between 3am and 4am
-           self.emptyBuilding();
+           self.emptyBuilding(keyholder);
         elif ((now.day > self.recentTransactions[-1].time.day) and
              (now.hour >= 3)):
-           self.emptyBuilding();
+           self.emptyBuilding(keyholder);
 
      if number > len(self.recentTransactions):
         return self.recentTransactions[::-1];  # reversed

@@ -36,8 +36,8 @@ window.onload = setTimeout(function(){location.href="station"},1000*60*60);  // 
   <H2>Recent Activity (today)</H2>
   <TABLE style="width:80%">
     <TR><TH>Time</TH><TH>Name</TH><TH>Description</TH></TR>
-  % for trans in members.recent(20):
-    <TR class="${trans.description}"><TD>${trans.time.strftime("%I:%M %p")}</TD><TD>${trans.name}</TD><TD>${trans.description}</TD></TR> 
+  % for trans in members.recent(20, keyholder_barcode):
+    <TR class="${trans.description}"><TD>${trans.time.strftime("%I:%M %p")}</TD><TD>${trans.name}</TD><TD>${trans.description}</TD></TR>
   % endfor
   </TABLE>
 </TD>
@@ -57,8 +57,8 @@ window.onload = setTimeout(function(){location.href="station"},1000*60*60);  // 
   </TR>
   <TR>
     <TH>Shop Steward</TH>
-    <TD>${shop_steward_name}</Th> 
-  </TR> 
+    <TD>${shop_steward_name}</Th>
+  </TR>
   </table>
 </TD>
 </TR>

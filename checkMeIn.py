@@ -23,6 +23,7 @@ class CheckMeIn(object):
    def station(self,error=''):
       return self.template('station.html',members=self.members,
                            keyholder_name=self.keyholder_name,shop_steward_name=self.shop_steward_name,
+                           keyholder=self.keyholder_barcode,
                            error=error)
 
    @cherrypy.expose
