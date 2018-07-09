@@ -2,6 +2,7 @@ import csv
 import datetime
 import sqlite3
 import os
+from dateutil import parser
 
 DB_STRING = "data/checkMeIn.db"
 
@@ -68,11 +69,12 @@ class Transaction(object):
     self.description = description;
 
 class Datum(object):
-    def __init__(self, start, leave, name, status):
+    def __init__(self, rowid, start, leave, name, status):
         self.start = start
         self.leave = leave
         self.name = name
         self.status = status
+        self.rowid = rowid
 
 class Members(object):
   def createDB(self, filename, barcode, display):
@@ -190,12 +192,33 @@ class Members(object):
     endDate = date.replace(hour=23,minute=59,second=59,microsecond=999999);
 
     with sqlite3.connect(DB_STRING,detect_types=sqlite3.PARSE_DECLTYPES) as c:
-        for row in c.execute('''SELECT displayName,start,leave,status
+        for row in c.execute('''SELECT displayName,start,leave,status,visits.rowid
         FROM visits
         INNER JOIN members ON members.barcode = visits.barcode
         WHERE (start BETWEEN ? AND ?) ORDER BY start''', (startDate, endDate)):
-           data.append(Datum(start=row[1],leave=row[2],name=row[0],status=row[3]));
+           data.append(Datum(start=row[1],leave=row[2],name=row[0],status=row[3],rowid=row[4]));
     return data;
+  def fix(self, fixData):
+    entries = fixData.split(',')
+
+    with sqlite3.connect(DB_STRING,detect_types=sqlite3.PARSE_DECLTYPES) as c:
+       for entry in entries:
+           tokens = entry.split('!')
+           print(tokens)
+           if len(tokens) == 3:
+               rowID = tokens[0];
+               newStart = parser.parse(tokens[1]);
+               newLeave = parser.parse(tokens[2]);
+
+               # if crossed over midnight....
+               if(newLeave < newStart):
+                  newLeave += datetime.timedelta(days=1)
+
+               data = c.execute('SELECT start FROM visits WHERE visits.rowid = ?', (rowID)).fetchone();
+
+               c.execute('''UPDATE visits SET start = ?, leave = ?, status = 'Out'
+                            WHERE (visits.rowid==?)''',(newStart, newLeave, rowID))
+
 
 # unit test
 if __name__ == "__main__":
