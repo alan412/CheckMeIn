@@ -19,8 +19,8 @@
 <UL>
   <LI>Number of unique visitors: ${stats.uniqueVisitors}</LI>
   <LI>Total number of hours spent: ${'% 6.1f' % stats.totalHours}</LI>
-  <LI>Average time per visitor per day: ${'% 6.1f' % stats.avgTime}</LI>
-  <LI>Median time per visitor per day: ${'% 6.1f' % stats.medianTime}</LI>
+  <LI>Average time per visitor: ${'% 6.1f' % stats.avgTime}</LI>
+  <LI>Median time per visitor: ${'% 6.1f' % stats.medianTime}</LI>
   <LI>Top 10 by time spent</LI><TABLE>
       % for person in stats.top10:
          <TR><TD>${person.name}</TD><TD>${'% 6.1f' % person.hours}</TD></TR>

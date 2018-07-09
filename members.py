@@ -2,6 +2,7 @@ import csv
 import datetime
 import sqlite3
 import os
+from collections import defaultdict
 from dateutil import parser
 
 DB_STRING = "data/checkMeIn.db"
@@ -10,10 +11,16 @@ class Person(object):
   def __init__(self, name, start, leave):
     self.name = name;
     self.hours = 0.0;
+    self.date  = defaultdict(float);
     self.addVisit(start, leave);
   def addVisit(self, start, leave):
     dTime = leave - start;
-    self.hours += dTime.seconds / (60 * 60);  # to convert from seconds to hours
+    hours = (float)(dTime.seconds / (60.0*60.0)); # convert from seconds to hours
+    self.hours += hours 
+    self.date[start.date()] += hours
+  def getTimeForDate(self, day):
+    return self.date[dateVar];
+      
 
 class Statistics(object):
   def __init__(self, beginDate, endDate):

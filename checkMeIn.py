@@ -72,7 +72,7 @@ class CheckMeIn(object):
 # strip whitespace before or after barcode digits (occasionally a space comes before or after
       barcode = barcode.strip();
       if (barcode == KEYHOLDER_BARCODE) or (barcode == self.keyholder_barcode):
-         return self.template('keyholder.html');
+         return self.template('keyholder.html', whoIsHere=self.members.whoIsHere());
       elif (barcode == SHOP_STEWARD_BARCODE) or (barcode == self.shop_steward_barcode):
          return self.template('shop_steward.html');
       else:
