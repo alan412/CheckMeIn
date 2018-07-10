@@ -125,7 +125,6 @@ class Members(object):
   def emptyBuilding(self,keyholder_barcode):
      now = datetime.datetime.now()
      with sqlite3.connect(DB_STRING) as c:
-        print("barcode:", keyholder_barcode)
         c.execute("UPDATE visits SET leave = ?, status = 'Forgot' WHERE status=='In'", (now,))
         c.execute("UPDATE visits SET status = 'Out' WHERE barcode==? AND leave==?", (keyholder_barcode, now))
 
