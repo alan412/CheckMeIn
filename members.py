@@ -223,7 +223,16 @@ class Members(object):
                c.execute('''UPDATE visits SET start = ?, leave = ?, status = 'Out'
                             WHERE (visits.rowid==?)''',(newStart, newLeave, rowID))
 
-
+  def customSQL(self, sql):
+     # open as read only
+     with sqlite3.connect('file:' + DB_STRING + '?mode=ro', uri = True) as c:
+         cur = c.cursor();
+         cur.execute(sql);
+         header = [i[0] for i in cur.description]
+         rows = [list(i) for i in cur.fetchall()]
+         #append header to rows
+         rows.insert(0,header)
+     return rows;
 # unit test
 if __name__ == "__main__":
     members = Members('data/members.csv', 'TFI Barcode', 'TFI Display Name');

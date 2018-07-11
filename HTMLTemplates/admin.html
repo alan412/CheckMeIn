@@ -40,3 +40,17 @@
    <input type="submit" value="Generate Report"/>
    </fieldset>
 </form>
+<br/>
+<FORM action="customSQLReport">
+     <fieldset>
+        <legend>For the <em>Real</em> Geek</legend>
+     <textarea name="sql" rows="10" cols="80">
+SELECT start, leave, displayName
+FROM visits
+INNER JOIN members ON members.barcode = visits.barcode
+WHERE (start BETWEEN '2018-07-01' AND '2018-07-10');
+     </textarea>
+   <br/>
+   <input type="submit" value="Generate Custom SQL Report"/>
+ </fieldset>
+</FORM>

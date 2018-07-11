@@ -94,6 +94,11 @@ class CheckMeIn(object):
       return self.template('reports.html', stats=self.members.getStats(startDate, endDate));
 
    @cherrypy.expose
+   def customSQLReport(self, sql):
+       data = self.members.customSQL(sql);
+       return self.template('customSQL.html', sql=sql, data=data)
+
+   @cherrypy.expose
    def fixData(self, date):
        data = self.members.getData(date);
        return self.template('fixData.html', date=date,data=data)
