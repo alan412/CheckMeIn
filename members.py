@@ -99,6 +99,18 @@ class Members(object):
      if not os.path.exists('data/checkMeIn.db'):
           self.createDB(filename, barcode, display);
 
+  def addMember(self, displayName, barcode):
+     with sqlite3.connect(DB_STRING) as c:
+        data = c.execute("SELECT displayName FROM members WHERE barcode==?", (barcode,)).fetchone();
+        if data is None:
+           c.execute("INSERT INTO members VALUES (?,?)", (barcode, displayName));
+           return '';
+        else:
+           error = ''
+           if data[0] != displayName:
+              error = "Barcode: " + barcode + " already in use by " + data[0]
+     return error;
+
   def scanned(self, barcode):
      now = datetime.datetime.now();
      with sqlite3.connect(DB_STRING) as c:

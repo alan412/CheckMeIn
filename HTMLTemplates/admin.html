@@ -22,6 +22,22 @@
 %else:
   <P>Wow!  No dates that haven't been cleaned up!!</P>
 %endif
+
+<br/>
+<form action="addMember">
+  <fieldset>
+    <legend>Add a Member</legend>
+    <table>
+      <tr><td>Display Name:</td>
+          <td><input autofocus type="text" name="display" placeholder="Member L"></td></tr>
+      <tr><td>Barcode:</td>
+          <td><input type="text" name="barcode" placeholder="123456"></td></tr>
+    </table>
+    <input type="submit" value="Add Member"/>
+  </fieldset>
+</form>
+
+
 <H2>Generate reports</H2>
 <form action="reports" width="50%">
    <fieldset>

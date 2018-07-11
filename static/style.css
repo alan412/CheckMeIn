@@ -63,6 +63,10 @@ tr.Forgot{
   color: black;
 }
 
+h1.error{
+  color: red;
+}
+
 table.SQLoutput{
     border-collapse:collapse;
 }

@@ -80,14 +80,15 @@ class CheckMeIn(object):
       return self.station(error);
 
    @cherrypy.expose
-   def admin(self):
+   def admin(self,error=""):
       firstDate = self.members.getEarliestDate().isoformat()
       todayDate = datetime.date.today().isoformat()
       forgotDates = []
       for date in self.members.getForgottenDates():
           forgotDates.append(date.isoformat())
       return self.template('admin.html',members=self.members,forgotDates=forgotDates,
-                            firstDate=firstDate,todayDate=todayDate );
+                            firstDate=firstDate,todayDate=todayDate,
+                            error=error );
 
    @cherrypy.expose
    def reports(self, startDate, endDate):
@@ -97,6 +98,11 @@ class CheckMeIn(object):
    def customSQLReport(self, sql):
        data = self.members.customSQL(sql);
        return self.template('customSQL.html', sql=sql, data=data)
+
+   @cherrypy.expose
+   def addMember(self, display, barcode):
+       error = self.members.addMember(display, barcode);
+       return self.admin(error);
 
    @cherrypy.expose
    def fixData(self, date):
