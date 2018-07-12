@@ -9,10 +9,17 @@
 <IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
 </CENTER>
 
-<H2>SQL command sent</H2>
-<pre>
+<FORM action="customSQLReport">
+     <fieldset>
+        <legend>SQL command</legend>
+     <textarea name="sql" rows="10" cols="80">
 ${sql}
-</pre>
+     </textarea>
+   <br/>
+   <input type="submit" value="Generate Custom SQL Report"/>
+ </fieldset>
+</FORM>
+
 
 <H2>Output</H2>
 <table class="SQLoutput">
