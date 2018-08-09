@@ -83,11 +83,13 @@ class Datum(object):
         self.status = status
         self.rowid = rowid
 
-class Members(object):
+class Visits(object):
   def createDB(self, filename, barcode, display):
      with sqlite3.connect(DB_STRING) as c:
         c.execute('''CREATE TABLE members
                      (barcode text, displayName text)''')
+        c.execute('''CREATE TABLE guests
+                     (guest_id text, displayName text)''')
         c.execute('''CREATE TABLE visits
                      (start timestamp, leave timestamp, barcode text, status text)''')
         with open(filename, newline='') as csvfile:

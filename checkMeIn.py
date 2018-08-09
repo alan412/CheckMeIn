@@ -1,7 +1,7 @@
 import cherrypy
 from mako.lookup import TemplateLookup
 import argparse
-from members import Members
+from visits import Visits
 import datetime
 
 KEYHOLDER_BARCODE = '999901'
@@ -9,7 +9,7 @@ KEYHOLDER_BARCODE = '999901'
 class CheckMeIn(object):
    def __init__(self):
       self.lookup = TemplateLookup(directories=['HTMLTemplates'],default_filters=['h'])
-      self.members = Members('data/members.csv', 'TFI Barcode', 'TFI Display Name');
+      self.visits = Visits('data/members.csv', 'TFI Barcode', 'TFI Display Name');
       self.keyholder_name = 'N/A';
       self.keyholder_barcode = KEYHOLDER_BARCODE;
 
