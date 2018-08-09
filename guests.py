@@ -33,7 +33,7 @@ class Guests(object):
           except:
               self.num = self.num + 1
           else:
-              break;
+              return guest_id;
 
   def getList(self):
      guestList = [];

@@ -9,6 +9,7 @@ Member = namedtuple('Member', ['barcode','displayName','status']);
 class Status(IntEnum):
     inactive = 0
     active = 1
+    keyholder = 2
 
 class Members(object):
   def __init__(self, database):
@@ -41,6 +42,15 @@ class Members(object):
               error = "Barcode: " + barcode + " already in use by " + data[0]
      return error;
 
+  def getName(self, barcode):
+      with sqlite3.connect(self.database) as c:
+         data = c.execute("SELECT displayName FROM members WHERE barcode==?", (barcode,)).fetchone();
+         if data is None:
+            return ('Invalid: ' + barcode,);
+         else:
+            # Add code here for inactive
+            return ('',data[0]);
+
   def changeMemberStatus(self, newStatus, barcode):
       with sqlite3.connect(self.database) as c:
           c.execute('''UPDATE members
@@ -58,7 +68,10 @@ class Members(object):
 # unit test
 if __name__ == "__main__":
     DB_STRING = 'data/test.db';
-    os.remove(DB_STRING);   # Start with a new one
+    try:
+       os.remove(DB_STRING);   # Start with a new one
+    except:
+       pass; # Don't care if it didn't exist
     members = Members(DB_STRING);
     members.loadFromCSV('data/members.csv', 'TFI Barcode', 'TFI Display Name');
     for m in members.getList():
