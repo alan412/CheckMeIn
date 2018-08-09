@@ -29,7 +29,7 @@ class Members(object):
              for row in reader:
                 self.addMemberDB(c, row[barcode], row[display], Status.active);
 
-  def addMember(self, displayName, barcode):
+  def add(self, displayName, barcode):
      with sqlite3.connect(self.database) as c:
         data = c.execute("SELECT displayName FROM members WHERE barcode==?", (barcode,)).fetchone();
         if data is None:
@@ -48,7 +48,7 @@ class Members(object):
                        WHERE (barcode==?)''',
                      (newStatus, barcode));
 
-  def getMembers(self):
+  def getList(self):
      memberList = [];
      with sqlite3.connect(self.database) as c:
         for row in c.execute("SELECT * FROM members"):
@@ -61,10 +61,10 @@ if __name__ == "__main__":
     os.remove(DB_STRING);   # Start with a new one
     members = Members(DB_STRING);
     members.loadFromCSV('data/members.csv', 'TFI Barcode', 'TFI Display Name');
-    for m in members.getMembers():
+    for m in members.getList():
         print(m);
 
     members.changeMemberStatus(Status.inactive, "100091");
 
-    for m in members.getMembers():
+    for m in members.getList():
         print(m);
