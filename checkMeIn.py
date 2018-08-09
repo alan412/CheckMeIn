@@ -5,7 +5,6 @@ from members import Members
 import datetime
 
 KEYHOLDER_BARCODE = '999901'
-SHOP_STEWARD_BARCODE = '999902'
 
 class CheckMeIn(object):
    def __init__(self):
@@ -13,8 +12,6 @@ class CheckMeIn(object):
       self.members = Members('data/members.csv', 'TFI Barcode', 'TFI Display Name');
       self.keyholder_name = 'N/A';
       self.keyholder_barcode = KEYHOLDER_BARCODE;
-      self.shop_steward_name = 'N/A';
-      self.shop_steward_barcode = SHOP_STEWARD_BARCODE;
 
    def template(self, name, **kwargs):
       return self.lookup.get_template(name).render(**kwargs);
@@ -22,7 +19,7 @@ class CheckMeIn(object):
    @cherrypy.expose
    def station(self,error=''):
       return self.template('station.html',members=self.members,
-                           keyholder_name=self.keyholder_name,shop_steward_name=self.shop_steward_name,
+                           keyholder_name=self.keyholder_name,
                            keyholder=self.keyholder_barcode,
                            error=error)
 
@@ -50,22 +47,6 @@ class CheckMeIn(object):
       return self.station();
 
    @cherrypy.expose
-   def shop_steward(self, barcode):
-      error = ''
-      barcode = barcode.strip();
-      if barcode == SHOP_STEWARD_BARCODE:
-          self.shop_steward_name = 'N/A';
-          self.shop_steward_barcode = SHOP_STEWARD_BARCODE;
-      else:
-          result = self.members.getName(barcode);
-          if result.startswith('Invalid'):
-              return self.template('shop_steward.html', error=result);
-          self.shop_steward_name = result
-          self.shop_steward_barcode = barcode
-          self.members.addIfNotHere(self.shop_steward_barcode, self.shop_steward_name)
-      return self.station();
-
-   @cherrypy.expose
    # later change this to be more ajaxy, but for now...
    def scanned(self, barcode):
       error = ''
@@ -73,8 +54,6 @@ class CheckMeIn(object):
       barcode = barcode.strip();
       if (barcode == KEYHOLDER_BARCODE) or (barcode == self.keyholder_barcode):
          return self.template('keyholder.html', whoIsHere=self.members.whoIsHere());
-      elif (barcode == SHOP_STEWARD_BARCODE) or (barcode == self.shop_steward_barcode):
-         return self.template('shop_steward.html');
       else:
          error = self.members.scanned(barcode);
       return self.station(error);
