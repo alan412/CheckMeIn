@@ -15,14 +15,14 @@ class Members(object):
      self.database = database;
 
   def addMemberDB(self, dbConnection, barcode, displayName, status):
-# check to make sure it doesn't exist
+# will fail if it already exists
       dbConnection.execute("INSERT INTO members VALUES (?,?,?)",
                    (barcode, displayName, status));
 
   def loadFromCSV(self, filename, barcode, display):
       with sqlite3.connect(self.database) as c:
           c.execute('''CREATE TABLE members
-                   (barcode TEXT, displayName TEXT, status INTEGER)''')
+                   (barcode TEXT UNIQUE, displayName TEXT, status INTEGER)''')
 
           with open(filename, newline='') as csvfile:
              reader = csv.DictReader(csvfile)
@@ -33,7 +33,7 @@ class Members(object):
      with sqlite3.connect(self.database) as c:
         data = c.execute("SELECT displayName FROM members WHERE barcode==?", (barcode,)).fetchone();
         if data is None:
-           self.addMember(c, barcode, displayName, Status.active);
+           self.addMemberDB(c, barcode, displayName, Status.active);
            return '';
         else:
            error = ''
