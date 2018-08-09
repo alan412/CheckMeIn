@@ -35,7 +35,7 @@ class Guests(object):
           else:
               break;
 
-  def getGuests(self):
+  def getList(self):
      guestList = [];
      with sqlite3.connect(self.database) as c:
         for row in c.execute("SELECT * FROM guests"):
@@ -56,5 +56,5 @@ if __name__ == "__main__":
     guests.add("Test 2");
     guests.add("Test 3");
 
-    for g in guests.getGuests():
+    for g in guests.getList():
         print(g);
