@@ -1,0 +1,70 @@
+import csv
+import sqlite3
+import os
+from collections import namedtuple
+from enum import IntEnum
+
+Member = namedtuple('Member', ['barcode','displayName','status']);
+
+class Status(IntEnum):
+    inactive = 0
+    active = 1
+
+class Members(object):
+  def __init__(self, database):
+     self.database = database;
+
+  def addMemberDB(self, dbConnection, barcode, displayName, status):
+# check to make sure it doesn't exist
+      dbConnection.execute("INSERT INTO members VALUES (?,?,?)",
+                   (barcode, displayName, status));
+
+  def loadFromCSV(self, filename, barcode, display):
+      with sqlite3.connect(self.database) as c:
+          c.execute('''CREATE TABLE members
+                   (barcode TEXT, displayName TEXT, status INTEGER)''')
+
+          with open(filename, newline='') as csvfile:
+             reader = csv.DictReader(csvfile)
+             for row in reader:
+                self.addMemberDB(c, row[barcode], row[display], Status.active);
+
+  def addMember(self, displayName, barcode):
+     with sqlite3.connect(self.database) as c:
+        data = c.execute("SELECT displayName FROM members WHERE barcode==?", (barcode,)).fetchone();
+        if data is None:
+           self.addMember(c, barcode, displayName, Status.active);
+           return '';
+        else:
+           error = ''
+           if data[0] != displayName:
+              error = "Barcode: " + barcode + " already in use by " + data[0]
+     return error;
+
+  def changeMemberStatus(self, newStatus, barcode):
+      with sqlite3.connect(self.database) as c:
+          c.execute('''UPDATE members
+                       SET status = ?
+                       WHERE (barcode==?)''',
+                     (newStatus, barcode));
+
+  def getMembers(self):
+     memberList = [];
+     with sqlite3.connect(self.database) as c:
+        for row in c.execute("SELECT * FROM members"):
+            memberList.append(Member(row[0],row[1],row[2]));
+     return memberList;
+
+# unit test
+if __name__ == "__main__":
+    DB_STRING = 'data/test.db';
+    os.remove(DB_STRING);   # Start with a new one
+    members = Members(DB_STRING);
+    members.loadFromCSV('data/members.csv', 'TFI Barcode', 'TFI Display Name');
+    for m in members.getMembers():
+        print(m);
+
+    members.changeMemberStatus(Status.inactive, "100091");
+
+    for m in members.getMembers():
+        print(m);
