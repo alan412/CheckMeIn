@@ -15,6 +15,10 @@ class Members(object):
   def __init__(self, database):
      self.database = database;
 
+  def migrate(self, dbConnection, db_schema_version):
+      if db_schema_version == 1 or db_schema_version == 2:
+         dbConnection.execute("ALTER TABLE members ADD COLUMN status INTEGER default 1");
+
   def addMemberDB(self, dbConnection, barcode, displayName, status):
 # will fail if it already exists
       dbConnection.execute("INSERT INTO members VALUES (?,?,?)",

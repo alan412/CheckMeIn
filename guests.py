@@ -17,6 +17,10 @@ class Guests(object):
           c.execute('''CREATE TABLE guests
                        (guest_id TEXT UNIQUE, displayName TEXT)''')
 
+  def migrate(self, dbConnection, db_schema_version):
+      if db_schema_version == 1 or db_schema_version == 2:
+         dbConnection.execute("CREATE TABLE guests (guest_id TEXT UNIQUE, displayName TEXT)");
+
   def add(self, displayName):
      if self.date != datetime.date.today():
          self.date = datetime.date.today();

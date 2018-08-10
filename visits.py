@@ -8,6 +8,8 @@ from members import Members
 from guests import Guests
 from reports import Reports
 
+SCHEMA_VERSION = 3;
+
 class Visits(object):
   def createDB(self, filename, barcode, display):
      self.members.loadFromCSV(filename, barcode, display);
@@ -16,6 +18,7 @@ class Visits(object):
      with sqlite3.connect(self.database) as c:
         c.execute('''CREATE TABLE visits
                      (start timestamp, leave timestamp, barcode text, status text)''')
+        c.execute('PRAGMA schema_version = ?', (SCHEMA_VERSION,));
 
   def __init__(self, database, filename, barcode, display):
      self.database = database;
@@ -24,6 +27,20 @@ class Visits(object):
      self.reports = Reports(self.database);
      if not os.path.exists(self.database):
           self.createDB(filename, barcode, display);
+     else:
+          with sqlite3.connect(self.database) as c:
+             data = c.execute('PRAGMA schema_version').fetchone();
+             if data[0] != SCHEMA_VERSION:
+                self.migrate(c, data[0]);
+
+  def migrate(self, dbConnection, db_schema_version):
+      if db_schema_version == 1 or db_schema_version == 2:
+          # No change for Visits
+          self.members.migrate(dbConnection, db_schema_version);
+          self.guests.migrate(dbConnection, db_schema_version);
+          dbConnection.execute('PRAGMA schema_version = ' + str(SCHEMA_VERSION));
+      else:
+          raise Exception("Unknown DB schema version" + str(db_schema_version) + ": " + self.database)
 
   def enterGuest(self, guest_id):
      now = datetime.datetime.now();
@@ -50,6 +67,11 @@ class Visits(object):
            c.execute("UPDATE visits SET leave = ?, status = 'Out' WHERE (barcode==?) AND (status=='In')",(now, barcode))
         return '';
 
+  def checkBuilding(self, keyholder_barcode):
+    now = datetime.datetime.now()
+    if now.hour == 3 and self.reports.numberPresent > 0:  # If between 3am and 4am
+       self.emptyBuilding(keyholder);
+
   def emptyBuilding(self,keyholder_barcode):
      now = datetime.datetime.now()
      with sqlite3.connect(self.database) as c:
@@ -65,6 +87,23 @@ class Visits(object):
                           SELECT 1 FROM visits
                           WHERE ((barcode==?) and (status=='In')))''',
                    (now, now, barcode, barcode));
+  def fix(self, fixData):
+    entries = fixData.split(',')
+
+    with sqlite3.connect(self.database,detect_types=sqlite3.PARSE_DECLTYPES) as c:
+       for entry in entries:
+           tokens = entry.split('!')
+           if len(tokens) == 3:
+               rowID = tokens[0];
+               newStart = parser.parse(tokens[1]);
+               newLeave = parser.parse(tokens[2]);
+
+               # if crossed over midnight....
+               if(newLeave < newStart):
+                  newLeave += datetime.timedelta(days=1)
+
+               c.execute('''UPDATE visits SET start = ?, leave = ?, status = 'Out'
+                            WHERE (visits.rowid==?)''',(newStart, newLeave, rowID))
 # unit test
 def testOutput(testNum, test):
   result = test;
@@ -91,3 +130,4 @@ if __name__ == "__main__":
     testOutput(8, visits.addIfNotHere('100091'));
     testOutput(9, visits.addIfNotHere('100091'));
     testOutput(10, visits.emptyBuilding('100091'));
+# TODO: Add test for fix
