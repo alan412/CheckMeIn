@@ -17,6 +17,16 @@ class CheckMeIn(object):
    def template(self, name, **kwargs):
       return self.lookup.get_template(name).render(**kwargs);
 
+   def showGuestPage(self, message=''):
+       all_guests = set(self.visits.guests.getList());
+       building_guests = set(self.visits.reports.guestsInBuilding());
+
+       guests_not_here = all_guests - building_guests;
+
+       return self.template('guests.html', welcome=message,
+                                           inBuilding=building_guests,
+                                           guestList=guests_not_here)
+
    @cherrypy.expose
    def station(self,error=''):
       self.visits.checkBuilding(self.keyholder_barcode);
@@ -87,6 +97,13 @@ class CheckMeIn(object):
        return self.admin(error);
 
    @cherrypy.expose
+   def addGuest(self, first, last, email, hear):
+       displayName = first + ' ' + last[0] + '.'
+       guest_id = self.visits.guests.add(displayName, first, last, email, hear);
+       self.visits.enterGuest(guest_id);
+       return self.showGuestPage('Welcome ' + displayName + '  We are glad you are here!')
+
+   @cherrypy.expose
    def fixData(self, date):
        data = self.visits.reports.getData(date);
        return self.template('fixData.html', date=date,data=data)
@@ -95,6 +112,28 @@ class CheckMeIn(object):
    def fixed(self, output):
        self.visits.fix(output);
        return self.admin();
+
+   @cherrypy.expose
+   def guests(self):
+       return self.showGuestPage('')
+
+   @cherrypy.expose
+   def leaveGuest(self,guest_id):
+       self.visits.leaveGuest(guest_id);
+       (error,name) = self.visits.guests.getName(guest_id);
+       if error:
+          return showGuestPage(error);
+
+       return self.showGuestPage('Goodbye ' + name + ' We hope to see you again soon!')
+
+   @cherrypy.expose
+   def returnGuest(self,guest_id):
+       self.visits.enterGuest(guest_id);
+       (error,name) = self.visits.guests.getName(guest_id);
+       if error:
+           return showGuestPage(error);
+
+       return self.showGuestPage('Welcome back, ' + name + ' We are glad you are here!' )
 
    @cherrypy.expose
    def index(self):

@@ -3,8 +3,14 @@ import sqlite3
 import os
 from collections import namedtuple
 import datetime
+from enum import IntEnum
+
 
 Guest = namedtuple('Guest', ['guest_id','displayName']);
+
+class Status(IntEnum):
+    inactive = 0
+    active = 1
 
 class Guests(object):
   def __init__(self, database):
@@ -19,9 +25,18 @@ class Guests(object):
 
   def migrate(self, dbConnection, db_schema_version):
       if db_schema_version == 1 or db_schema_version == 2:
-         dbConnection.execute("CREATE TABLE guests (guest_id TEXT UNIQUE, displayName TEXT)");
+         dbConnection.execute('''CREATE TABLE guests
+                                (guest_id TEXT UNIQUE,
+                                 displayName TEXT,
+                                 email TEXT,
+                                 firstName TEXT,
+                                 lastName TEXT,
+                                 whereFound TEXT,
+                                 status INTEGER default 1
+                                 )''');
 
-  def add(self, displayName):
+
+  def add(self, displayName, first, last, email, whereFound):
      if self.date != datetime.date.today():
          self.date = datetime.date.today();
          self.num = 1;
@@ -31,18 +46,28 @@ class Guests(object):
          while self.num < 10000:
           try:
               guest_id = self.date.strftime("%Y%m%d") + f'{self.num:04}'
+              print ("attempting " + guest_id);
               # zero padded up to 9999 for each day
-              c.execute("INSERT INTO guests VALUES (?,?)",
-                   (guest_id, displayName));
+              c.execute("INSERT INTO guests VALUES (?,?,?,?,?,?,?)",
+                   (guest_id, displayName, email, first, last, whereFound, Status.active));
+              print ("success")
           except:
               self.num = self.num + 1
           else:
               return guest_id;
+  def getName(self, guest_id):
+       with sqlite3.connect(self.database) as c:
+          data = c.execute("SELECT displayName FROM guests WHERE guest_id==?", (guest_id,)).fetchone();
+          if data is None:
+             return ('Invalid: ' + guest_id,);
+          else:
+             # Add code here for inactive
+             return ('',data[0]);
 
   def getList(self):
      guestList = [];
      with sqlite3.connect(self.database) as c:
-        for row in c.execute("SELECT * FROM guests"):
+        for row in c.execute("SELECT * FROM guests WHERE status is NOT ? ORDER BY displayName",(Status.inactive,)):
             guestList.append(Guest(row[0],row[1]));
      return guestList;
 

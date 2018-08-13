@@ -45,7 +45,9 @@ class Visits(object):
   def enterGuest(self, guest_id):
      now = datetime.datetime.now();
      with sqlite3.connect(self.database) as c:
-         c.execute("INSERT INTO visits VALUES (?,?,?,'In')", (now, now, guest_id));
+        data = c.execute("SELECT * FROM visits WHERE (barcode==?) and (status=='In')", (guest_id,)).fetchone();
+        if data is None:
+            c.execute("INSERT INTO visits VALUES (?,?,?,'In')", (now, now, guest_id));
 
   def leaveGuest(self, guest_id):
      now = datetime.datetime.now();

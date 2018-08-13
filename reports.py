@@ -5,6 +5,7 @@ import os
 from collections import defaultdict
 from dateutil import parser
 from collections import namedtuple
+from guests import Guest
 
 Transaction = namedtuple('Transaction', ['name','time','description']);
 Datum = namedtuple('Datum', ['rowid','start','leave','name','status']);
@@ -90,6 +91,17 @@ class Reports(object):
            WHERE visits.status=='In' ORDER BY displayName'''):
           listPresent.append(row[0] + ' - ( ' + row[1].strftime("%I:%M %p")  +' )');
      return listPresent
+
+  def guestsInBuilding(self):
+     listPresent = [];
+     with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+        for row in c.execute('''SELECT displayName, start, guests.guest_id
+           FROM visits
+           INNER JOIN guests ON guests.guest_id = visits.barcode
+           WHERE visits.status=='In' ORDER BY displayName'''):
+          listPresent.append(Guest(row[2],row[0]));
+     return listPresent
+
   def numberPresent(self):
       with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
           (numPeople, ) = c.execute("SELECT count(*) FROM visits WHERE status == 'In'").fetchone();

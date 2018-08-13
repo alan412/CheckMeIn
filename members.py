@@ -65,7 +65,7 @@ class Members(object):
   def getList(self):
      memberList = [];
      with sqlite3.connect(self.database) as c:
-        for row in c.execute("SELECT * FROM members"):
+        for row in c.execute("SELECT * FROM members WHERE status is not ?",(Status.inactive,)):
             memberList.append(Member(row[0],row[1],row[2]));
      return memberList;
 
