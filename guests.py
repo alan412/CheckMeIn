@@ -45,7 +45,7 @@ class Guests(object):
      with sqlite3.connect(self.database) as c:
          while self.num < 10000:
           try:
-              guest_id = self.date.strftime("%Y%m%d") + f'{self.num:04}'
+              guest_id = self.date.strftime("%Y%m%d") + '{0:04d}'.format(self.num)
               print ("attempting " + guest_id);
               # zero padded up to 9999 for each day
               c.execute("INSERT INTO guests VALUES (?,?,?,?,?,?,?)",
