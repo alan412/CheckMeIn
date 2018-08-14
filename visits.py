@@ -71,7 +71,7 @@ class Visits(object):
 
   def checkBuilding(self, keyholder_barcode):
     now = datetime.datetime.now()
-    if now.hour == 3 and self.reports.numberPresent > 0:  # If between 3am and 4am
+    if now.hour == 3 and self.reports.numberPresent() > 0:  # If between 3am and 4am
        self.emptyBuilding(keyholder);
 
   def emptyBuilding(self,keyholder_barcode):
