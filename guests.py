@@ -20,8 +20,14 @@ class Guests(object):
 
   def createTable(self):
       with sqlite3.connect(self.database) as c:
-          c.execute('''CREATE TABLE guests
-                       (guest_id TEXT UNIQUE, displayName TEXT)''')
+         c.execute('''CREATE TABLE guests
+                      (guest_id TEXT UNIQUE,
+                       displayName TEXT,
+                       email TEXT,
+                       firstName TEXT,
+                       lastName TEXT,
+                       whereFound TEXT,
+                       status INTEGER default 1)''');
 
   def migrate(self, dbConnection, db_schema_version):
       if db_schema_version == 1 or db_schema_version == 2:
