@@ -49,7 +49,6 @@ class CheckMeIn(object):
           error = self.visits.setActiveKeyholder(barcode);
           if error:
               return self.template('keyholder.html', error=error);
-          self.visits.addIfNotHere(self.keyholder_barcode)
       return self.station();
 
    @cherrypy.expose
@@ -58,7 +57,7 @@ class CheckMeIn(object):
       error = ''
 # strip whitespace before or after barcode digits (occasionally a space comes before or after
       barcode = barcode.strip();
-      if (barcode == KEYHOLDER_BARCODE) or (barcode == self.keyholder_barcode):
+      if (barcode == KEYHOLDER_BARCODE) or (barcode == self.visits.keyholders.getActiveKeyholder()):
          return self.template('keyholder.html', whoIsHere=self.visits.reports.whoIsHere());
       else:
          error = self.visits.scannedMember(barcode);
@@ -106,6 +105,11 @@ class CheckMeIn(object):
    def fixData(self, date):
        data = self.visits.reports.getData(date);
        return self.template('fixData.html', date=date,data=data)
+
+   @cherrypy.expose
+   def oops(self):
+       self.visits.oopsForgot();
+       return self.admin('Oops is fixed. :-)');
 
    @cherrypy.expose
    def fixed(self, output):

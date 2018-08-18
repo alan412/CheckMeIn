@@ -84,19 +84,31 @@ class Visits(object):
         c.execute("UPDATE visits SET leave = ?, status = 'Forgot' WHERE status=='In'", (now,))
         if keyholder_barcode:
            c.execute("UPDATE visits SET status = 'Out' WHERE barcode==? AND leave==?", (keyholder_barcode, now))
-           self.keyholders.setActiveKeyholder('')
+     if keyholder_barcode:
+        self.keyholders.setActiveKeyholder('')
+
+  def oopsForgot(self):
+    now = datetime.datetime.now()
+    startDate = now.replace(hour=0,minute=0,second=0,microsecond=0);
+    with sqlite3.connect(self.database) as c:
+       c.execute("UPDATE visits SET status = 'In' WHERE status=='Forgot' AND leave > ?", (startDate,))
+
+  def uniqueVisitors(self, startDate, endDate):
+     with sqlite3.connect(self.database) as c:
+        numUniqueVisitors = c.execute("SELECT COUNT(DISTINCT barcode) FROM visits WHERE (start BETWEEN ? AND ?)", (startDate, endDate)).fetchone()[0]
 
   def getKeyholderName(self):
       barcode = self.keyholders.getActiveKeyholder();
       if barcode:
-          return self.members.getName(barcode)
+          (error, display) = self.members.getName(barcode)
+          return display
       else:
           return 'N/A'
 
-  def setKeyholder(self, barcode):
+  def setActiveKeyholder(self, barcode):
       #TODO: once keyholders does verification, this should have the possibility of error
-      self.keyholders.setActiveKeyholder();
-      self.visits.addIfNotHere(barcode)
+      self.keyholders.setActiveKeyholder(barcode);
+      self.addIfNotHere(barcode)
       return ''
 
   def addIfNotHere(self, barcode):
