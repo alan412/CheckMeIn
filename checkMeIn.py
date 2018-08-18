@@ -11,8 +11,6 @@ class CheckMeIn(object):
    def __init__(self):
       self.lookup = TemplateLookup(directories=['HTMLTemplates'],default_filters=['h'])
       self.visits =  Visits(DB_STRING, 'data/members.csv', 'TFI Barcode', 'TFI Display Name');
-      self.keyholder_name = 'N/A';
-      self.keyholder_barcode = KEYHOLDER_BARCODE;
 
    def template(self, name, **kwargs):
       return self.lookup.get_template(name).render(**kwargs);
@@ -29,13 +27,12 @@ class CheckMeIn(object):
 
    @cherrypy.expose
    def station(self,error=''):
-      self.visits.checkBuilding(self.keyholder_barcode);
+      self.visits.checkBuilding();
       return self.template('station.html',
                            todaysTransactions=self.visits.reports.transactionsToday(),
                            numberPresent=self.visits.reports.numberPresent(),
                            uniqueVisitorsToday=self.visits.reports.uniqueVisitorsToday(),
-                           keyholder_name=self.keyholder_name,
-                           keyholder=self.keyholder_barcode,
+                           keyholder_name=self.visits.getKeyholderName(),
                            error=error)
 
    @cherrypy.expose
@@ -47,15 +44,11 @@ class CheckMeIn(object):
       error = ''
       barcode = barcode.strip();
       if barcode == KEYHOLDER_BARCODE:
-          self.keyholder_name = 'N/A';
-          self.visits.emptyBuilding(self.keyholder_barcode);
-          self.keyholder_barcode = KEYHOLDER_BARCODE;
+          self.visits.emptyBuilding();
       else:
-          (error, name) = self.visits.members.getName(barcode);
+          error = self.visits.setActiveKeyholder(barcode);
           if error:
               return self.template('keyholder.html', error=error);
-          self.keyholder_name = name
-          self.keyholder_barcode = barcode
           self.visits.addIfNotHere(self.keyholder_barcode)
       return self.station();
 

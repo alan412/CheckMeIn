@@ -7,8 +7,9 @@ from dateutil import parser
 from members import Members
 from guests import Guests
 from reports import Reports
+from keyholders import Keyholders
 
-SCHEMA_VERSION = 3;
+SCHEMA_VERSION = 4;
 
 class Visits(object):
   def createDB(self, filename, barcode, display):
@@ -24,6 +25,7 @@ class Visits(object):
      self.database = database;
      self.members = Members(self.database);
      self.guests = Guests(self.database);
+     self.keyholders = Keyholders(self.database);
      self.reports = Reports(self.database);
      if not os.path.exists(self.database):
           self.createDB(filename, barcode, display);
@@ -34,10 +36,11 @@ class Visits(object):
                 self.migrate(c, data[0]);
 
   def migrate(self, dbConnection, db_schema_version):
-      if db_schema_version == 1 or db_schema_version == 2:
+      if db_schema_version == 1 or db_schema_version == 2 or db_schema_version == 3:
           # No change for Visits
           self.members.migrate(dbConnection, db_schema_version);
           self.guests.migrate(dbConnection, db_schema_version);
+          self.keyholders.migrate(dbConnection, db_schema_version);
           dbConnection.execute('PRAGMA schema_version = ' + str(SCHEMA_VERSION));
       else:
           raise Exception("Unknown DB schema version" + str(db_schema_version) + ": " + self.database)
@@ -69,16 +72,32 @@ class Visits(object):
            c.execute("UPDATE visits SET leave = ?, status = 'Out' WHERE (barcode==?) AND (status=='In')",(now, barcode))
         return '';
 
-  def checkBuilding(self, keyholder_barcode):
+  def checkBuilding(self):
     now = datetime.datetime.now()
     if now.hour == 3 and self.reports.numberPresent() > 0:  # If between 3am and 4am
-       self.emptyBuilding(keyholder);
+       self.emptyBuilding();
 
-  def emptyBuilding(self,keyholder_barcode):
+  def emptyBuilding(self):
      now = datetime.datetime.now()
+     keyholder_barcode = self.keyholders.getActiveKeyholder()
      with sqlite3.connect(self.database) as c:
         c.execute("UPDATE visits SET leave = ?, status = 'Forgot' WHERE status=='In'", (now,))
-        c.execute("UPDATE visits SET status = 'Out' WHERE barcode==? AND leave==?", (keyholder_barcode, now))
+        if keyholder_barcode:
+           c.execute("UPDATE visits SET status = 'Out' WHERE barcode==? AND leave==?", (keyholder_barcode, now))
+           self.keyholders.setActiveKeyholder('')
+
+  def getKeyholderName(self):
+      barcode = self.keyholders.getActiveKeyholder();
+      if barcode:
+          return self.members.getName(barcode)
+      else:
+          return 'N/A'
+
+  def setKeyholder(self, barcode):
+      #TODO: once keyholders does verification, this should have the possibility of error
+      self.keyholders.setActiveKeyholder();
+      self.visits.addIfNotHere(barcode)
+      return ''
 
   def addIfNotHere(self, barcode):
      now = datetime.datetime.now()
