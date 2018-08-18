@@ -74,3 +74,13 @@ table.SQLoutput, th.SQLoutput, td.SQLoutput{
     border: 1px solid black;
     padding: 10px;
 }
+
+td.label{
+   padding: 10px;
+   text-align: right;
+}
+
+input#register{
+  width: 40em;
+  height: 4em;
+}

@@ -34,17 +34,22 @@
     first.<br/>
 
     <table>
-      <tr><td>First Name:</td>
+      <tr><td class="label">First Name:</td>
         <td><input autofocus type="text" name="first" placeholder="First"></td></tr>
-      <tr><td>Last Name:</td>
+      <tr><td class="label">Last Name:</td>
           <td><input type="text" name="last" placeholder="Last"></td></tr>
-      <tr><td>E-mail:</td>
+      <tr><td class="label">E-mail:</td>
           <td><input type="text" name="email" placeholder="me@mail.com"></td></tr>
-      <tr><td>How did you hear about TFI? (optional)</td>
-          <td><input type="textarea" name="hear" placeholder="From member X"></td></tr>
-      </tr>
+      <tr><td class="label">What brings you here today?</TD>
+          <td><input type="radio" name="reason" value="Tour" checked="checked">Tour / Introduction<br/>
+              <input type="radio" name="reason" value="Event">Scheduled event - program, workshop, camp or event<br/>
+              <input type="radio" name="reason" value="guest">Guest of a member<br/>
+              <input type="radio" name="reason" value="team">Team meeeting<br/>
+              <input type="radio" name="reason" value="">Other <input type="text" name="other_reason"/>
+          </td></tr>
     </table>
-    <input type="submit" value="Register"/>
+    <br/>
+    <CENTER><input id="register" type="submit" value="Register"/></CENTER>
   </fieldset>
 </form>
 </div>

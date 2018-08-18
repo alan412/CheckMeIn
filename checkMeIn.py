@@ -21,7 +21,7 @@ class CheckMeIn(object):
 
        guests_not_here = all_guests - building_guests;
 
-       return self.template('guests.html', welcome=message,
+       return self.template('guests.html', message=message,
                                            inBuilding=building_guests,
                                            guestList=guests_not_here)
 
@@ -90,9 +90,15 @@ class CheckMeIn(object):
        return self.admin(error);
 
    @cherrypy.expose
-   def addGuest(self, first, last, email, hear):
+   def addGuest(self, first, last, email, reason, other_reason):
+       if first == '' or last == '':
+           return self.showGuestPage('Need a first and last name')
+
        displayName = first + ' ' + last[0] + '.'
-       guest_id = self.visits.guests.add(displayName, first, last, email, hear);
+       if reason:
+           guest_id = self.visits.guests.add(displayName, first, last, email, reason);
+       else:
+           guest_id = self.visits.guests.add(displayName, first, last, email, 'Other: ');
        self.visits.enterGuest(guest_id);
        return self.showGuestPage('Welcome ' + displayName + '  We are glad you are here!')
 
