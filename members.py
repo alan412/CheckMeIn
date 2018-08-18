@@ -9,7 +9,6 @@ Member = namedtuple('Member', ['barcode','displayName','status']);
 class Status(IntEnum):
     inactive = 0
     active = 1
-    keyholder = 2
 
 class Members(object):
   def __init__(self, database):
