@@ -9,6 +9,28 @@
 
 <H1>Admin Page</H1>
 
+<br/>
+<form action="addMember">
+  <fieldset>
+    <legend>Add a Member</legend>
+    <table>
+      <tr><td>Display Name:</td>
+          <td><input autofocus type="text" name="display" placeholder="Member L"></td></tr>
+      <tr><td>Barcode:</td>
+          <td><input type="text" name="barcode" placeholder="123456"></td></tr>
+    </table>
+    <input type="submit" value="Add Member"/>
+  </fieldset>
+</form>
+
+<form action="oops">
+   <fieldset>
+     <legend>Oops</legend>
+   Keyholder accidentally signed out.  Move all FORGOT for today back to in.<br/>
+  <input type="submit" value="Oops!"/>
+</fieldset>
+</form>
+
 <H2>Fix "forgot" data</H2>
 %if len(forgotDates):
   <FORM action="fixData">
@@ -23,19 +45,6 @@
   <P>Wow!  No dates that haven't been cleaned up!!</P>
 %endif
 
-<br/>
-<form action="addMember">
-  <fieldset>
-    <legend>Add a Member</legend>
-    <table>
-      <tr><td>Display Name:</td>
-          <td><input autofocus type="text" name="display" placeholder="Member L"></td></tr>
-      <tr><td>Barcode:</td>
-          <td><input type="text" name="barcode" placeholder="123456"></td></tr>
-    </table>
-    <input type="submit" value="Add Member"/>
-  </fieldset>
-</form>
 
 
 <H2>Generate reports</H2>
