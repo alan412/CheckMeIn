@@ -184,7 +184,7 @@ class Reports(object):
 
   def customSQL(self, sql):
      # open as read only
-     with sqlite3.connect('file:' + database + '?mode=ro', uri = True) as c:
+     with sqlite3.connect('file:' + self.database + '?mode=ro', uri = True) as c:
          cur = c.cursor();
          cur.execute(sql);
          header = [i[0] for i in cur.description]
