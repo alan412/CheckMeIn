@@ -194,5 +194,5 @@ class Reports(object):
      return rows;
 
 # unit test
-if __name__ == "__main__":
+if __name__ == "__main__":  #pragma no cover
    print("To test this module, you need to use visits module")

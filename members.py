@@ -15,7 +15,7 @@ class Members(object):
      self.database = database;
 
   def migrate(self, dbConnection, db_schema_version):
-      if db_schema_version == 1 or db_schema_version == 2:
+      if db_schema_version <= 1 or db_schema_version == 2:
          dbConnection.execute("ALTER TABLE members ADD COLUMN status INTEGER default 1");
 
   def addMemberDB(self, dbConnection, barcode, displayName, status):
@@ -69,7 +69,7 @@ class Members(object):
      return memberList;
 
 # unit test
-if __name__ == "__main__":
+if __name__ == "__main__":  #pragma no cover
     DB_STRING = 'data/test.db';
     try:
        os.remove(DB_STRING);   # Start with a new one

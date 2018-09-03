@@ -12,8 +12,7 @@ class Keyholders(object):
 
   def createTable(self):
       with sqlite3.connect(self.database) as c:
-          c.execute('''CREATE TABLE keyholders
-                       (barcode TEXT PRIMARY KEY, active INTEGER default 0)''')
+          self.migrate(c, 0)
 
   def migrate(self, dbConnection, db_schema_version):
       if db_schema_version < 4:
@@ -35,7 +34,7 @@ class Keyholders(object):
              return data[0];
 
 # unit test
-if __name__ == "__main__":
+if __name__ == "__main__":   #pragma no cover
     DB_STRING = 'data/test.db';
     try:
        os.remove(DB_STRING);   # Start with a new one

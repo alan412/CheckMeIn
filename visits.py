@@ -36,7 +36,7 @@ class Visits(object):
                 self.migrate(c, data[0]);
 
   def migrate(self, dbConnection, db_schema_version):
-      if db_schema_version == 1 or db_schema_version == 2 or db_schema_version == 3:
+      if db_schema_version <= 3:
           # No change for Visits
           self.members.migrate(dbConnection, db_schema_version);
           self.guests.migrate(dbConnection, db_schema_version);
@@ -138,13 +138,13 @@ class Visits(object):
                c.execute('''UPDATE visits SET start = ?, leave = ?, status = 'Out'
                             WHERE (visits.rowid==?)''',(newStart, newLeave, rowID))
 # unit test
-def testOutput(testNum, test):
+def testOutput(testNum, test): #pragma no cover
   result = test;
   if result:
       print("Result: ", result)
   print(testNum, visits.reports.whoIsHere());
 
-if __name__ == "__main__":
+if __name__ == "__main__": #pragma no cover
     DB_STRING = 'data/test.db'
     try:
        os.remove(DB_STRING);   # Start with a new one

@@ -47,8 +47,8 @@ class CheckMeIn(object):
           self.visits.emptyBuilding();
       else:
           error = self.visits.setActiveKeyholder(barcode);
-          if error:
-              return self.template('keyholder.html', error=error);
+          if error: #TODO after this case is added, remove no cover
+              return self.template('keyholder.html', error=error); #pragma no cover
       return self.station();
 
    @cherrypy.expose
@@ -96,10 +96,10 @@ class CheckMeIn(object):
            return self.showGuestPage('Need a first and last name')
 
        displayName = first + ' ' + last[0] + '.'
-       if reason:
+       if reason != '':
            guest_id = self.visits.guests.add(displayName, first, last, email, reason);
        else:
-           guest_id = self.visits.guests.add(displayName, first, last, email, 'Other: ');
+           guest_id = self.visits.guests.add(displayName, first, last, email, 'Other: ' + other_reason);
        self.visits.enterGuest(guest_id);
        return self.showGuestPage('Welcome ' + displayName + '  We are glad you are here!')
 
@@ -127,7 +127,7 @@ class CheckMeIn(object):
        self.visits.leaveGuest(guest_id);
        (error,name) = self.visits.guests.getName(guest_id);
        if error:
-          return showGuestPage(error);
+          return self.showGuestPage(error);
 
        return self.showGuestPage('Goodbye ' + name + ' We hope to see you again soon!')
 
@@ -136,7 +136,7 @@ class CheckMeIn(object):
        self.visits.enterGuest(guest_id);
        (error,name) = self.visits.guests.getName(guest_id);
        if error:
-           return showGuestPage(error);
+           return self.showGuestPage(error);
 
        return self.showGuestPage('Welcome back, ' + name + ' We are glad you are here!' )
 
@@ -144,7 +144,7 @@ class CheckMeIn(object):
    def index(self):
       return self.who_is_here();
 
-if __name__ == '__main__':
+if __name__ == '__main__': #pragma no cover
    parser = argparse.ArgumentParser(description="CheckMeIn - building check in and out system")
    parser.add_argument('conf')
    args = parser.parse_args()

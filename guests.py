@@ -19,18 +19,10 @@ class Guests(object):
      self.num = 1;
 
   def createTable(self):
-      with sqlite3.connect(self.database) as c:
-         c.execute('''CREATE TABLE guests
-                      (guest_id TEXT UNIQUE,
-                       displayName TEXT,
-                       email TEXT,
-                       firstName TEXT,
-                       lastName TEXT,
-                       whereFound TEXT,
-                       status INTEGER default 1)''');
+      self.migrate(c, 0)
 
   def migrate(self, dbConnection, db_schema_version):
-      if db_schema_version == 1 or db_schema_version == 2:
+      if db_schema_version <= 2:
          dbConnection.execute('''CREATE TABLE guests
                                 (guest_id TEXT UNIQUE,
                                  displayName TEXT,
@@ -52,11 +44,9 @@ class Guests(object):
          while self.num < 10000:
           try:
               guest_id = self.date.strftime("%Y%m%d") + '{0:04d}'.format(self.num)
-              print ("attempting " + guest_id);
               # zero padded up to 9999 for each day
               c.execute("INSERT INTO guests VALUES (?,?,?,?,?,?,?)",
                    (guest_id, displayName, email, first, last, whereFound, Status.active));
-              print ("success")
           except:
               self.num = self.num + 1
           else:
@@ -65,7 +55,7 @@ class Guests(object):
        with sqlite3.connect(self.database) as c:
           data = c.execute("SELECT displayName FROM guests WHERE guest_id==?", (guest_id,)).fetchone();
           if data is None:
-             return ('Invalid: ' + guest_id,);
+             return ('Invalid: ' + guest_id,None);
           else:
              # Add code here for inactive
              return ('',data[0]);
@@ -78,7 +68,7 @@ class Guests(object):
      return guestList;
 
 # unit test
-if __name__ == "__main__":
+if __name__ == "__main__": #pragma no cover
     DB_STRING = 'data/test.db';
     try:
        os.remove(DB_STRING);   # Start with a new one
