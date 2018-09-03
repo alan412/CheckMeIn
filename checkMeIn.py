@@ -61,6 +61,8 @@ class CheckMeIn(object):
          return self.template('keyholder.html', whoIsHere=self.visits.reports.whoIsHere());
       else:
          error = self.visits.scannedMember(barcode);
+         if error:
+             cherrypy.log(error)
       return self.station(error);
 
    @cherrypy.expose
