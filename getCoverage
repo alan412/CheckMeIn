@@ -1,1 +1,0 @@
-pytest --cov=checkMeIn --cov=guests --cov=keyholders --cov=members --cov=reports --cov=visits --cov-report html:htmlcov tests/
