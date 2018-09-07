@@ -112,3 +112,6 @@ nohup.out
 
 # annoying mac
 .DS_Store
+
+#editor stuff
+.vscode
