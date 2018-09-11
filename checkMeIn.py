@@ -25,14 +25,14 @@ class CheckMeIn(object):
 
         guests_not_here = all_guests - building_guests
 
-        return self.template('guests.html', message=message,
+        return self.template('guests.mako', message=message,
                              inBuilding=building_guests,
                              guestList=guests_not_here)
 
     @cherrypy.expose
     def station(self, error=''):
         self.visits.checkBuilding()
-        return self.template('station.html',
+        return self.template('station.mako',
                              todaysTransactions=self.visits.reports.transactionsToday(),
                              numberPresent=self.visits.reports.numberPresent(),
                              uniqueVisitorsToday=self.visits.reports.uniqueVisitorsToday(),
@@ -41,7 +41,7 @@ class CheckMeIn(object):
 
     @cherrypy.expose
     def who_is_here(self):
-        return self.template('who_is_here.html', now=datetime.datetime.now(),
+        return self.template('who_is_here.mako', now=datetime.datetime.now(),
                              whoIsHere=self.visits.reports.whoIsHere())
 
     @cherrypy.expose
@@ -54,7 +54,7 @@ class CheckMeIn(object):
             error = self.visits.setActiveKeyholder(barcode)
             if error:  # TODO after this case is added, remove no cover
                 # pragma no cover
-                return self.template('keyholder.html', error=error)
+                return self.template('keyholder.mako', error=error)
         return self.station()
 
     @cherrypy.expose
@@ -63,10 +63,12 @@ class CheckMeIn(object):
         error = ''
 # strip whitespace before or after barcode digits (occasionally a space comes before or after
         barcode = barcode.strip()
+
         if (barcode == KEYHOLDER_BARCODE) or (
                 barcode == self.visits.keyholders.getActiveKeyholder()):
-            return self.template('keyholder.html', whoIsHere=self.visits.reports.whoIsHere())
+            return self.template('keyholder.mako', whoIsHere=self.visits.reports.whoIsHere())
         else:
+            # TODO See if multiple ones separated by space.  If so, do each one individually.
             error = self.visits.scannedMember(barcode)
             if error:
                 cherrypy.log(error)
@@ -79,18 +81,18 @@ class CheckMeIn(object):
         forgotDates = []
         for date in self.visits.reports.getForgottenDates():
             forgotDates.append(date.isoformat())
-        return self.template('admin.html', forgotDates=forgotDates,
+        return self.template('admin.mako', forgotDates=forgotDates,
                              firstDate=firstDate, todayDate=todayDate,
                              error=error)
 
     @cherrypy.expose
     def reports(self, startDate, endDate):
-        return self.template('reports.html', stats=self.visits.reports.getStats(startDate, endDate))
+        return self.template('reports.mako', stats=self.visits.reports.getStats(startDate, endDate))
 
     @cherrypy.expose
     def customSQLReport(self, sql):
         data = self.visits.reports.customSQL(sql)
-        return self.template('customSQL.html', sql=sql, data=data)
+        return self.template('customSQL.mako', sql=sql, data=data)
 
     @cherrypy.expose
     def addMember(self, display, barcode):
@@ -115,7 +117,7 @@ class CheckMeIn(object):
     @cherrypy.expose
     def fixData(self, date):
         data = self.visits.reports.getData(date)
-        return self.template('fixData.html', date=date, data=data)
+        return self.template('fixData.mako', date=date, data=data)
 
     @cherrypy.expose
     def oops(self):
