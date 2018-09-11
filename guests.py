@@ -1,4 +1,3 @@
-import csv
 import sqlite3
 import os
 from collections import namedtuple
@@ -21,7 +20,8 @@ class Guests(object):
         self.num = 1
 
     def createTable(self):
-        self.migrate(c, 0)
+        with sqlite3.connect(self.database) as c:
+            self.migrate(c, 0)
 
     def migrate(self, dbConnection, db_schema_version):
         if db_schema_version <= 2:
@@ -48,8 +48,9 @@ class Guests(object):
                         "%Y%m%d") + '{0:04d}'.format(self.num)
                     # zero padded up to 9999 for each day
                     c.execute("INSERT INTO guests VALUES (?,?,?,?,?,?,?)",
-                              (guest_id, displayName, email, first, last, whereFound, Status.active))
-                except:
+                              (guest_id, displayName, email, first,
+                               last, whereFound, Status.active))
+                except sqlite3.DatabaseError:
                     self.num = self.num + 1
                 else:
                     return guest_id
@@ -67,7 +68,8 @@ class Guests(object):
     def getList(self):
         guestList = []
         with sqlite3.connect(self.database) as c:
-            for row in c.execute("SELECT * FROM guests WHERE status is NOT ? ORDER BY displayName", (Status.inactive,)):
+            for row in c.execute("SELECT * FROM guests WHERE status is NOT ? ORDER BY displayName",
+                                 (Status.inactive,)):
                 guestList.append(Guest(row[0], row[1]))
         return guestList
 
@@ -77,14 +79,14 @@ if __name__ == "__main__":  # pragma no cover
     DB_STRING = 'data/test.db'
     try:
         os.remove(DB_STRING)   # Start with a new one
-    except:
+    except IOError:
         pass  # Don't care if it didn't exist
     guests = Guests(DB_STRING)
     guests.createTable()
 
-    guests.add("Test 1")
-    guests.add("Test 2")
-    guests.add("Test 3")
+    guests.add("Test 1", "Test", "1", "noemail@domain.com", "")
+    guests.add("Test 2", "Test", "2", "noemail@domain.com", "")
+    guests.add("Test 3", "Test", "3", "noemail@domain.com", "")
 
     for g in guests.getList():
         print(g)
