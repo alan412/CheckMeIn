@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import sqlite3
 from mako.lookup import TemplateLookup
 import cherrypy
 import cherrypy.process.plugins
@@ -62,16 +63,16 @@ class CheckMeIn(object):
     def scanned(self, barcode):
         error = ''
 # strip whitespace before or after barcode digits (occasionally a space comes before or after
-        barcode = barcode.strip()
+        barcodes = barcode.split()
 
-        if (barcode == KEYHOLDER_BARCODE) or (
-                barcode == self.visits.keyholders.getActiveKeyholder()):
-            return self.template('keyholder.mako', whoIsHere=self.visits.reports.whoIsHere())
-        else:
-            # TODO See if multiple ones separated by space.  If so, do each one individually.
-            error = self.visits.scannedMember(barcode)
-            if error:
-                cherrypy.log(error)
+        for bc in barcodes:
+            if (bc == KEYHOLDER_BARCODE) or (
+                    bc == self.visits.keyholders.getActiveKeyholder()):
+                return self.template('keyholder.mako', whoIsHere=self.visits.reports.whoIsHere())
+            else:
+                error = self.visits.scannedMember(bc)
+                if error:
+                    cherrypy.log(error)
         return self.station(error)
 
     @cherrypy.expose
@@ -91,7 +92,11 @@ class CheckMeIn(object):
 
     @cherrypy.expose
     def customSQLReport(self, sql):
-        data = self.visits.reports.customSQL(sql)
+        try:
+            data = self.visits.reports.customSQL(sql)
+        except sqlite3.OperationalError as e:
+            data = repr(e)
+
         return self.template('customSQL.mako', sql=sql, data=data)
 
     @cherrypy.expose
