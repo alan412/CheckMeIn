@@ -1,9 +1,9 @@
-import cherrypy
-from mako.lookup import TemplateLookup
 import argparse
-from visits import Visits
 import datetime
+from mako.lookup import TemplateLookup
+import cherrypy
 import cherrypy.process.plugins
+from visits import Visits
 
 DB_STRING = 'data/checkMeIn.db'
 KEYHOLDER_BARCODE = '999901'
@@ -41,7 +41,8 @@ class CheckMeIn(object):
 
     @cherrypy.expose
     def who_is_here(self):
-        return self.template('who_is_here.html', now=datetime.datetime.now(), whoIsHere=self.visits.reports.whoIsHere())
+        return self.template('who_is_here.html', now=datetime.datetime.now(),
+                             whoIsHere=self.visits.reports.whoIsHere())
 
     @cherrypy.expose
     def keyholder(self, barcode):
@@ -62,7 +63,8 @@ class CheckMeIn(object):
         error = ''
 # strip whitespace before or after barcode digits (occasionally a space comes before or after
         barcode = barcode.strip()
-        if (barcode == KEYHOLDER_BARCODE) or (barcode == self.visits.keyholders.getActiveKeyholder()):
+        if (barcode == KEYHOLDER_BARCODE) or (
+                barcode == self.visits.keyholders.getActiveKeyholder()):
             return self.template('keyholder.html', whoIsHere=self.visits.reports.whoIsHere())
         else:
             error = self.visits.scannedMember(barcode)
