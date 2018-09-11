@@ -1,9 +1,6 @@
-import csv
 import datetime
 import sqlite3
-import os
 from collections import defaultdict
-from dateutil import parser
 from collections import namedtuple
 from guests import Guest
 
@@ -26,7 +23,7 @@ class Person(object):
         self.date[start.date()] += hours
 
     def getTimeForDate(self, day):
-        return self.date[dateVar]
+        return self.date[day]
 
 
 class Statistics(object):
@@ -53,7 +50,7 @@ class Statistics(object):
 
         self.totalHours = 0.0
 
-        for bar, person in self.visitors.items():
+        for _, person in self.visitors.items():
             self.totalHours += person.hours
 
         self.uniqueVisitors = len(self.visitors)
@@ -148,7 +145,8 @@ class Reports(object):
     def uniqueVisitors(self, startDate, endDate):
         with sqlite3.connect(self.database) as c:
             numUniqueVisitors = c.execute(
-                "SELECT COUNT(DISTINCT barcode) FROM visits WHERE (start BETWEEN ? AND ?)", (startDate, endDate)).fetchone()[0]
+                "SELECT COUNT(DISTINCT barcode) FROM visits WHERE (start BETWEEN ? AND ?)",
+                (startDate, endDate)).fetchone()[0]
         return numUniqueVisitors
 
     def uniqueVisitorsToday(self):
@@ -159,9 +157,11 @@ class Reports(object):
         return self.uniqueVisitors(startDate, endDate)
 
     def getStats(self, beginDateStr, endDateStr):
-        startDate = datetime.datetime(int(beginDateStr[0:4]), int(beginDateStr[5:7]), int(beginDateStr[8:10])).replace(
+        startDate = datetime.datetime(int(beginDateStr[0:4]),
+                                      int(beginDateStr[5:7]), int(beginDateStr[8:10])).replace(
             hour=0, minute=0, second=0, microsecond=0)
-        endDate = datetime.datetime(int(endDateStr[0:4]), int(endDateStr[5:7]), int(endDateStr[8:10])).replace(
+        endDate = datetime.datetime(int(endDateStr[0:4]),
+                                    int(endDateStr[5:7]), int(endDateStr[8:10])).replace(
             hour=23, minute=59, second=59, microsecond=999999)
 
         return Statistics(self.database, startDate, endDate)
