@@ -45,6 +45,17 @@ function escapeHTML(string) {
 % if error is not UNDEFINED:
 	    <H1 class="error" id="error">${error}</H1>
 % endif
+<div id="modal" class="modal">
+	<div class="modal-content">
+		<div class="modal-header">
+		   <span class="close">&times;</span>
+		   <h2 id="modal-header"></h2>
+		</div>
+		<div id="modal-body" class="modal-body">
+			<p/>
+		</div>
+	</div>
+</div>
         ${self.body()}
     </body>
 </html>

@@ -9,8 +9,9 @@
 <%inherit file="base.mako"/>
 <table class="header">
 <TR>
-  <TD><IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="150"/></TD>
-  <TD><H2>Guest Station</H2></TD>
+  <TD style="text-align:center"><IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="200"/></TD>
+  <TD style="text-align:center"><H1>Guest Station</H1></TD>
+  <TD style="text-align:center"><IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="200"/></TD>
 </TR>
 </table>
 
@@ -18,21 +19,29 @@
   <H1>${message}</H1>
 %endif
 
-<TABLE>
+<TABLE class="header">
+  <TR><TD style="height: 50px"></TD></TR>
   <TR>
     <TD style="text-align:center"><button class="btnGuest" id="firstTime">First time guest</button></TD>
+    <TD style="text-align:center"></TD>
     <TD style="text-align:center"><button class="btnGuest" id="returning">Returning guest</button></TD>
   </TR>
-  <TR><TD COLSPAN=2 style="text-align:center"><button class="btnGuest" id="leaving">Leaving building</button></TD></TR>
+  <TR><TD style="height: 50px"></TD></TR>
+  <TR><TD COLSPAN=3 style="text-align:center"><button class="btnGuest" id="leaving">Leaving building</button></TD></TR>
 </TABLE>
 
 <script>
+	// Get the modal
+	var modal = document.getElementById('modal');
+	// Get the <span> element that closes the modal
+	var span = document.getElementsByClassName("close")[0];
+
   $(document).ready(function () {
     $("button#firstTime").click(function () {
-      $("#modal-header").mako("First Time Guests")
-      $("#modal-body").mako('<form action = "addGuest">' +
+      $("#modal-header").html("First Time Guests");
+      $("#modal-body").html('<form action = "addGuest">' +
         'We are glad to have you visit The Forge Initiative. We hope you have a lot of fun ' +
-        'here learning and creating.In order to do that, we need a little information from you ' +
+        'here learning and creating. In order to do that, we need a little information from you ' +
         'first.<br/>' +
         '<table>' +
         '<tr><td class="label">First Name:</td>' +
@@ -49,31 +58,47 @@
         '<input type="radio" name="reason" value="">Other <input type="text" name="other_reason" />' +
         '</td></tr>' +
         '</table><br/>' +
-        '< CENTER > <input id="register" type="submit" value="Register" /></CENTER ></form>');
+        '<CENTER> <input class="button" id="register" type="submit" value="Register" /></CENTER ></form>');
       modal.style.display = "block";
     });
     $("button#returning").click(function () {
-      $("#modal-header").mako("Returning Guests")
-      $("#modal-body").mako('<form action = "returnGuest">' +
+      $("#modal-header").html("Returning Guests");
+      $("#modal-body").html('<form action = "returnGuest">' +
         'Please select your name from the list.   (List only has guests that ' +
         'have used this system before.) <br/>' +
         '<select name="guest_id">' +
    % for guest in guestList:
         '<option value="${guest.guest_id}">${guest.displayName}</option>' +
    % endfor
-      '</select><input type="submit" value="Check In"/></form>');
+      '<CENTER></select><br/><br/><input class="button" type="submit" value="Check In"/></CENTER></form>');
     modal.style.display = "block"
   });
   $("button#leaving").click(function () {
-    $("#modal-header").mako("Leaving Building")
-    $("#modal-body").mako('<form action = "leaveGuest">' +
-      'We hope you enjoyed your time here.   Please select your name from the list.<br/>' +
+    $("#modal-header").html("Leaving Building");
+    $("#modal-body").html('<form action = "leaveGuest">' +
+      '<br/>We hope you enjoyed your time here.   Please select your name from the list.<br/>' +
       '<select name="guest_id">' +
-   % for guest in inBuilding::
+   % for guest in inBuilding:
       '<option value="${guest.guest_id}">${guest.displayName}</option>' +
    % endfor
-    '</select><input type="submit" value="Check Out"/></form>');
+    '<CENTER></select><br/><br/><input type="submit" class="button" value="Check Out"/></CENTER></form>');
   modal.style.display = "block";
     });
-  };
+  });
+  // When the user clicks on <span> (x), close the modal
+	span.onclick = function () {
+		modal.style.display = "none";
+	}
+	// When the user clicks anywhere outside of the modal, close it
+	window.onclick = function (event) {
+		if (event.target == modal) {
+			modal.style.display = "none";
+		}
+	}
+	// Handle ESC key (key code 27)
+	document.addEventListener('keyup', function (e) {
+		if (e.keyCode == 27) {
+			modal.style.display = "none";
+		}
+	});
 </script>
