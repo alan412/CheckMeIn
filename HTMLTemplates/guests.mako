@@ -6,7 +6,7 @@
 <%def name="head()">
 </%def>
 <%def name="title()">CheckMeIn - Guest Station</%def>
-<%inherit file="base.html"/>
+<%inherit file="base.mako"/>
 <table class="header">
 <TR>
   <TD><IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="150"/></TD>
@@ -29,8 +29,8 @@
 <script>
   $(document).ready(function () {
     $("button#firstTime").click(function () {
-      $("#modal-header").html("First Time Guests")
-      $("#modal-body").html('<form action = "addGuest">' +
+      $("#modal-header").mako("First Time Guests")
+      $("#modal-body").mako('<form action = "addGuest">' +
         'We are glad to have you visit The Forge Initiative. We hope you have a lot of fun ' +
         'here learning and creating.In order to do that, we need a little information from you ' +
         'first.<br/>' +
@@ -53,8 +53,8 @@
       modal.style.display = "block";
     });
     $("button#returning").click(function () {
-      $("#modal-header").html("Returning Guests")
-      $("#modal-body").html('<form action = "returnGuest">' +
+      $("#modal-header").mako("Returning Guests")
+      $("#modal-body").mako('<form action = "returnGuest">' +
         'Please select your name from the list.   (List only has guests that ' +
         'have used this system before.) <br/>' +
         '<select name="guest_id">' +
@@ -65,8 +65,8 @@
     modal.style.display = "block"
   });
   $("button#leaving").click(function () {
-    $("#modal-header").html("Leaving Building")
-    $("#modal-body").html('<form action = "leaveGuest">' +
+    $("#modal-header").mako("Leaving Building")
+    $("#modal-body").mako('<form action = "leaveGuest">' +
       'We hope you enjoyed your time here.   Please select your name from the list.<br/>' +
       '<select name="guest_id">' +
    % for guest in inBuilding::

@@ -3,7 +3,7 @@
 <%def name="head()">
 </%def>
 <%def name="title()">CheckMeIn - Who is here</%def>
-<%inherit file="base.html"/>
+<%inherit file="base.mako"/>
 <table class="header">
 <TR>
   <TD><IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="150"/></TD>

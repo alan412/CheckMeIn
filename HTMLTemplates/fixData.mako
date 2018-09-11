@@ -4,7 +4,7 @@
 </%def>
 
 <%def name="title()">CheckMeIn Fix Data</%def>
-<%inherit file="base.html"/>
+<%inherit file="base.mako"/>
 <IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
 
 <H1>Fix Data Page for ${date}</H1>

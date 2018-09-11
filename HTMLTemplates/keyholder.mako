@@ -7,7 +7,7 @@ window.onload = setTimeout(function(){location.href="station"},1000*60*1);  // i
 </%def>
 
 <%def name="title()">CheckMeIn Keyholder</%def>
-<%inherit file="base.html"/>
+<%inherit file="base.mako"/>
 <IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
 
 <H1>Change Keyholder</H1>

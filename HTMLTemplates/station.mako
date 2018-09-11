@@ -7,7 +7,7 @@ window.onload = setTimeout(function(){location.href="station"},1000*60*60);  // 
 </%def>
 
 <%def name="title()">CheckMeIn Station</%def>
-<%inherit file="base.html"/>
+<%inherit file="base.mako"/>
 <TABLE>
 <TR><TD WIDTH="20%">
 <IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/><br/>
