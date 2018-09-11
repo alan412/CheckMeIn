@@ -166,7 +166,7 @@ if __name__ == '__main__':  # pragma no cover
     parser.add_argument('conf')
     args = parser.parse_args()
 
-    wd = cherrypy.process.plugins.BackgroundTask(15, func)
-    wd.start()
+    #wd = cherrypy.process.plugins.BackgroundTask(15, func)
+    # wd.start()
 
     cherrypy.quickstart(CheckMeIn(), '', args.conf)
