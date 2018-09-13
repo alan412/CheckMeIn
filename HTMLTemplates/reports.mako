@@ -28,12 +28,9 @@
       </TABLE>
   </UL>
 </UL>
-<H2>Graph by day</H2>
-<P>Coming soon!</P>
 
-<H2>Graph building usage by day/time</H2>
+<H2>Graph building usage</H2>
 <IMG WIDTH="95%" TITLE="Building Usage graph" SRC="reportGraph?startDate=${stats.beginDate}&endDate=${stats.endDate}" ALT="Building usage graph"/>
-<P>Coming soon!</P>
 
 <H2>Full List</H2>
 <TABLE>
