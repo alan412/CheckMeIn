@@ -132,7 +132,7 @@ class Statistics(object):
             beginTimePeriod = datetime.datetime.combine(
                 day, datetime.datetime.min.time())
             # Care about 8am-10pm
-            for startHour in range(8, 20):
+            for startHour in range(8, 22):
                 beginTimePeriod = beginTimePeriod.replace(
                     hour=startHour, minute=0, second=0, microsecond=0)
                 endTimePeriod = beginTimePeriod + \
