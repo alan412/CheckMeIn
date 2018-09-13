@@ -151,7 +151,12 @@ class Statistics(object):
 
         fig, ax = plt.subplots()
         plt.plot_date(x=dates, y=values, fmt="r-")
-        plt.title("Building usage")
+        title_text = "Building usage\n" + \
+            self.beginDate.strftime("%b %e, %G")
+        if self.beginDate != self.endDate:
+            title_text += " - " + self.endDate.strftime("%b %e, %G")
+
+        plt.title(title_text, fontsize=14)
         plt.ylabel("Number of visitors")
         plt.grid(True)
         ax.xaxis.set_tick_params(rotation=30, labelsize=5)
