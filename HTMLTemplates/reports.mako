@@ -30,7 +30,9 @@
 </UL>
 
 <H2>Graph building usage</H2>
-<IMG WIDTH="95%" TITLE="Building Usage graph" SRC="reportGraph?startDate=${stats.beginDate}&endDate=${stats.endDate}" ALT="Building usage graph"/>
+<CENTER>
+<IMG WIDTH="800px" HEIGHT="600px" TITLE="Building Usage graph" SRC="reportGraph?startDate=${stats.beginDate}&endDate=${stats.endDate}" ALT="Building usage graph"/>
+</CENTER>
 
 <H2>Full List</H2>
 <TABLE>

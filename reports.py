@@ -156,7 +156,8 @@ class Statistics(object):
         plt.grid(True)
         ax.xaxis.set_tick_params(rotation=30, labelsize=5)
         figData = BytesIO()
-        fig.savefig(figData, format='png')
+        fig.set_size_inches(8, 6)
+        fig.savefig(figData, format='png', dpi=100)
         return figData.getvalue()
 
 
