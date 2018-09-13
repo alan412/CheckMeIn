@@ -3,7 +3,6 @@ atomicwrites==1.2.1
 attrs==18.2.0
 autopep8==1.4
 backports.functools-lru-cache==1.5
--e git+git@github.com:alan412/CheckMeIn.git@3505ea7832673a66caa54b59201e221e04af1b85#egg=CheckMeIn
 cheroot==6.4.0
 CherryPy==17.3.0
 contextlib2==0.5.5
