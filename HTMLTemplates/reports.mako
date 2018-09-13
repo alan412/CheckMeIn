@@ -32,6 +32,7 @@
 <P>Coming soon!</P>
 
 <H2>Graph building usage by day/time</H2>
+<IMG WIDTH="95%" TITLE="Building Usage graph" SRC="reportGraph?startDate=${stats.beginDate}&endDate=${stats.endDate}" ALT="Building usage graph"/>
 <P>Coming soon!</P>
 
 <H2>Full List</H2>

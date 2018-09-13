@@ -1,11 +1,25 @@
-import datetime
 import sqlite3
+import datetime
+from io import BytesIO
 from collections import defaultdict
 from collections import namedtuple
+import matplotlib
+# The pylint disable is because it doesn't like the use before other imports
+matplotlib.use('Agg')   # pylint: disable=C0413
+import matplotlib.pyplot as plt
+
 from guests import Guest
+
 
 Transaction = namedtuple('Transaction', ['name', 'time', 'description'])
 Datum = namedtuple('Datum', ['rowid', 'start', 'leave', 'name', 'status'])
+
+VisitorsAtTime = namedtuple('VisitorsAtTime', ['startTime', 'numVisitors'])
+
+
+def daterange(start_date, end_date):
+    for n in range(int((end_date - start_date).days)):
+        yield start_date + datetime.timedelta(n)
 
 
 class Person(object):
@@ -26,11 +40,48 @@ class Person(object):
         return self.date[day]
 
 
+class Visit(object):
+    def __init__(self, start, leave):
+        self.start = start
+        self.leave = leave
+
+    def inRange(self, startTime, endTime):
+        # if start time is in between
+        if(self.start <= endTime) and (self.start >= startTime):
+            return True
+        # OR if end time is in between
+        if(self.leave <= endTime) and (self.leave >= startTime):
+            return True
+        # OR if start time is before AND end time is after
+        if(self.start <= startTime) and (self.leave >= endTime):
+            return True
+        # else False
+        print("Not here - ", startTime, endTime,
+              " in ", self.start, self.leave)
+        return False
+
+
+class BuildingUsage(object):
+    def __init__(self):
+        self.visits = []
+
+    def addVisit(self, start, leave):
+        self.visits.append(Visit(start, leave))
+
+    def inRange(self, start, leave):
+        numVisitors = 0
+        for visit in self.visits:
+            if visit.inRange(start, leave):
+                numVisitors += 1
+        return numVisitors
+
+
 class Statistics(object):
     def __init__(self, database, beginDate, endDate):
         self.beginDate = beginDate.date()
         self.endDate = endDate.date()
         self.visitors = {}
+        self.buildingUsage = BuildingUsage()
 
         with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
             for row in c.execute(
@@ -47,7 +98,7 @@ class Statistics(object):
                     self.visitors[row[3]].addVisit(row[0], row[1])
                 except:
                     self.visitors[row[3]] = Person(row[2], row[0], row[1])
-
+                self.buildingUsage.addVisit(row[0], row[1])
         self.totalHours = 0.0
 
         for _, person in self.visitors.items():
@@ -76,6 +127,37 @@ class Statistics(object):
                 self.top10 = self.sortedList[:9]
             else:
                 self.top10 = self.sortedList
+
+    def getBuildingUsage(self):
+        dataPoints = []
+        for day in daterange(self.beginDate, self.endDate + datetime.timedelta(days=1)):
+            beginTimePeriod = datetime.datetime.combine(
+                day, datetime.datetime.min.time())
+            # Care about 8am-10pm
+            for startHour in range(8, 20):
+                beginTimePeriod = beginTimePeriod.replace(
+                    hour=startHour, minute=0, second=0, microsecond=0)
+                endTimePeriod = beginTimePeriod + \
+                    datetime.timedelta(seconds=60*60)
+                print(beginTimePeriod, endTimePeriod)
+                dataPoints.append(VisitorsAtTime(
+                    beginTimePeriod, self.buildingUsage.inRange(beginTimePeriod, endTimePeriod)))
+        return dataPoints
+
+    def getBuildingUsageGraph(self):
+        dates = []
+        values = []
+        fig = plt.figure()
+        for point in self.getBuildingUsage():
+            dates.append(matplotlib.dates.date2num(point.startTime))
+            values.append(point.numVisitors)
+
+        fig, ax = plt.subplots()
+        plt.plot_date(dates, values, fmt="r-")
+        ax.xaxis.set_tick_params(rotation=30, labelsize=5)
+        figData = BytesIO()
+        fig.savefig(figData, format='png')
+        return figData.getvalue()
 
 
 class Reports(object):

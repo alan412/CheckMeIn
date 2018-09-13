@@ -91,6 +91,13 @@ class CheckMeIn(object):
         return self.template('reports.mako', stats=self.visits.reports.getStats(startDate, endDate))
 
     @cherrypy.expose
+    def reportGraph(self, startDate, endDate):
+        cherrypy.response.headers['Content-Type'] = "image/png"
+        stats = self.visits.reports.getStats(startDate, endDate)
+        print(stats)
+        return stats.getBuildingUsageGraph()
+
+    @cherrypy.expose
     def customSQLReport(self, sql):
         try:
             data = self.visits.reports.customSQL(sql)
