@@ -56,8 +56,6 @@ class Visit(object):
         if(self.start <= startTime) and (self.leave >= endTime):
             return True
         # else False
-        print("Not here - ", startTime, endTime,
-              " in ", self.start, self.leave)
         return False
 
 
@@ -139,7 +137,6 @@ class Statistics(object):
                     hour=startHour, minute=0, second=0, microsecond=0)
                 endTimePeriod = beginTimePeriod + \
                     datetime.timedelta(seconds=60*60)
-                print(beginTimePeriod, endTimePeriod)
                 dataPoints.append(VisitorsAtTime(
                     beginTimePeriod, self.buildingUsage.inRange(beginTimePeriod, endTimePeriod)))
         return dataPoints
@@ -153,7 +150,10 @@ class Statistics(object):
             values.append(point.numVisitors)
 
         fig, ax = plt.subplots()
-        plt.plot_date(dates, values, fmt="r-")
+        plt.plot_date(x=dates, y=values, fmt="r-")
+        plt.title("Building usage")
+        plt.ylabel("Number of visitors")
+        plt.grid(True)
         ax.xaxis.set_tick_params(rotation=30, labelsize=5)
         figData = BytesIO()
         fig.savefig(figData, format='png')
