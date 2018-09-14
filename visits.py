@@ -1,8 +1,6 @@
-import csv
 import datetime
 import sqlite3
 import os
-from collections import defaultdict
 from dateutil import parser
 from members import Members
 from guests import Guests
@@ -52,7 +50,8 @@ class Visits(object):
         now = datetime.datetime.now()
         with sqlite3.connect(self.database) as c:
             data = c.execute(
-                "SELECT * FROM visits WHERE (barcode==?) and (status=='In')", (guest_id,)).fetchone()
+                "SELECT * FROM visits WHERE (barcode==?) and (status=='In')",
+                (guest_id,)).fetchone()
             if data is None:
                 c.execute("INSERT INTO visits VALUES (?,?,?,'In')",
                           (now, now, guest_id))
@@ -61,7 +60,8 @@ class Visits(object):
         now = datetime.datetime.now()
         with sqlite3.connect(self.database) as c:
             c.execute(
-                "UPDATE visits SET leave = ?, status = 'Out' WHERE (barcode==?) AND (status=='In')", (now, guest_id))
+                "UPDATE visits SET leave = ?, status = 'Out' WHERE (barcode==?) AND (status=='In')",
+                (now, guest_id))
 
     def scannedMember(self, barcode):
         now = datetime.datetime.now()
@@ -71,7 +71,6 @@ class Visits(object):
                 "SELECT displayName FROM members WHERE barcode==?", (barcode,)).fetchone()
             if data is None:
                 return 'Invalid barcode: ' + barcode
-            name = data[0]
             data = c.execute(
                 "SELECT * FROM visits WHERE (barcode==?) and (status=='In')", (barcode,)).fetchone()
             if data is None:
@@ -79,7 +78,9 @@ class Visits(object):
                           (now, now, barcode))
             else:
                 c.execute(
-                    "UPDATE visits SET leave = ?, status = 'Out' WHERE (barcode==?) AND (status=='In')", (now, barcode))
+                    "UPDATE visits SET leave = ?, status = 'Out' WHERE " +
+                    "(barcode==?) AND (status=='In')",
+                    (now, barcode))
             return ''
 
     def checkBuilding(self):
@@ -95,7 +96,8 @@ class Visits(object):
                 "UPDATE visits SET leave = ?, status = 'Forgot' WHERE status=='In'", (now,))
             if keyholder_barcode:
                 c.execute(
-                    "UPDATE visits SET status = 'Out' WHERE barcode==? AND leave==?", (keyholder_barcode, now))
+                    "UPDATE visits SET status = 'Out' WHERE barcode==? AND leave==?",
+                    (keyholder_barcode, now))
         if keyholder_barcode:
             self.keyholders.setActiveKeyholder('')
 
@@ -104,17 +106,13 @@ class Visits(object):
         startDate = now.replace(hour=0, minute=0, second=0, microsecond=0)
         with sqlite3.connect(self.database) as c:
             c.execute(
-                "UPDATE visits SET status = 'In' WHERE status=='Forgot' AND leave > ?", (startDate,))
-
-    def uniqueVisitors(self, startDate, endDate):
-        with sqlite3.connect(self.database) as c:
-            numUniqueVisitors = c.execute(
-                "SELECT COUNT(DISTINCT barcode) FROM visits WHERE (start BETWEEN ? AND ?)", (startDate, endDate)).fetchone()[0]
+                "UPDATE visits SET status = 'In' WHERE status=='Forgot' AND leave > ?",
+                (startDate,))
 
     def getKeyholderName(self):
         barcode = self.keyholders.getActiveKeyholder()
         if barcode:
-            (error, display) = self.members.getName(barcode)
+            (_, display) = self.members.getName(barcode)
             return display
         else:
             return 'N/A'
@@ -147,7 +145,7 @@ class Visits(object):
                     newLeave = parser.parse(tokens[2])
 
                     # if crossed over midnight....
-                    if(newLeave < newStart):
+                    if newLeave < newStart:
                         newLeave += datetime.timedelta(days=1)
 
                     c.execute('''UPDATE visits SET start = ?, leave = ?, status = 'Out'
@@ -166,7 +164,7 @@ if __name__ == "__main__":  # pragma no cover
     DB_STRING = 'data/test.db'
     try:
         os.remove(DB_STRING)   # Start with a new one
-    except:
+    except IOError:
         pass  # Don't care if it didn't exist
 
     visits = Visits(DB_STRING, 'data/members.csv',
@@ -175,11 +173,11 @@ if __name__ == "__main__":  # pragma no cover
     testOutput(2, visits.scannedMember('100091'))
     testOutput(3, visits.scannedMember('100090'))
     testOutput(4, visits.scannedMember('100090'))
-    guest_id = visits.guests.add('Guest 1')
-    testOutput(5, visits.enterGuest(guest_id))
-    testOutput(6, visits.leaveGuest(guest_id))
+    gid = visits.guests.add(
+        "Test 1", "Test", "1", "noemail@domain.com", "")
+    testOutput(5, visits.enterGuest(gid))
+    testOutput(6, visits.leaveGuest(gid))
     testOutput(7, visits.scannedMember('100091'))
     testOutput(8, visits.addIfNotHere('100091'))
     testOutput(9, visits.addIfNotHere('100091'))
-    testOutput(10, visits.emptyBuilding('100091'))
-# TODO: Add test for fix
+    testOutput(10, visits.emptyBuilding())

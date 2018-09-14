@@ -94,7 +94,7 @@ class Statistics(object):
    WHERE (start BETWEEN ? AND ?)''', (beginDate, endDate, beginDate, endDate)):
                 try:
                     self.visitors[row[3]].addVisit(row[0], row[1])
-                except:
+                except KeyError:
                     self.visitors[row[3]] = Person(row[2], row[0], row[1])
                 self.buildingUsage.addVisit(row[0], row[1])
         self.totalHours = 0.0

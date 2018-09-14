@@ -81,7 +81,7 @@ if __name__ == "__main__":  # pragma no cover
     DB_STRING = 'data/test.db'
     try:
         os.remove(DB_STRING)   # Start with a new one
-    except:
+    except IOError:
         pass  # Don't care if it didn't exist
     members = Members(DB_STRING)
     members.loadFromCSV('data/members.csv', 'TFI Barcode', 'TFI Display Name')
