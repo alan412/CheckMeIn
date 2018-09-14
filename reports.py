@@ -255,8 +255,10 @@ class Reports(object):
         return Statistics(self.database, startDate, endDate)
 
     def getEarliestDate(self):
-        # TODO: this should get from database, but for now....
-        return datetime.date(2018, 6, 25)
+        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+            data = c.execute(
+                "SELECT start FROM visits ORDER BY start ASC LIMIT 1").fetchone()
+            return data[0]
 
     def getForgottenDates(self):
         dates = []
