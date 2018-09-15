@@ -5,6 +5,7 @@ from mako.lookup import TemplateLookup
 import cherrypy
 import cherrypy.process.plugins
 from visits import Visits
+from teams import TeamMemberType
 
 DB_STRING = 'data/checkMeIn.db'
 KEYHOLDER_BARCODE = '999901'
@@ -82,13 +83,76 @@ class CheckMeIn(object):
         forgotDates = []
         for date in self.visits.reports.getForgottenDates():
             forgotDates.append(date.isoformat())
+        teamList = self.visits.teams.get_team_list()
         return self.template('admin.mako', forgotDates=forgotDates,
                              firstDate=firstDate, todayDate=todayDate,
-                             error=error)
+                             teamList=teamList, error=error)
 
     @cherrypy.expose
     def reports(self, startDate, endDate):
         return self.template('reports.mako', stats=self.visits.reports.getStats(startDate, endDate))
+
+    @cherrypy.expose
+    def createTeam(self, team_name):
+        error = self.visits.teams.create_team(team_name)
+        return self.admin(error)
+
+    @cherrypy.expose
+    def addTeamMembers(self, team_id, students, mentors, coaches):
+        listStudents = students.split()
+        listMentors = mentors.split()
+        listCoaches = coaches.split()
+        fullList = []
+
+        for student in listStudents:
+            fullList.append((student, TeamMemberType.student))
+        for mentor in listMentors:
+            fullList.append((mentor, TeamMemberType.mentor))
+        for coach in listCoaches:
+            fullList.append((coach, TeamMemberType.coach))
+
+        self.visits.teams.add_team_members(team_id, fullList)
+
+        return self.team(team_id)
+
+    @cherrypy.expose
+    def teamAttendance(self, team_id, date, startTime, endTime):
+        print("Team Attendance: ", team_id, date, startTime, endTime)
+        firstDate = self.visits.reports.getEarliestDate().isoformat()
+        todayDate = datetime.date.today().isoformat()
+        team_name = self.visits.teams.team_name_from_id(team_id)
+        datePieces = date.split('-')
+        startTimePieces = startTime.split(':')
+        endTimePieces = endTime.split(':')
+
+        beginMeetingTime = datetime.datetime.combine(
+            datetime.date(int(datePieces[0]), int(
+                datePieces[1]), int(datePieces[2])),
+            datetime.time(int(startTimePieces[0]), int(startTimePieces[1])))
+
+        endMeetingTime = datetime.datetime.combine(
+            datetime.date(int(datePieces[0]), int(
+                datePieces[1]), int(datePieces[2])),
+            datetime.time(int(endTimePieces[0]), int(endTimePieces[1])))
+
+        membersHere = self.visits.reports.whichTeamMembersHere(team_id,
+                                                               beginMeetingTime,
+                                                               endMeetingTime)
+
+        return self.template('team_attendance.mako', team_id=team_id,
+                             team_name=team_name, firstDate=firstDate,
+                             todayDate=todayDate, membersHere=membersHere,
+                             date=date, startTime=startTime, endTime=endTime)
+
+    @cherrypy.expose
+    def team(self, team_id, error=''):
+        firstDate = self.visits.reports.getEarliestDate().isoformat()
+        todayDate = datetime.date.today().isoformat()
+        team_name = self.visits.teams.team_name_from_id(team_id)
+        members = self.visits.teams.get_team_members(team_id)
+
+        return self.template('team.mako', firstDate=firstDate, team_id=team_id,
+                             todayDate=todayDate, team_name=team_name, members=members, error=error)
 
     @cherrypy.expose
     def reportGraph(self, startDate, endDate):
@@ -178,7 +242,7 @@ if __name__ == '__main__':  # pragma no cover
     parser.add_argument('conf')
     args = parser.parse_args()
 
-    #wd = cherrypy.process.plugins.BackgroundTask(15, func)
+    # wd = cherrypy.process.plugins.BackgroundTask(15, func)
     # wd.start()
 
     cherrypy.quickstart(CheckMeIn(), '', args.conf)

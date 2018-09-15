@@ -79,3 +79,27 @@ WHERE (start BETWEEN '2018-07-01' AND '2018-07-10');
    <input type="submit" value="Generate Custom SQL Report"/>
  </fieldset>
 </FORM>
+<form action="createTeam">
+  <fieldset>
+    <legend>Create a Team</legend>
+    <div>
+    <label for="team_name">Team Name:</label>        
+    <input type="text" name="team_name" placeholder="FLL447-2018"/><br/>
+    </div>    
+    <input type="submit" value="Create Team"/>
+  </fieldset>
+</form>
+<form action="team">
+  <fieldset>
+    <legend>Admin Team</legend>
+    <div>
+    <label for="team_id">Team Name:</label>        
+    <select name="team_id">
+   % for team in teamList:
+        <option value="${team[0]}">${team[1]}</option>
+   % endfor
+    </select><br/>
+    </div>    
+    <input type="submit" value="Admin Team"/>
+  </fieldset>
+</form>

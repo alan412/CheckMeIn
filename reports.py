@@ -186,6 +186,20 @@ class Reports(object):
                     row[0] + ' - ( ' + row[1].strftime("%I:%M %p") + ' )')
         return listPresent
 
+    def whichTeamMembersHere(self, team_id, startTime, endTime):
+        listPresent = []
+        print("WhichTeamMembersHere", team_id, ",", startTime, "-", endTime)
+        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+            for row in c.execute('''SELECT displayName
+           FROM visits
+           INNER JOIN members ON members.barcode = visits.barcode
+           INNER JOIN team_members ON team_members.barcode = visits.barcode
+           WHERE (visits.start <= ?) AND (visits.leave >= ?) AND team_members.team_id = ?
+           ORDER BY displayName ASC''', (endTime, startTime, team_id)):
+                listPresent.append(row[0])
+        print(listPresent)
+        return listPresent
+
     def guestsInBuilding(self):
         listPresent = []
         with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:

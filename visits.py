@@ -5,9 +5,10 @@ from dateutil import parser
 from members import Members
 from guests import Guests
 from reports import Reports
+from teams import Teams
 from keyholders import Keyholders
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 
 class Visits(object):
@@ -26,6 +27,7 @@ class Visits(object):
         self.guests = Guests(self.database)
         self.keyholders = Keyholders(self.database)
         self.reports = Reports(self.database)
+        self.teams = Teams(self.database)
         if not os.path.exists(self.database):
             self.createDB(filename, barcode, display)
         else:
@@ -35,11 +37,12 @@ class Visits(object):
                     self.migrate(c, data[0])
 
     def migrate(self, dbConnection, db_schema_version):
-        if db_schema_version <= 3:
+        if db_schema_version <= 4:
             # No change for Visits
             self.members.migrate(dbConnection, db_schema_version)
             self.guests.migrate(dbConnection, db_schema_version)
             self.keyholders.migrate(dbConnection, db_schema_version)
+            self.teams.migrate(dbConnection, db_schema_version)
             dbConnection.execute(
                 'PRAGMA schema_version = ' + str(SCHEMA_VERSION))
         else:

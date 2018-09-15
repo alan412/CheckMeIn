@@ -165,3 +165,11 @@ table.header{
     text-decoration: none;
     cursor: pointer;
 }
+
+table.teams {
+    border-collapse: collapse;
+}
+
+table.teams, th.teams, td.teams {
+    border: 1px solid black;
+}
