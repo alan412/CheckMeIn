@@ -8,7 +8,7 @@ from reports import Reports
 from teams import Teams
 from keyholders import Keyholders
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 
 class Visits(object):
@@ -37,7 +37,7 @@ class Visits(object):
                     self.migrate(c, data[0])
 
     def migrate(self, dbConnection, db_schema_version):
-        if db_schema_version <= 4:
+        if db_schema_version <= 5:
             # No change for Visits
             self.members.migrate(dbConnection, db_schema_version)
             self.guests.migrate(dbConnection, db_schema_version)

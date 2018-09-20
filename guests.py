@@ -34,8 +34,11 @@ class Guests(object):
                                  whereFound TEXT,
                                  status INTEGER default 1
                                  )''')
+        if db_schema_version <= 5:
+            dbConnection.execute(
+                "ALTER TABLE guests ADD COLUMN newsletter INTEGER default 0")
 
-    def add(self, displayName, first, last, email, whereFound):
+    def add(self, displayName, first, last, email, whereFound, newsletter):
         if self.date != datetime.date.today():
             self.date = datetime.date.today()
             self.num = 1
@@ -47,9 +50,9 @@ class Guests(object):
                     guest_id = self.date.strftime(
                         "%Y%m%d") + '{0:04d}'.format(self.num)
                     # zero padded up to 9999 for each day
-                    c.execute("INSERT INTO guests VALUES (?,?,?,?,?,?,?)",
+                    c.execute("INSERT INTO guests VALUES (?,?,?,?,?,?,?,?)",
                               (guest_id, displayName, email, first,
-                               last, whereFound, Status.active))
+                               last, whereFound, Status.active, newsletter))
                 except sqlite3.DatabaseError:
                     self.num = self.num + 1
                 else:

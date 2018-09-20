@@ -176,17 +176,17 @@ class CheckMeIn(object):
         return self.admin(error)
 
     @cherrypy.expose
-    def addGuest(self, first, last, email, reason, other_reason):
+    def addGuest(self, first, last, email, reason, other_reason, newsletter):
         if first == '' or last == '':
             return self.showGuestPage('Need a first and last name')
 
         displayName = first + ' ' + last[0] + '.'
         if reason != '':
             guest_id = self.visits.guests.add(
-                displayName, first, last, email, reason)
+                displayName, first, last, email, reason, newsletter)
         else:
             guest_id = self.visits.guests.add(
-                displayName, first, last, email, 'Other: ' + other_reason)
+                displayName, first, last, email, 'Other: ' + other_reason, newsletter)
         self.visits.enterGuest(guest_id)
         return self.showGuestPage('Welcome ' + displayName + '  We are glad you are here!')
 

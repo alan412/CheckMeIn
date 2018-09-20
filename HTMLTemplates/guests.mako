@@ -50,6 +50,9 @@
         '<td><input type="text" name="last" placeholder="Last"></td></tr>' +
         '<tr><td class="label">E-mail:</td>' +
         '<td><input type="text" name="email" placeholder="me@mail.com"></td></tr>' +
+        '<tr><td class="label">Subscribe to e-mail newsletter?</td>' +
+        '<td><input type="radio" name="newsletter" value="yes" checked>Yes!  ' +
+        '<input type="radio" name="newsletter" value="yes">No</td></tr>' +
         '<tr><td class="label">What brings you here today?</TD>' +
         '<td><input type="radio" name="reason" value="Tour" checked="checked">Tour / Introduction<br/>' +
         '<input type="radio" name="reason" value="Event">Scheduled event - program, workshop, camp or event<br />' +
