@@ -106,7 +106,6 @@ class Statistics(object):
         if self.uniqueVisitors == 0:
             self.avgTime = 0
             self.medianTime = 0
-            self.top10 = []
             self.sortedList = []
         else:
             self.avgTime = self.totalHours / self.uniqueVisitors
@@ -120,11 +119,6 @@ class Statistics(object):
             else:
                 self.medianTime = (
                     self.sortedList[half - 1].hours + self.sortedList[half].hours) / 2.0
-
-            if len(self.sortedList) > 10:
-                self.top10 = self.sortedList[:9]
-            else:
-                self.top10 = self.sortedList
 
     def getBuildingUsage(self):
         dataPoints = []

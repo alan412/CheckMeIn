@@ -22,7 +22,7 @@
   <LI>Average time per visitor: ${'% 6.1f' % stats.avgTime}</LI>
   <LI>Median time per visitor: ${'% 6.1f' % stats.medianTime}</LI>
   <LI>Top 10 by time spent</LI><TABLE>
-      % for person in stats.top10:
+      % for person in stats.sortedList[:9]:
          <TR><TD>${person.name}</TD><TD>${'% 6.1f' % person.hours}</TD></TR>
       % endfor
       </TABLE>
