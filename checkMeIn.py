@@ -84,9 +84,10 @@ class CheckMeIn(object):
         for date in self.visits.reports.getForgottenDates():
             forgotDates.append(date.isoformat())
         teamList = self.visits.teams.get_team_list()
+        reportList = self.visits.customReports.get_report_list()
         return self.template('admin.mako', forgotDates=forgotDates,
                              firstDate=firstDate, todayDate=todayDate,
-                             teamList=teamList, error=error)
+                             teamList=teamList, reportList=reportList, error=error)
 
     @cherrypy.expose
     def reports(self, startDate, endDate):
@@ -162,9 +163,26 @@ class CheckMeIn(object):
         return stats.getBuildingUsageGraph()
 
     @cherrypy.expose
+    def saveReport(self, sql, report_name):
+        error = self.visits.customReports.saveCustomSQL(sql, report_name)
+        return self.admin(error)
+
+    @cherrypy.expose
+    def savedReport(self, report_id, error=''):
+        title = "Error"
+        sql = ""
+        try:
+            (title, sql, data) = self.visits.customReports.customReport(report_id)
+            print("Title: ", title)
+        except sqlite3.OperationalError as e:
+            data = repr(e)
+
+        return self.template('customSQL.mako', report_title=title, sql=sql, data=data)
+
+    @cherrypy.expose
     def customSQLReport(self, sql):
         try:
-            data = self.visits.reports.customSQL(sql)
+            data = self.visits.customReports.customSQL(sql)
         except sqlite3.OperationalError as e:
             data = repr(e)
 

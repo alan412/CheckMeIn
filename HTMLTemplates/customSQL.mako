@@ -9,6 +9,10 @@
 <IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
 </CENTER>
 
+%if report_title:
+  <H1>${report_title}</H1>
+%endif
+
 <FORM action="customSQLReport">
      <fieldset>
         <legend>SQL command</legend>
@@ -20,7 +24,6 @@ ${sql}
  </fieldset>
 </FORM>
 
-
 <H2>Output</H2>
 <table class="SQLoutput">
 % for row in data:
@@ -31,3 +34,15 @@ ${sql}
 </tr>
 % endfor
 </table>
+
+<br/>
+<FORM action="saveReport">
+     <fieldset>
+        <legend>Save Report</legend>
+    <label for="report_name">Report Name:</label>
+    <input type="text" size="40" name="report_name" placeholder="Friendly name here"/><br/>
+   <br/>
+   <input type="hidden" name="sql" value="${sql}"/>
+   <input type="submit" value="Save Report"/>
+ </fieldset>
+</FORM>

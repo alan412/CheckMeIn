@@ -47,7 +47,7 @@
 
 
 
-<H2>Generate reports</H2>
+<H2>Reports</H2>
 <form action="reports" width="50%">
    <fieldset>
        <legend>Select Dates</legend>
@@ -62,9 +62,26 @@
        min="${firstDate}" max="${todayDate}"/>
    </div>
 
-   <input type="submit" value="Generate Report"/>
+   <input type="submit" value="Generate Statistics"/>
    </fieldset>
 </form>
+<br/>
+
+<form action="savedReport" width="50%">
+   <fieldset>
+       <legend>Saved Reports</legend>
+   <div>
+    <label for="report_id">Saved Reports:</label>
+    <select name="report_id">
+   % for report in reportList:
+        <option value="${report[0]}">${report[1]}</option>
+   % endfor
+    </select><br/>
+    </div>    
+    <input type="submit" value="Get Report"/>
+   </fieldset>
+</form>
+
 <br/>
 <FORM action="customSQLReport">
      <fieldset>

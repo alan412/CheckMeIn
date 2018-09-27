@@ -7,8 +7,9 @@ from guests import Guests
 from reports import Reports
 from teams import Teams
 from keyholders import Keyholders
+from customReports import CustomReports
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 
 class Visits(object):
@@ -28,6 +29,7 @@ class Visits(object):
         self.keyholders = Keyholders(self.database)
         self.reports = Reports(self.database)
         self.teams = Teams(self.database)
+        self.customReports = CustomReports(self.database)
         if not os.path.exists(self.database):
             self.createDB(filename, barcode, display)
         else:
@@ -37,12 +39,13 @@ class Visits(object):
                     self.migrate(c, data[0])
 
     def migrate(self, dbConnection, db_schema_version):
-        if db_schema_version <= 5:
+        if db_schema_version <= 6:
             # No change for Visits
             self.members.migrate(dbConnection, db_schema_version)
             self.guests.migrate(dbConnection, db_schema_version)
             self.keyholders.migrate(dbConnection, db_schema_version)
             self.teams.migrate(dbConnection, db_schema_version)
+            self.customReports.migrate(dbConnection, db_schema_version)
             dbConnection.execute(
                 'PRAGMA schema_version = ' + str(SCHEMA_VERSION))
         else:

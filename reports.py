@@ -300,17 +300,6 @@ class Reports(object):
                     Datum(start=row[1], leave=row[2], name=row[0], status=row[3], rowid=row[4]))
         return data
 
-    def customSQL(self, sql):
-        # open as read only
-        with sqlite3.connect('file:' + self.database + '?mode=ro', uri=True) as c:
-            cur = c.cursor()
-            cur.execute(sql)
-            header = [i[0] for i in cur.description]
-            rows = [list(i) for i in cur.fetchall()]
-            # append header to rows
-            rows.insert(0, header)
-        return rows
-
 
 # unit test
 if __name__ == "__main__":  # pragma no cover
