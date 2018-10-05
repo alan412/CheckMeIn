@@ -56,7 +56,7 @@ class Members(object):
             data = c.execute(
                 "SELECT displayName FROM members WHERE barcode==?", (barcode,)).fetchone()
             if data is None:
-                return ('Invalid: ' + barcode,)
+                return ('Invalid: ' + barcode, None)
             else:
                 # Add code here for inactive
                 return ('', data[0])
