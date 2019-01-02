@@ -22,10 +22,10 @@ class CheckMeIn(object):
         return self.lookup.get_template(name).render(**kwargs)
 
     def showGuestPage(self, message=''):
-        all_guests = set(self.visits.guests.getList())
-        building_guests = set(self.visits.reports.guestsInBuilding())
+        all_guests = self.visits.guests.getList()
+        building_guests = self.visits.reports.guestsInBuilding()
 
-        guests_not_here = all_guests - building_guests
+        guests_not_here = [guest for guest in all_guests if guest not in building_guests]
 
         return self.template('guests.mako', message=message,
                              inBuilding=building_guests,
