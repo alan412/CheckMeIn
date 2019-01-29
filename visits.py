@@ -127,8 +127,11 @@ class Visits(object):
 
     def setActiveKeyholder(self, barcode):
         # TODO: once keyholders does verification, this should have the possibility of error
+        leavingKeyholder = self.keyholders.getActiveKeyholder()
         self.keyholders.setActiveKeyholder(barcode)
         self.addIfNotHere(barcode)
+        if leavingKeyholder:
+            self.scannedMember(leavingKeyholder)
         return ''
 
     def addIfNotHere(self, barcode):
