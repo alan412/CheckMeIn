@@ -21,11 +21,19 @@ class Keyholders(object):
             dbConnection.execute('''CREATE TABLE keyholders
                                  (barcode TEXT PRIMARY KEY, active INTEGER default 0)''')
 
+    def removeKeyholder(self, dbConnection):
+        dbConnection.execute("UPDATE keyholders SET active = ? WHERE (active==?)",
+                             (Status.inactive, Status.active))
+
+    def isKeyholder(self, dbConnection, barcode):
+        data = dbConnection.execute(
+            "SELECT barcode FROM keyholders WHERE barcode==?", (Status.barcode,)).fetchone()
+        return (data is not None)
+
     def setActiveKeyholder(self, barcode):
         with sqlite3.connect(self.database) as c:
-            c.execute("UPDATE keyholders SET active = ? WHERE (active==?)",
-                      (Status.inactive, Status.active))
             if barcode:
+                self.removeKeyholder(c)
                 c.execute(
                     "REPLACE INTO keyholders (barcode, active) VALUES (?,?)", (barcode, Status.active))
 
