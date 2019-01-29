@@ -82,6 +82,9 @@ class Visits(object):
             if data is None:
                 c.execute("INSERT INTO visits VALUES (?,?,?,'In')",
                           (now, now, barcode))
+                if not self.keyholders.getActiveKeyholder():
+                    if self.keyholders.isKeyholder(c, barcode):
+                        self.keyholders.setActiveKeyholder(barcode)
             else:
                 c.execute(
                     "UPDATE visits SET leave = ?, status = 'Out' WHERE " +
@@ -104,8 +107,7 @@ class Visits(object):
                 c.execute(
                     "UPDATE visits SET status = 'Out' WHERE barcode==? AND leave==?",
                     (keyholder_barcode, now))
-        if keyholder_barcode:
-            self.keyholders.setActiveKeyholder('')
+                self.keyholders.removeKeyholder(c)
 
     def oopsForgot(self):
         now = datetime.datetime.now()
