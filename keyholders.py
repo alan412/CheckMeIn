@@ -27,24 +27,22 @@ class Keyholders(object):
 
     def isKeyholder(self, dbConnection, barcode):
         data = dbConnection.execute(
-            "SELECT barcode FROM keyholders WHERE barcode==?", (Status.barcode,)).fetchone()
+            "SELECT barcode FROM keyholders WHERE barcode==?", (barcode,)).fetchone()
         return (data is not None)
 
-    def setActiveKeyholder(self, barcode):
-        with sqlite3.connect(self.database) as c:
-            if barcode:
-                self.removeKeyholder(c)
-                c.execute(
-                    "REPLACE INTO keyholders (barcode, active) VALUES (?,?)", (barcode, Status.active))
+    def setActiveKeyholder(self, c, barcode):
+        if barcode:
+             self.removeKeyholder(c)
+             c.execute(
+                 "REPLACE INTO keyholders (barcode, active) VALUES (?,?)", (barcode, Status.active))
 
-    def getActiveKeyholder(self):
-        with sqlite3.connect(self.database) as c:
-            data = c.execute(
+    def getActiveKeyholder(self, c):
+        data = c.execute(
                 "SELECT barcode FROM keyholders WHERE active==?", (Status.active,)).fetchone()
-            if data is None:
-                return ''
-            else:
-                return data[0]
+        if data is None:
+            return ''
+        else:
+            return data[0]
 
 
 # unit test
@@ -57,14 +55,15 @@ if __name__ == "__main__":  # pragma no cover
     keyholders = Keyholders(DB_STRING)
     keyholders.createTable()
 
-    keyholders.setActiveKeyholder('100090')
-    print("Active: ", keyholders.getActiveKeyholder())
+    with sqlite3.connect(self.database) as c:
+       keyholders.setActiveKeyholder(c,'100090')
+       print("Active: ", keyholders.getActiveKeyholder(c))
 
-    keyholders.setActiveKeyholder('100091')
-    print("Active: ", keyholders.getActiveKeyholder())
+       keyholders.setActiveKeyholder(c,'100091')
+       print("Active: ", keyholders.getActiveKeyholder(c))
 
-    keyholders.setActiveKeyholder('100090')
-    print("Active: ", keyholders.getActiveKeyholder())
+       keyholders.setActiveKeyholder(c,'100090')
+       print("Active: ", keyholders.getActiveKeyholder(c))
 
-    keyholders.setActiveKeyholder('')
-    print("Active: ", keyholders.getActiveKeyholder())
+       keyholders.setActiveKeyholder(c,'')
+       print("Active: ", keyholders.getActiveKeyholder(c))

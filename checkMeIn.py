@@ -68,7 +68,7 @@ class CheckMeIn(object):
 
         for bc in barcodes:
             if (bc == KEYHOLDER_BARCODE) or (
-                    bc == self.visits.keyholders.getActiveKeyholder()):
+                    bc == self.visits.getActiveKeyholder()):
                 return self.template('keyholder.mako', whoIsHere=self.visits.reports.whoIsHere())
             else:
                 error = self.visits.scannedMember(bc)

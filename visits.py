@@ -82,9 +82,9 @@ class Visits(object):
             if data is None:
                 c.execute("INSERT INTO visits VALUES (?,?,?,'In')",
                           (now, now, barcode))
-                if not self.keyholders.getActiveKeyholder():
+                if not self.keyholders.getActiveKeyholder(c):
                     if self.keyholders.isKeyholder(c, barcode):
-                        self.keyholders.setActiveKeyholder(barcode)
+                        self.keyholders.setActiveKeyholder(c, barcode)
             else:
                 c.execute(
                     "UPDATE visits SET leave = ?, status = 'Out' WHERE " +
@@ -99,7 +99,7 @@ class Visits(object):
 
     def emptyBuilding(self):
         now = datetime.datetime.now()
-        keyholder_barcode = self.keyholders.getActiveKeyholder()
+        keyholder_barcode = self.getActiveKeyholder()
         with sqlite3.connect(self.database) as c:
             c.execute(
                 "UPDATE visits SET leave = ?, status = 'Forgot' WHERE status=='In'", (now,))
@@ -118,7 +118,7 @@ class Visits(object):
                 (startDate,))
 
     def getKeyholderName(self):
-        barcode = self.keyholders.getActiveKeyholder()
+        barcode = self.getActiveKeyholder()
         if barcode:
             (_, display) = self.members.getName(barcode)
             return display
@@ -127,12 +127,17 @@ class Visits(object):
 
     def setActiveKeyholder(self, barcode):
         # TODO: once keyholders does verification, this should have the possibility of error
-        leavingKeyholder = self.keyholders.getActiveKeyholder()
-        self.keyholders.setActiveKeyholder(barcode)
+        with sqlite3.connect(self.database) as c: 
+           leavingKeyholder = self.keyholders.getActiveKeyholder(c)
+           self.keyholders.setActiveKeyholder(c,barcode)
         self.addIfNotHere(barcode)
         if leavingKeyholder:
             self.scannedMember(leavingKeyholder)
         return ''
+    
+    def getActiveKeyholder(self):
+         with sqlite3.connect(self.database) as c:
+             return self.keyholders.getActiveKeyholder(c)
 
     def addIfNotHere(self, barcode):
         now = datetime.datetime.now()
