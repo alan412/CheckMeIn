@@ -6,12 +6,12 @@ from enum import IntEnum
 
 
 class CertificationLevels(IntEnum):
-    none = 0
-    basic = 1
-    certified = 10
-    dof = 20
-    instructor = 30
-    certifier = 40
+    NONE = 0
+    BASIC = 1
+    CERTIFIED = 10
+    DOF = 20
+    INSTRUCTOR = 30
+    CERTIFIER = 40
 
 
 class Certifications(object):
@@ -25,6 +25,35 @@ class Certifications(object):
     def addTool(self, dbConnection, tool_id, grouping, name, restriction=0, comments=''):
         dbConnection.execute('INSERT INTO tools VALUES(?,?,?,?,?)',
                              (tool_id, grouping, name, restriction, comments))
+
+    def addTools(self, dbConnection):
+        tools = {[1, 1, "Sheet Metal Brake"],
+                 [2, 1, "Blind Rivet Gun"],
+                 [3, 1, "Stretcher Shrinker"],
+                 [4, 1, "3D printers"],
+
+                 [5, 2, "Power Hand Drill"],
+                 [6, 2, "Solder Iron"],
+                 [7, 2, "Dremel"],
+
+                 [8, 3, "Horizontal Band Saw"],
+                 [9, 3, "Drill Press"],
+                 [10, 3, "Grinder / Sander"],
+
+                 [11, 4, "Scroll Saw"],
+                 [12, 4, "Table Mounted Jig Saw"],
+                 [13, 4, "Vertical Band Saw"],
+                 [14, 4, "Jig Saw"],
+
+                 [15, 5, "CNC router"],
+                 [16, 5, "Metal Lathe"],
+                 [17, 5, "Table Saw"],
+                 [18, 5, "Power Miter Saw"]}
+        for tool in tools:
+            if tool[2] == "Power Miter Saw" or tool[2] == "Table Saw":  # Over 18 only tools
+                self.addTool(dbConnection, tool[0], tool[1], tool[2], 1)
+            else:
+                self.addTool(dbConnection, tool[0], tool[1], tool[2])
 
     def migrate(self, dbConnection, db_schema_version):
         if db_schema_version < 8:
@@ -41,29 +70,6 @@ class Certifications(object):
                                   restriction  INTEGER DEFAULT 0,
                                   comments     TEXT)''')
 
-            self.addTool(dbConnection, 1, 1, "Sheet Metal Brake")
-            self.addTool(dbConnection, 2, 1, "Blind Rivet Gun")
-            self.addTool(dbConnection, 3, 1, "Stretcher Shrinker")
-            self.addTool(dbConnection, 4, 1, "3D printers")
-
-            self.addTool(dbConnection, 5, 2, "Power Hand Drill")
-            self.addTool(dbConnection, 6, 2, "Solder Iron")
-            self.addTool(dbConnection, 7, 2, "Dremel")
-
-            self.addTool(dbConnection, 8, 3, "Horizontal Band Saw")
-            self.addTool(dbConnection, 9, 3, "Drill Press")
-            self.addTool(dbConnection, 10, 3, "Grinder / Sander")
-
-            self.addTool(dbConnection, 11, 4, "Scroll Saw")
-            self.addTool(dbConnection, 12, 4, "Table Mounted Jig Saw")
-            self.addTool(dbConnection, 13, 4, "Vertical Band Saw")
-            self.addTool(dbConnection, 14, 4, "Jig Saw")
-
-            self.addTool(dbConnection, 15, 5, "CNC router")
-            self.addTool(dbConnection, 16, 5, "Metal Lathe")
-            self.addTool(dbConnection, 17, 5, "Table Saw")
-            self.addTool(dbConnection, 18, 5, "Power Miter Saw")
-
             dbConnection.execute('''CREATE TABLE certifications
                                  (user_id       TEXT PRIMARY KEY,
                                   tool_id       INTEGER,
@@ -78,6 +84,16 @@ class Certifications(object):
                                 SELECT ?, ?, ?, ?, ?
                                 WHERE NOT EXISTS(SELECT 1 FROM certifications WHERE user_id=? AND tool_id=? AND level=?)''',
                              (barcode, tool_id, certifier, date, level, barcode, tool_id, level))
+
+        self.addTools(dbConnection)
+
+    def getListCertifyTools(self, dbConnection, user_id):
+        tools = []
+        for row in dbConnection.execute('''SELECT id, name FROM tools 
+                 INNER JOIN certifications ON certifications.tool_id = id
+                 WHERE user_id = ? AND level >= ?''', (user_id, CertificationLevels.CERTIFIER)):
+            tools.append([row[0], row[1]])
+        return tools
 
     def parseCert(self, str):
         str = str.upper()
