@@ -76,6 +76,7 @@ class Certifications(object):
                                   certifier_id  TEXT,
                                   date          TIMESTAMP,
                                   level         INTEGER default 0)''')
+            self.addTools(dbConnection)
 
     def addCertification(self, dbConnection, barcode, tool_id, level, date, certifier):
         # date needs to be changed to match format we want
@@ -85,7 +86,6 @@ class Certifications(object):
                                 WHERE NOT EXISTS(SELECT 1 FROM certifications WHERE user_id=? AND tool_id=? AND level=?)''',
                              (barcode, tool_id, certifier, date, level, barcode, tool_id, level))
 
-        self.addTools(dbConnection)
 
     def getListCertifyTools(self, dbConnection, user_id):
         tools = []
