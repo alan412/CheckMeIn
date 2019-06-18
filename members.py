@@ -61,6 +61,19 @@ class Members(object):
                 # Add code here for inactive
                 return ('', data[0])
 
+    def getBarcode(self, name, dbConnection=NULL):
+        if not dbConnection:
+            dbConnection = sqlite3.connect(self.database)
+
+        with dbConnection as c:
+            data = c.execute(
+                "SELECT barcode FROM members WHERE displayName==?", (name,)).fetchone()
+            if data is None:
+                return ''
+            else:
+                # Add code here for inactive
+                return data[0]
+
     def changeMemberStatus(self, newStatus, barcode):
         with sqlite3.connect(self.database) as c:
             c.execute('''UPDATE members
