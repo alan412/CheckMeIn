@@ -1,6 +1,7 @@
 import sqlite3
 import os
 import csv
+import members
 from enum import IntEnum
 
 
@@ -67,8 +68,16 @@ class Certifications(object):
                                  (user_id       TEXT PRIMARY KEY,
                                   tool_id       INTEGER,
                                   certifier_id  TEXT,
-                                  change        TIMESTAMP,
+                                  date          TIMESTAMP,
                                   level         INTEGER default 0)''')
+
+    def addCertification(self, dbConnection, barcode, tool_id, level, date, certifier):
+        # date needs to be changed to match format we want
+
+        dbConnection.execute('''INSERT INTO certifications(user_id, tool_id, certifier_id, date, level)
+                                SELECT ?, ?, ?, ?, ?
+                                WHERE NOT EXISTS(SELECT 1 FROM certifications WHERE user_id=? AND tool_id=? AND level=?)''',
+                             (barcode, tool_id, certifier, date, level, barcode, tool_id, level))
 
     def parseCert(self, str):
         str = str.upper()
@@ -79,7 +88,7 @@ class Certifications(object):
                 return (level, str[len(level) + 1:])
         return ('INVALID', '')
 
-    def importFromCSV(self, filename):
+    def importFromCSV(self, filename, members, dbConnection):
         tool_dict = {4: 1, 5: 2, 6: 3, 7: 4, 9: 5, 10: 6, 11: 7, 13: 8, 14: 9,
                      15: 10, 17: 11, 18: 12, 19: 13, 20: 14, 22: 15, 23: 16, 24: 17, 25: 18}
         with open(filename) as csvfile:
@@ -87,20 +96,19 @@ class Certifications(object):
             cert_level = 0
             cert_date = ''
             for row in reader:
-                print('Name: ', row[2])
-                # TODO: See if name is legit, otherwise complain loudly
-                for i in range(4, 26):
-                    if row[i] and row[i] != 'N/A':
-                        print(tool_dict[i], self.parseCert(row[i]))
-
+                barcode = members.getBarcode(row[2])
+                if barcode:
+                    for i in range(4, 26):
+                        if row[i] and row[i] != 'N/A':
+                            (level, date) = self.parseCert(row[i])
+                            self.addCertification(
+                                dbConnection, barcode, tool_dict[i], level, date, 'LEGACY')
+                else:
+                    print('Name not found: ', row[2])
 
         # unit test
 if __name__ == "__main__":  # pragma no cover
     DB_STRING = 'data/test.db'
-    try:
-        os.remove(DB_STRING)   # Start with a new one
-    except:
-        pass  # Don't care if it didn't exist
     certifications = Certifications(DB_STRING)
     certifications.createTable()
     certifications.importFromCSV("test.csv")
