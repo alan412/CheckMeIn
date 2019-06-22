@@ -8,8 +8,9 @@ from reports import Reports
 from teams import Teams
 from keyholders import Keyholders
 from customReports import CustomReports
+from certifications import Certifications
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 
 class Visits(object):
@@ -30,6 +31,7 @@ class Visits(object):
         self.reports = Reports(self.database)
         self.teams = Teams(self.database)
         self.customReports = CustomReports(self.database)
+        self.certifications = Certifications(self.database)
         if not os.path.exists(self.database):
             self.createDB(filename, barcode, display)
         else:
@@ -39,16 +41,17 @@ class Visits(object):
                     self.migrate(c, data[0])
 
     def migrate(self, dbConnection, db_schema_version):
-        if db_schema_version <= 6:
+        if db_schema_version < SCHEMA_VERSION:
             # No change for Visits
             self.members.migrate(dbConnection, db_schema_version)
             self.guests.migrate(dbConnection, db_schema_version)
             self.keyholders.migrate(dbConnection, db_schema_version)
             self.teams.migrate(dbConnection, db_schema_version)
             self.customReports.migrate(dbConnection, db_schema_version)
+            self.certifications.migrate(dbConnection, db_schema_version)
             dbConnection.execute(
                 'PRAGMA schema_version = ' + str(SCHEMA_VERSION))
-        else:
+        elif db_schema_version != SCHEMA_VERSION:
             raise Exception("Unknown DB schema version" +
                             str(db_schema_version) + ": " + self.database)
 
@@ -127,17 +130,32 @@ class Visits(object):
 
     def setActiveKeyholder(self, barcode):
         # TODO: once keyholders does verification, this should have the possibility of error
-        with sqlite3.connect(self.database) as c: 
-           leavingKeyholder = self.keyholders.getActiveKeyholder(c)
-           self.keyholders.setActiveKeyholder(c,barcode)
+        with sqlite3.connect(self.database) as c:
+            leavingKeyholder = self.keyholders.getActiveKeyholder(c)
+            self.keyholders.setActiveKeyholder(c, barcode)
         self.addIfNotHere(barcode)
         if leavingKeyholder:
             self.scannedMember(leavingKeyholder)
         return ''
-    
+
+    def getMembersInBuilding(self):
+        listPresent = []
+        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+            for row in c.execute('''SELECT displayName, visits.barcode
+            FROM visits
+            INNER JOIN members ON members.barcode = visits.barcode
+            WHERE visits.status=='In'
+            UNION
+            SELECT displayName, start
+            FROM visits
+            INNER JOIN guests ON guests.guest_id = visits.barcode
+            WHERE visits.status=='In' ORDER BY displayName'''):
+                listPresent.append([row[0], row[1]])
+        return listPresent
+
     def getActiveKeyholder(self):
-         with sqlite3.connect(self.database) as c:
-             return self.keyholders.getActiveKeyholder(c)
+        with sqlite3.connect(self.database) as c:
+            return self.keyholders.getActiveKeyholder(c)
 
     def addIfNotHere(self, barcode):
         now = datetime.datetime.now()
@@ -166,6 +184,8 @@ class Visits(object):
 
                     c.execute('''UPDATE visits SET start = ?, leave = ?, status = 'Out'
                             WHERE (visits.rowid==?)''', (newStart, newLeave, rowID))
+
+
 # unit test
 
 

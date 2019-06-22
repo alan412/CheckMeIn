@@ -61,7 +61,7 @@ class Members(object):
                 # Add code here for inactive
                 return ('', data[0])
 
-    def getBarcode(self, name, dbConnection=NULL):
+    def getBarcode(self, name, dbConnection=0):
         if not dbConnection:
             dbConnection = sqlite3.connect(self.database)
 

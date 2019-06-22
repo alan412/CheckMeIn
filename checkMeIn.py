@@ -25,7 +25,8 @@ class CheckMeIn(object):
         all_guests = self.visits.guests.getList()
         building_guests = self.visits.reports.guestsInBuilding()
 
-        guests_not_here = [guest for guest in all_guests if guest not in building_guests]
+        guests_not_here = [
+            guest for guest in all_guests if guest not in building_guests]
 
         return self.template('guests.mako', message=message,
                              inBuilding=building_guests,
@@ -244,6 +245,43 @@ class CheckMeIn(object):
             return self.showGuestPage(error)
 
         return self.showGuestPage('Welcome back, ' + name + ' We are glad you are here!')
+
+    @cherrypy.expose
+    def submitCertification(self, member_id, tool_id, certifier_id, newLevel):
+        todayDate = datetime.date.today().isoformat()
+        if self.visits.certification.addCertification(dbConnection, member_id, tool_id, newLevel, todayDate, certifier_id):
+            message = 'Success adding'
+        else:
+            message = 'Failure adding'
+        return self.template('certifications.mako', message=message,
+                             certifications=self.visits.certifications)
+
+    @cherrypy.expose
+    def certify(self, certifier_id):
+        message = ''
+        return self.template('certify.mako', message=message,
+                             certifier=self.visits.members.getName(
+                                 certifier_id)[1],
+                             certifier_id=certifier_id,
+                             members_in_building=self.visits.getMembersInBuilding(),
+                             tools=self.visits.certifications.getToolList(certifier_id))
+
+    @cherrypy.expose
+    def addCertification(self, member_id, certifier_id, tool_id, level):
+        # We don't check here for valid tool since someone is forging HTML to put an invalid one
+        # and we'll catch it with the email out...
+        self.visits.certifications.addNewCertification(
+            member_id, tool_id, level, certifier_id)
+
+        return self.certification_list()
+
+    @cherrypy.expose
+    def certification_list(self):
+        message = ''
+        return self.template('certifications.mako', message=message,
+                             members_in_building=self.visits.getMembersInBuilding(),
+                             tools=self.visits.certifications.getAllTools(),
+                             certifications=self.visits.certifications.getList())
 
     @cherrypy.expose
     def index(self):

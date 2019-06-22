@@ -1,3 +1,4 @@
+import datetime
 import sqlite3
 import os
 import csv
@@ -27,7 +28,7 @@ class Certifications(object):
                              (tool_id, grouping, name, restriction, comments))
 
     def addTools(self, dbConnection):
-        tools = {[1, 1, "Sheet Metal Brake"],
+        tools = [[1, 1, "Sheet Metal Brake"],
                  [2, 1, "Blind Rivet Gun"],
                  [3, 1, "Stretcher Shrinker"],
                  [4, 1, "3D printers"],
@@ -48,7 +49,7 @@ class Certifications(object):
                  [15, 5, "CNC router"],
                  [16, 5, "Metal Lathe"],
                  [17, 5, "Table Saw"],
-                 [18, 5, "Power Miter Saw"]}
+                 [18, 5, "Power Miter Saw"]]
         for tool in tools:
             if tool[2] == "Power Miter Saw" or tool[2] == "Table Saw":  # Over 18 only tools
                 self.addTool(dbConnection, tool[0], tool[1], tool[2], 1)
@@ -71,12 +72,16 @@ class Certifications(object):
                                   comments     TEXT)''')
 
             dbConnection.execute('''CREATE TABLE certifications
-                                 (user_id       TEXT PRIMARY KEY,
+                                 (user_id       TEXT,
                                   tool_id       INTEGER,
                                   certifier_id  TEXT,
                                   date          TIMESTAMP,
                                   level         INTEGER default 0)''')
             self.addTools(dbConnection)
+
+    def addNewCertification(self, member_id, tool_id, level, certifier):
+        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+            return self.addCertification(c, member_id, tool_id, level, datetime.datetime.now(), certifier)
 
     def addCertification(self, dbConnection, barcode, tool_id, level, date, certifier):
         # date needs to be changed to match format we want
@@ -86,6 +91,21 @@ class Certifications(object):
                                 WHERE NOT EXISTS(SELECT 1 FROM certifications WHERE user_id=? AND tool_id=? AND level=?)''',
                              (barcode, tool_id, certifier, date, level, barcode, tool_id, level))
 
+    def getToolList(self, certifier_id):
+        return self.getListCertifyTools(sqlite3.connect(self.database), certifier_id)
+
+    def getList(self):
+        # This will be a list of user id, dict where the dict is
+        # tool :  (level, date)
+        # only the highest level per tool is in the list
+        return []
+
+    def getAllTools(self):
+        tools = []
+        dbConnection = sqlite3.connect(self.database)
+        for row in dbConnection.execute('SELECT id, name, grouping FROM tools', ()):
+            tools.append([row[0], row[1], row[2]])
+        return tools
 
     def getListCertifyTools(self, dbConnection, user_id):
         tools = []
@@ -112,7 +132,7 @@ class Certifications(object):
             cert_level = 0
             cert_date = ''
             for row in reader:
-                barcode = members.getBarcode(row[2])
+                barcode = members.getBarcode(row[2], dbConnection)
                 if barcode:
                     for i in range(4, 26):
                         if row[i] and row[i] != 'N/A':
@@ -121,6 +141,7 @@ class Certifications(object):
                                 dbConnection, barcode, tool_dict[i], level, date, 'LEGACY')
                 else:
                     print('Name not found: ', row[2])
+
 
         # unit test
 if __name__ == "__main__":  # pragma no cover
