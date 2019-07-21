@@ -153,6 +153,16 @@ class Visits(object):
                 listPresent.append([row[0], row[1]])
         return listPresent
 
+    def getMemberBarcodesInBuilding(self):
+        listPresent = []
+        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+            for row in c.execute('''SELECT visits.barcode
+                FROM visits
+                INNER JOIN members ON members.barcode = visits.barcode
+                WHERE visits.status=='In' ORDER BY displayName'''):
+                listPresent.append(row[0])
+        return listPresent
+
     def getActiveKeyholder(self):
         with sqlite3.connect(self.database) as c:
             return self.keyholders.getActiveKeyholder(c)

@@ -279,9 +279,19 @@ class CheckMeIn(object):
     def certification_list(self):
         message = ''
         return self.template('certifications.mako', message=message,
-                             members_in_building=self.visits.getMembersInBuilding(),
+                             barcodes=self.visits.getMemberBarcodesInBuilding(),
                              tools=self.visits.certifications.getAllTools(),
-                             certifications=self.visits.certifications.getList())
+                             members=self.visits.members,
+                             certifications=self.visits.certifications.getUserList())
+
+    @cherrypy.expose
+    def all_certification_list(self):
+        message = ''
+        return self.template('certifications.mako', message=message,
+                             barcodes=None,
+                             tools=self.visits.certifications.getAllTools(),
+                             members=self.visits.members,
+                             certifications=self.visits.certifications.getUserList())
 
     @cherrypy.expose
     def index(self):

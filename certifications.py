@@ -15,6 +15,40 @@ class CertificationLevels(IntEnum):
     CERTIFIER = 40
 
 
+class ToolUser(object):
+    def __init__(self):
+        self.tools = {}
+
+    def addTool(self, tool_id, date, level):
+        if tool_id in self.tools:
+            (nil, currLevel) = self.tools[tool_id]
+            if level > currLevel:
+                self.tools[tool_id] = (date, level)
+        else:
+            self.tools[tool_id] = (date, level)
+
+    def getTool(self, tool_id):
+        try:
+            return self.tools[tool_id]
+        except KeyError:
+            return ("", CertificationLevels.NONE)
+
+    def getHTMLCellTool(self, tool_id):
+        (date, level) = self.getTool(tool_id)
+        HTMLDetails = {
+            CertificationLevels.NONE:  '<TD class="clNone"></TD>',
+            CertificationLevels.BASIC: '<TD class="clBasic">BASIC</TD>',
+            CertificationLevels.CERTIFIED: '<TD class="clCertified">CERTIFIED</TD>',
+            CertificationLevels.DOF: '<TD class="clDOF">DOF</TD>',
+            CertificationLevels.INSTRUCTOR: '<TD class="clInstructor">Instructor</TD>',
+            CertificationLevels.CERTIFIER: '<TD class="clCertifier">Certifier</TD>'
+        }
+        try:
+            return HTMLDetails[level]
+        except KeyError:
+            return ""
+
+
 class Certifications(object):
     def __init__(self, database):
         self.database = database
@@ -94,11 +128,18 @@ class Certifications(object):
     def getToolList(self, certifier_id):
         return self.getListCertifyTools(sqlite3.connect(self.database), certifier_id)
 
-    def getList(self):
-        # This will be a list of user id, dict where the dict is
-        # tool :  (level, date)
-        # only the highest level per tool is in the list
-        return []
+    def getUserList(self):
+        users = {}
+        dbConnection = sqlite3.connect(self.database)
+        for row in dbConnection.execute('''SELECT user_id, tool_id, date, level FROM certifications
+                                        INNER JOIN members ON members.barcode=user_id
+                                        ORDER BY members.displayName'''):
+            try:
+                users[row[0]].addTool(row[1], row[2], row[3])
+            except KeyError:
+                users[row[0]] = ToolUser()
+                users[row[0]].addTool(row[1], row[2], row[3])
+        return users
 
     def getAllTools(self):
         tools = []
@@ -141,7 +182,6 @@ class Certifications(object):
                                 dbConnection, barcode, tool_dict[i], level, date, 'LEGACY')
                 else:
                     print('Name not found: ', row[2])
-
 
         # unit test
 if __name__ == "__main__":  # pragma no cover
