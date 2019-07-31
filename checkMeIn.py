@@ -297,9 +297,11 @@ class CheckMeIn(object):
     def index(self):
         return self.who_is_here()
 
-
-def func():
-    print("Test")
+    @cherrypy.expose
+    def import_csv(self):
+        self.visits.certifications.importFromCSV(
+            "test.csv", self.visits.members, sqlite3.connect(self.visits.members.database))
+        return self.all_certification_list()
 
 
 if __name__ == '__main__':  # pragma no cover

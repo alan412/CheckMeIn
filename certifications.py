@@ -46,7 +46,7 @@ class ToolUser(object):
         try:
             return HTMLDetails[level]
         except KeyError:
-            return ""
+            return "Key: " + str(level)
 
 
 class Certifications(object):
@@ -150,20 +150,27 @@ class Certifications(object):
 
     def getListCertifyTools(self, dbConnection, user_id):
         tools = []
-        for row in dbConnection.execute('''SELECT id, name FROM tools 
+        for row in dbConnection.execute('''SELECT id, name FROM tools
                  INNER JOIN certifications ON certifications.tool_id = id
                  WHERE user_id = ? AND level >= ?''', (user_id, CertificationLevels.CERTIFIER)):
             tools.append([row[0], row[1]])
         return tools
 
     def parseCert(self, str):
+        levels = {
+            CertificationLevels.BASIC: 'BASIC',
+            CertificationLevels.CERTIFIED: 'CERTIFIED',
+            CertificationLevels.DOF: 'DOF',
+            CertificationLevels.INSTRUCTOR: 'INSTRUCTOR',
+            CertificationLevels.CERTIFIER: 'CERTIFIER'
+        }
         str = str.upper()
-        for level in ['BASIC', 'CERTIFIED', 'DOF', 'INSTRUCTOR', 'CERTIFIER']:
-            if str.startswith(level):
-                if str == level:
+        for level, name in levels.items():
+            if str.startswith(name):
+                if str == name:
                     return (level, '')
-                return (level, str[len(level) + 1:])
-        return ('INVALID', '')
+                return (level, str[len(name) + 1:])
+        return (CertificationLevels.NONE, '')
 
     def importFromCSV(self, filename, members, dbConnection):
         tool_dict = {4: 1, 5: 2, 6: 3, 7: 4, 9: 5, 10: 6, 11: 7, 13: 8, 14: 9,
@@ -178,8 +185,9 @@ class Certifications(object):
                     for i in range(4, 26):
                         if row[i] and row[i] != 'N/A':
                             (level, date) = self.parseCert(row[i])
-                            self.addCertification(
-                                dbConnection, barcode, tool_dict[i], level, date, 'LEGACY')
+                            if level != CertificationLevels.NONE:
+                                self.addCertification(
+                                    dbConnection, barcode, tool_dict[i], level, date, 'LEGACY')
                 else:
                     print('Name not found: ', row[2])
 
