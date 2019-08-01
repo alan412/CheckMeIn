@@ -145,11 +145,7 @@ class Visits(object):
             FROM visits
             INNER JOIN members ON members.barcode = visits.barcode
             WHERE visits.status=='In'
-            UNION
-            SELECT displayName, visits.barcode
-            FROM visits
-            INNER JOIN guests ON guests.guest_id = visits.barcode
-            WHERE visits.status=='In' ORDER BY displayName'''):
+            ORDER BY displayName'''):
                 listPresent.append([row[0], row[1]])
         return listPresent
 
