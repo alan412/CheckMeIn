@@ -300,7 +300,9 @@ class CheckMeIn(object):
     @cherrypy.expose
     def import_csv(self):
         self.visits.certifications.importFromCSV(
-            "test.csv", self.visits.members, sqlite3.connect(self.visits.members.database))
+            "students.csv", self.visits.members, sqlite3.connect(self.visits.members.database))
+        self.visits.certifications.importFromCSV(
+            "adults.csv", self.visits.members, sqlite3.connect(self.visits.members.database))
         return self.all_certification_list()
 
 

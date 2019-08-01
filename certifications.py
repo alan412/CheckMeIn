@@ -175,12 +175,23 @@ class Certifications(object):
     def importFromCSV(self, filename, members, dbConnection):
         tool_dict = {4: 1, 5: 2, 6: 3, 7: 4, 9: 5, 10: 6, 11: 7, 13: 8, 14: 9,
                      15: 10, 17: 11, 18: 12, 19: 13, 20: 14, 22: 15, 23: 16, 24: 17, 25: 18}
+        print('--- IMPORT FROM ' + filename + ' ---')
         with open(filename) as csvfile:
             reader = csv.reader(csvfile)
             cert_level = 0
             cert_date = ''
             for row in reader:
                 barcode = members.getBarcode(row[2], dbConnection)
+                if not barcode and row[2]:
+                    names = row[2].split(' ')
+                    try:
+                        displayName = ''
+                        for i in range(0, len(names) - 1):
+                            displayName += names[i] + ' '
+                        displayName += names[len(names) - 1][0]
+                        barcode = members.getBarcode(displayName, dbConnection)
+                    except:
+                        print("Exception: ", names)
                 if barcode:
                     for i in range(4, 26):
                         if row[i] and row[i] != 'N/A':
@@ -188,7 +199,7 @@ class Certifications(object):
                             if level != CertificationLevels.NONE:
                                 self.addCertification(
                                     dbConnection, barcode, tool_dict[i], level, date, 'LEGACY')
-                else:
+                elif row[2]:
                     print('Name not found: ', row[2])
 
         # unit test
