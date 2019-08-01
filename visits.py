@@ -146,7 +146,7 @@ class Visits(object):
             INNER JOIN members ON members.barcode = visits.barcode
             WHERE visits.status=='In'
             UNION
-            SELECT displayName, start
+            SELECT displayName, visits.barcode
             FROM visits
             INNER JOIN guests ON guests.guest_id = visits.barcode
             WHERE visits.status=='In' ORDER BY displayName'''):
