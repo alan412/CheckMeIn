@@ -6,11 +6,11 @@
 <%def name="title()">Certifications</%def>
 <%inherit file="base.mako"/>
 
-<TABLE>
+<TABLE class="certifications">
 <TR>
-   <TD>Name</TD>
+   <TH></TH>
 % for tool in tools:
-   <TD>${tool[1]}</TD>
+   <TH>${tool[1]}</TH>
 % endfor
 </TR>
 % for user, user_tools in certifications.items():

@@ -148,6 +148,19 @@ class Certifications(object):
             tools.append([row[0], row[1], row[2]])
         return tools
 
+    def getToolsFromList(self, inputStr):
+        tools = self.getAllTools()
+        inputTools = inputStr.split("_")
+        newToolList = []
+        print(inputTools)
+
+        for tool in tools:
+            if str(tool[0]) in inputTools:
+                newToolList.append(tool)
+            else:
+                print("Not Found:", tool)
+        return newToolList
+
     def getListCertifyTools(self, dbConnection, user_id):
         tools = []
         for row in dbConnection.execute('''SELECT id, name FROM tools
@@ -201,6 +214,7 @@ class Certifications(object):
                                     dbConnection, barcode, tool_dict[i], level, date, 'LEGACY')
                 elif row[2]:
                     print('Name not found: ', row[2])
+
 
         # unit test
 if __name__ == "__main__":  # pragma no cover

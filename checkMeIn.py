@@ -247,16 +247,6 @@ class CheckMeIn(object):
         return self.showGuestPage('Welcome back, ' + name + ' We are glad you are here!')
 
     @cherrypy.expose
-    def submitCertification(self, member_id, tool_id, certifier_id, newLevel):
-        todayDate = datetime.date.today().isoformat()
-        if self.visits.certification.addCertification(dbConnection, member_id, tool_id, newLevel, todayDate, certifier_id):
-            message = 'Success adding'
-        else:
-            message = 'Failure adding'
-        return self.template('certifications.mako', message=message,
-                             certifications=self.visits.certifications)
-
-    @cherrypy.expose
     def certify(self, certifier_id):
         message = ''
         return self.template('certify.mako', message=message,
@@ -273,7 +263,7 @@ class CheckMeIn(object):
         self.visits.certifications.addNewCertification(
             member_id, tool_id, level, certifier_id)
 
-        return self.certification_list()
+        raise cherrypy.HTTPRedirect('/certification_list')
 
     @cherrypy.expose
     def certification_list(self):
@@ -281,6 +271,16 @@ class CheckMeIn(object):
         return self.template('certifications.mako', message=message,
                              barcodes=self.visits.getMemberBarcodesInBuilding(),
                              tools=self.visits.certifications.getAllTools(),
+                             members=self.visits.members,
+                             certifications=self.visits.certifications.getUserList())
+
+    @cherrypy.expose
+    def certification_list_tools(self, tools):
+        message = ''
+        return self.template('certifications.mako', message=message,
+                             barcodes=self.visits.getMemberBarcodesInBuilding(),
+                             tools=self.visits.certifications.getToolsFromList(
+                                 tools),
                              members=self.visits.members,
                              certifications=self.visits.certifications.getUserList())
 
