@@ -212,8 +212,6 @@ class Certifications(object):
                             if level != CertificationLevels.NONE:
                                 self.addCertification(
                                     dbConnection, barcode, tool_dict[i], level, date, 'LEGACY')
-                elif row[2]:
-                    print('Name not found: ', row[2])
 
 
         # unit test
