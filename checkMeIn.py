@@ -15,8 +15,7 @@ class CheckMeIn(object):
     def __init__(self):
         self.lookup = TemplateLookup(
             directories=['HTMLTemplates'], default_filters=['h'])
-        self.visits = Visits(DB_STRING, 'data/members.csv',
-                             'TFI Barcode', 'TFI Display Name')
+        self.visits = Visits(DB_STRING)
 
     def template(self, name, **kwargs):
         return self.lookup.get_template(name).render(**kwargs)
@@ -190,8 +189,8 @@ class CheckMeIn(object):
         return self.template('customSQL.mako', sql=sql, data=data)
 
     @cherrypy.expose
-    def addMember(self, display, barcode):
-        error = self.visits.members.add(display, barcode)
+    def bulkAddMembers(self, csvfile):
+        error = self.visits.members.bulkAdd(csvfile)
         return self.admin(error)
 
     @cherrypy.expose

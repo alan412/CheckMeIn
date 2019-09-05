@@ -10,12 +10,12 @@ from keyholders import Keyholders
 from customReports import CustomReports
 from certifications import Certifications
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 
 
 class Visits(object):
-    def createDB(self, filename, barcode, display):
-        self.members.loadFromCSV(filename, barcode, display)
+    def createDB(self, barcode, display):
+        self.members.createTable()
         self.guests.createTable()
 
         with sqlite3.connect(self.database) as c:
@@ -23,7 +23,7 @@ class Visits(object):
                      (start timestamp, leave timestamp, barcode text, status text)''')
             c.execute('PRAGMA schema_version = ?', (SCHEMA_VERSION,))
 
-    def __init__(self, database, filename, barcode, display):
+    def __init__(self, database):
         self.database = database
         self.members = Members(self.database)
         self.guests = Guests(self.database)

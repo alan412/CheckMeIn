@@ -10,16 +10,12 @@
 <H1>Admin Page</H1>
 
 <br/>
-<form action="addMember">
-  <fieldset>
-    <legend>Add a Member</legend>
-    <table>
-      <tr><td>Display Name:</td>
-          <td><input autofocus type="text" name="display" placeholder="Member L"></td></tr>
-      <tr><td>Barcode:</td>
-          <td><input type="text" name="barcode" placeholder="123456"></td></tr>
-    </table>
-    <input type="submit" value="Add Member"/>
+<form action="bulkAddMembers" method="post" enctype="multipart/form-data">
+<fieldset>
+    <legend>Bulk add members</legend>
+          <input type="file" ID="csvFile" name="csvfile" accept=".csv"/>
+    <br/>
+    <input type="submit" value="Add Members"/>
   </fieldset>
 </form>
 
