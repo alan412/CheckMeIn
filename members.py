@@ -61,7 +61,11 @@ class Members(object):
                     email = row['Email']
                 except KeyError:
                     email = ''
-                (month, day, year) = row['Membership End Date'].split("/")
+                try:
+                    (month, day, year) = row['Membership End Date'].split("/")
+                except ValueError:
+                    (month, day, year) = (6, 30, 2019)
+
                 membershipExpires = datetime.datetime(
                     year=int(year), month=int(month), day=int(day))
 
