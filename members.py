@@ -69,17 +69,33 @@ class Members(object):
                 membershipExpires = datetime.datetime(
                     year=int(year), month=int(month), day=int(day))
 
-                data = c.execute('''
-                INSERT INTO MEMBERS(barcode, displayName, firstName, lastName, email, membershipExpires) 
-                VALUES (?,?,?,?,?,?)
-                ON CONFLICT(barcode)
-                DO UPDATE SET 
-                    displayName=excluded.displayName, 
-                    firstName=excluded.firstName,
-                    lastName=excluded.lastName,
-                    email=excluded.email,
-                    membershipExpires=excluded.membershipExpires        
-                ''', (barcode, displayName, row['First Name'], row['Last Name'], email, membershipExpires))
+                # This is because I can't figure our how to get the ubuntu to use
+                # the newer version of sqlite3.  At some point this should go back
+                # to the commit before this one.   Arrggghhhh.
+                try:
+                    data = c.execute('''
+                    INSERT INTO MEMBERS(barcode, displayName, firstName, lastName, email, membershipExpires) 
+                    VALUES (?,?,?,?,?,?)''',
+                                     (barcode, displayName, row['First Name'], row['Last Name'], email, membershipExpires))
+                except sqlite3.IntegrityError:
+                    data = c.execute('''
+                    UPDATE MEMBERS SET
+                    displayName = ?,
+                    firstName = ?,
+                    lastName = ?,
+                    email = ?,
+                    membershipExpires = ?
+                    WHERE barcode=?''',
+                                     (displayName, row['First Name'], row['Last Name'], email, membershipExpires, barcode))
+
+ #               ON CONFLICT(barcode)
+ #               DO UPDATE SET
+ #                   displayName=excluded.displayName,
+ #                   firstName=excluded.firstName,
+ #                   lastName=excluded.lastName,
+ #                   email=excluded.email,
+ #                   membershipExpires=excluded.membershipExpires
+ #               ''',
                 numMembers = numMembers + 1
 
         return f"Imported {numMembers} from {csvFile.filename}"
