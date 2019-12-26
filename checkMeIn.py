@@ -15,8 +15,7 @@ class CheckMeIn(object):
     def __init__(self):
         self.lookup = TemplateLookup(
             directories=['HTMLTemplates'], default_filters=['h'])
-        self.visits = Visits(DB_STRING, 'data/members.csv',
-                             'TFI Barcode', 'TFI Display Name')
+        self.visits = Visits(DB_STRING)
 
     def template(self, name, **kwargs):
         return self.lookup.get_template(name).render(**kwargs)
@@ -25,7 +24,8 @@ class CheckMeIn(object):
         all_guests = self.visits.guests.getList()
         building_guests = self.visits.reports.guestsInBuilding()
 
-        guests_not_here = [guest for guest in all_guests if guest not in building_guests]
+        guests_not_here = [
+            guest for guest in all_guests if guest not in building_guests]
 
         return self.template('guests.mako', message=message,
                              inBuilding=building_guests,
@@ -189,8 +189,8 @@ class CheckMeIn(object):
         return self.template('customSQL.mako', sql=sql, data=data)
 
     @cherrypy.expose
-    def addMember(self, display, barcode):
-        error = self.visits.members.add(display, barcode)
+    def bulkAddMembers(self, csvfile):
+        error = self.visits.members.bulkAdd(csvfile)
         return self.admin(error)
 
     @cherrypy.expose
@@ -246,12 +246,63 @@ class CheckMeIn(object):
         return self.showGuestPage('Welcome back, ' + name + ' We are glad you are here!')
 
     @cherrypy.expose
+    def certify(self, certifier_id):
+        message = ''
+        return self.template('certify.mako', message=message,
+                             certifier=self.visits.members.getName(
+                                 certifier_id)[1],
+                             certifier_id=certifier_id,
+                             members_in_building=self.visits.getMembersInBuilding(),
+                             tools=self.visits.certifications.getToolList(certifier_id))
+
+    @cherrypy.expose
+    def addCertification(self, member_id, certifier_id, tool_id, level):
+        # We don't check here for valid tool since someone is forging HTML to put an invalid one
+        # and we'll catch it with the email out...
+        self.visits.certifications.addNewCertification(
+            member_id, tool_id, level, certifier_id)
+
+        raise cherrypy.HTTPRedirect('/certification_list')
+
+    @cherrypy.expose
+    def certification_list(self):
+        message = ''
+        return self.template('certifications.mako', message=message,
+                             barcodes=self.visits.getMemberBarcodesInBuilding(),
+                             tools=self.visits.certifications.getAllTools(),
+                             members=self.visits.members,
+                             certifications=self.visits.certifications.getUserList())
+
+    @cherrypy.expose
+    def certification_list_tools(self, tools):
+        message = ''
+        return self.template('certifications.mako', message=message,
+                             barcodes=self.visits.getMemberBarcodesInBuilding(),
+                             tools=self.visits.certifications.getToolsFromList(
+                                 tools),
+                             members=self.visits.members,
+                             certifications=self.visits.certifications.getUserList())
+
+    @cherrypy.expose
+    def all_certification_list(self):
+        message = ''
+        return self.template('certifications.mako', message=message,
+                             barcodes=None,
+                             tools=self.visits.certifications.getAllTools(),
+                             members=self.visits.members,
+                             certifications=self.visits.certifications.getUserList())
+
+    @cherrypy.expose
     def index(self):
         return self.who_is_here()
 
-
-def func():
-    print("Test")
+    @cherrypy.expose
+    def import_csv(self):
+        self.visits.certifications.importFromCSV(
+            "students.csv", self.visits.members, sqlite3.connect(self.visits.members.database))
+        self.visits.certifications.importFromCSV(
+            "adults.csv", self.visits.members, sqlite3.connect(self.visits.members.database))
+        return self.all_certification_list()
 
 
 if __name__ == '__main__':  # pragma no cover

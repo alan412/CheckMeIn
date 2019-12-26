@@ -173,3 +173,38 @@ table.teams {
 table.teams, th.teams, td.teams {
     border: 1px solid black;
 }
+
+td.clBasic {
+    background-color: red;
+    color: white;
+}
+td.clCertified{
+    background-color: green;
+}
+td.clDOF{
+    background-color: orange;
+}
+td.clInstructor{
+    background-color: blue;
+    color: white;
+}
+td.clCertifier{
+    background-color: black;
+    color: white;
+}
+
+table.certifications {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+table.certifications th, table.certifications td{
+   border: 1px solid black;
+   font-size: small;
+}
+table.certifications th{
+    font-weight: bold;
+    background-color: white;
+    color: black;
+}
+
