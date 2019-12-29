@@ -68,7 +68,7 @@ class Members(object):
                 VALUES (?,?,?,?,?,?)''',
                                             (barcode, displayName, row['First Name'], row['Last Name'], email, membershipExpires))
             except sqlite3.IntegrityError:
-                data = c.execute('''
+                data = dbConnection.execute('''
                 UPDATE MEMBERS SET
                 displayName = ?,
                 firstName = ?,
@@ -76,7 +76,7 @@ class Members(object):
                 email = ?,
                 membershipExpires = ?
                 WHERE barcode=?''',
-                                 (displayName, row['First Name'], row['Last Name'], email, membershipExpires, barcode))
+                                            (displayName, row['First Name'], row['Last Name'], email, membershipExpires, barcode))
 
 #               ON CONFLICT(barcode)
 #               DO UPDATE SET
