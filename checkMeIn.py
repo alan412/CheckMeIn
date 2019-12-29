@@ -50,7 +50,8 @@ class CheckMeIn(object):
     def keyholder(self, barcode):
         error = ''
         barcode = barcode.strip()
-        if barcode == KEYHOLDER_BARCODE:
+        if barcode == KEYHOLDER_BARCODE or (
+                barcode == self.visits.getActiveKeyholder()):
             self.visits.emptyBuilding()
         else:
             error = self.visits.setActiveKeyholder(barcode)
