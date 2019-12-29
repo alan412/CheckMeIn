@@ -32,13 +32,14 @@ class Keyholders(object):
 
     def setActiveKeyholder(self, c, barcode):
         if barcode:
-             self.removeKeyholder(c)
-             c.execute(
-                 "REPLACE INTO keyholders (barcode, active) VALUES (?,?)", (barcode, Status.active))
+            print("New Keyholder:", barcode)
+            self.removeKeyholder(c)
+            c.execute(
+                "UPDATE keyholders SET active = ? WHERE (barcode==?)", (Status.active, barcode))
 
     def getActiveKeyholder(self, c):
         data = c.execute(
-                "SELECT barcode FROM keyholders WHERE active==?", (Status.active,)).fetchone()
+            "SELECT barcode FROM keyholders WHERE active==?", (Status.active,)).fetchone()
         if data is None:
             return ''
         else:
@@ -56,14 +57,14 @@ if __name__ == "__main__":  # pragma no cover
     keyholders.createTable()
 
     with sqlite3.connect(self.database) as c:
-       keyholders.setActiveKeyholder(c,'100090')
-       print("Active: ", keyholders.getActiveKeyholder(c))
+        keyholders.setActiveKeyholder(c, '100090')
+        print("Active: ", keyholders.getActiveKeyholder(c))
 
-       keyholders.setActiveKeyholder(c,'100091')
-       print("Active: ", keyholders.getActiveKeyholder(c))
+        keyholders.setActiveKeyholder(c, '100091')
+        print("Active: ", keyholders.getActiveKeyholder(c))
 
-       keyholders.setActiveKeyholder(c,'100090')
-       print("Active: ", keyholders.getActiveKeyholder(c))
+        keyholders.setActiveKeyholder(c, '100090')
+        print("Active: ", keyholders.getActiveKeyholder(c))
 
-       keyholders.setActiveKeyholder(c,'')
-       print("Active: ", keyholders.getActiveKeyholder(c))
+        keyholders.setActiveKeyholder(c, '')
+        print("Active: ", keyholders.getActiveKeyholder(c))
