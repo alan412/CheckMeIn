@@ -104,16 +104,9 @@ class CheckMeIn(object):
         listStudents = students.split()
         listMentors = mentors.split()
         listCoaches = coaches.split()
-        fullList = []
 
-        for student in listStudents:
-            fullList.append((student, TeamMemberType.student))
-        for mentor in listMentors:
-            fullList.append((mentor, TeamMemberType.mentor))
-        for coach in listCoaches:
-            fullList.append((coach, TeamMemberType.coach))
-
-        self.visits.teams.add_team_members(team_id, fullList)
+        self.visits.teams.add_team_members(
+            team_id, listStudents, listMentors, listCoaches)
 
         return self.team(team_id)
 

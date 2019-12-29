@@ -9,12 +9,11 @@ class Status(IntEnum):
 
 
 class Keyholders(object):
-    def __init__(self, database):
-        self.database = database
+    def __init__(self):
+        pass
 
-    def createTable(self):
-        with sqlite3.connect(self.database) as c:
-            self.migrate(c, 0)
+    def createTable(self, dbConnection):
+        self.migrate(dbConnection, 0)
 
     def migrate(self, dbConnection, db_schema_version):
         if db_schema_version < 4:
@@ -30,15 +29,14 @@ class Keyholders(object):
             "SELECT barcode FROM keyholders WHERE barcode==?", (barcode,)).fetchone()
         return (data is not None)
 
-    def setActiveKeyholder(self, c, barcode):
+    def setActiveKeyholder(self, dbConnection, barcode):
         if barcode:
-            print("New Keyholder:", barcode)
-            self.removeKeyholder(c)
-            c.execute(
+            self.removeKeyholder(dbConnection)
+            dbConnection.execute(
                 "UPDATE keyholders SET active = ? WHERE (barcode==?)", (Status.active, barcode))
 
-    def getActiveKeyholder(self, c):
-        data = c.execute(
+    def getActiveKeyholder(self, dbConnection):
+        data = dbConnection.execute(
             "SELECT barcode FROM keyholders WHERE active==?", (Status.active,)).fetchone()
         if data is None:
             return ''
@@ -53,10 +51,10 @@ if __name__ == "__main__":  # pragma no cover
         os.remove(DB_STRING)   # Start with a new one
     except:
         pass  # Don't care if it didn't exist
-    keyholders = Keyholders(DB_STRING)
-    keyholders.createTable()
+    keyholders = Keyholders()
 
-    with sqlite3.connect(self.database) as c:
+    with sqlite3.connect(DB_STRING) as c:
+        keyholders.createTable(c)
         keyholders.setActiveKeyholder(c, '100090')
         print("Active: ", keyholders.getActiveKeyholder(c))
 

@@ -14,26 +14,18 @@ SCHEMA_VERSION = 9
 
 
 class Visits(object):
-    def createDB(self, barcode, display):
-        self.members.createTable()
-        self.guests.createTable()
-
-        with sqlite3.connect(self.database) as c:
-            c.execute('''CREATE TABLE visits
-                     (start timestamp, leave timestamp, barcode text, status text)''')
-            c.execute('PRAGMA schema_version = ?', (SCHEMA_VERSION,))
-
     def __init__(self, database):
         self.database = database
-        self.members = Members(self.database)
-        self.guests = Guests(self.database)
-        self.keyholders = Keyholders(self.database)
-        self.reports = Reports(self.database)
-        self.teams = Teams(self.database)
-        self.customReports = CustomReports(self.database)
-        self.certifications = Certifications(self.database)
+        self.members = Members()
+        self.guests = Guests()
+        self.keyholders = Keyholders()
+        self.reports = Reports()
+        self.teams = Teams()
+        self.customReports = CustomReports(database)
+        self.certifications = Certifications()
         if not os.path.exists(self.database):
-            self.createDB(filename, barcode, display)
+            with sqlite3.connect(self.database) as c:
+                self.migrate(c, 0)
         else:
             with sqlite3.connect(self.database) as c:
                 data = c.execute('PRAGMA schema_version').fetchone()
@@ -43,6 +35,10 @@ class Visits(object):
     def migrate(self, dbConnection, db_schema_version):
         if db_schema_version < SCHEMA_VERSION:
             # No change for Visits
+            if db_schema_version == 0:
+                dbConnection.execute('''CREATE TABLE visits
+                     (start timestamp, leave timestamp, barcode text, status text)''')
+
             self.members.migrate(dbConnection, db_schema_version)
             self.guests.migrate(dbConnection, db_schema_version)
             self.keyholders.migrate(dbConnection, db_schema_version)
@@ -55,151 +51,147 @@ class Visits(object):
             raise Exception("Unknown DB schema version" +
                             str(db_schema_version) + ": " + self.database)
 
-    def enterGuest(self, guest_id):
+    def enterGuest(self, dbConnection, guest_id):
         now = datetime.datetime.now()
-        with sqlite3.connect(self.database) as c:
-            data = c.execute(
-                "SELECT * FROM visits WHERE (barcode==?) and (status=='In')",
-                (guest_id,)).fetchone()
-            if data is None:
-                c.execute("INSERT INTO visits VALUES (?,?,?,'In')",
-                          (now, now, guest_id))
+        data = dbConnection.execute(
+            "SELECT * FROM visits WHERE (barcode==?) and (status=='In')",
+            (guest_id,)).fetchone()
+        if data is None:
+            dbConnection.execute("INSERT INTO visits VALUES (?,?,?,'In')",
+                                 (now, now, guest_id))
 
-    def leaveGuest(self, guest_id):
+    def leaveGuest(self, dbConnection, guest_id):
         now = datetime.datetime.now()
-        with sqlite3.connect(self.database) as c:
-            c.execute(
-                "UPDATE visits SET leave = ?, status = 'Out' WHERE (barcode==?) AND (status=='In')",
-                (now, guest_id))
+        dbConnection.execute(
+            "UPDATE visits SET leave = ?, status = 'Out' WHERE (barcode==?) AND (status=='In')",
+            (now, guest_id))
 
-    def scannedMember(self, barcode):
+    def scannedMember(self, dbConnection, barcode):
         now = datetime.datetime.now()
-        with sqlite3.connect(self.database) as c:
-            # See if it is a valid input
-            data = c.execute(
-                "SELECT displayName FROM members WHERE barcode==?", (barcode,)).fetchone()
-            if data is None:
-                return 'Invalid barcode: ' + barcode
-            data = c.execute(
-                "SELECT * FROM visits WHERE (barcode==?) and (status=='In')", (barcode,)).fetchone()
-            if data is None:
-                c.execute("INSERT INTO visits VALUES (?,?,?,'In')",
-                          (now, now, barcode))
-                if not self.keyholders.getActiveKeyholder(c):
-                    if self.keyholders.isKeyholder(c, barcode):
-                        self.keyholders.setActiveKeyholder(c, barcode)
-            else:
-                c.execute(
-                    "UPDATE visits SET leave = ?, status = 'Out' WHERE " +
-                    "(barcode==?) AND (status=='In')",
-                    (now, barcode))
-            return ''
 
-    def checkBuilding(self):
+        # See if it is a valid input
+        data = dbConnection.execute(
+            "SELECT displayName FROM members WHERE barcode==?", (barcode,)).fetchone()
+        if data is None:
+            return 'Invalid barcode: ' + barcode
+        data = dbConnection.execute(
+            "SELECT * FROM visits WHERE (barcode==?) and (status=='In')", (barcode,)).fetchone()
+        if data is None:
+            dbConnection.execute("INSERT INTO visits VALUES (?,?,?,'In')",
+                                 (now, now, barcode))
+            if not self.keyholders.getActiveKeyholder(dbConnection):
+                self.keyholders.setActiveKeyholder(dbConnection, barcode)
+        else:
+            dbConnection.execute(
+                "UPDATE visits SET leave = ?, status = 'Out' WHERE " +
+                "(barcode==?) AND (status=='In')",
+                (now, barcode))
+        return ''
+
+    def checkBuilding(self, dbConnection):
         now = datetime.datetime.now()
         if now.hour == 3 and self.reports.numberPresent() > 0:  # If between 3am and 4am
-            self.emptyBuilding()
+            self.emptyBuilding(dbConnection)
 
-    def emptyBuilding(self):
+    def emptyBuilding(self, dbConnection):
         now = datetime.datetime.now()
-        keyholder_barcode = self.getActiveKeyholder()
-        with sqlite3.connect(self.database) as c:
-            c.execute(
-                "UPDATE visits SET leave = ?, status = 'Forgot' WHERE status=='In'", (now,))
-            if keyholder_barcode:
-                c.execute(
-                    "UPDATE visits SET status = 'Out' WHERE barcode==? AND leave==?",
-                    (keyholder_barcode, now))
-                self.keyholders.removeKeyholder(c)
+        dbConnection.execute(
+            "UPDATE visits SET leave = ?, status = 'Forgot' WHERE status=='In'", (now,))
+        keyholder_barcode = self.getActiveKeyholder(dbConnection)
+        if keyholder_barcode:
+            dbConnection.execute(
+                "UPDATE visits SET status = 'Out' WHERE barcode==? AND leave==?",
+                (keyholder_barcode, now))
+            self.keyholders.removeKeyholder(dbConnection)
 
-    def oopsForgot(self):
+    def oopsForgot(self, dbConnection):
         now = datetime.datetime.now()
         startDate = now.replace(hour=0, minute=0, second=0, microsecond=0)
-        with sqlite3.connect(self.database) as c:
-            c.execute(
-                "UPDATE visits SET status = 'In' WHERE status=='Forgot' AND leave > ?",
-                (startDate,))
+        dbConnection.execute(
+            "UPDATE visits SET status = 'In' WHERE status=='Forgot' AND leave > ?",
+            (startDate,))
 
-    def getKeyholderName(self):
-        barcode = self.getActiveKeyholder()
+    def getKeyholderName(self, dbConnection):
+        barcode = self.getActiveKeyholder(dbConnection)
         if barcode:
-            (_, display) = self.members.getName(barcode)
+            (_, display) = self.members.getName(dbConnection, barcode)
             return display
         else:
             return 'N/A'
 
-    def setActiveKeyholder(self, barcode):
+    def setActiveKeyholder(self, dbConnection, barcode):
         # TODO: once keyholders does verification, this should have the possibility of error
         with sqlite3.connect(self.database) as c:
-            leavingKeyholder = self.keyholders.getActiveKeyholder(c)
-            self.keyholders.setActiveKeyholder(c, barcode)
-        self.addIfNotHere(barcode)
+            leavingKeyholder = self.keyholders.getActiveKeyholder(dbConnection)
+            self.keyholders.setActiveKeyholder(dbConnection, barcode)
+        self.addIfNotHere(dbConnection, barcode)
         if leavingKeyholder:
-            self.scannedMember(leavingKeyholder)
+            self.scannedMember(dbConnection, leavingKeyholder)
         return ''
 
-    def getMembersInBuilding(self):
+    def getMembersInBuilding(self, dbConnection):
         listPresent = []
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            for row in c.execute('''SELECT displayName, visits.barcode
+        for row in dbConnection.execute('''SELECT displayName, visits.barcode
             FROM visits
             INNER JOIN members ON members.barcode = visits.barcode
             WHERE visits.status=='In'
             ORDER BY displayName'''):
-                listPresent.append([row[0], row[1]])
+            listPresent.append([row[0], row[1]])
         return listPresent
 
-    def getMemberBarcodesInBuilding(self):
+    def getMemberBarcodesInBuilding(self, dbConnection):
         listPresent = []
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            for row in c.execute('''SELECT visits.barcode
+
+        for row in dbConnection.execute('''SELECT visits.barcode
                 FROM visits
                 INNER JOIN members ON members.barcode = visits.barcode
                 WHERE visits.status=='In' ORDER BY displayName'''):
-                listPresent.append(row[0])
+            listPresent.append(row[0])
         return listPresent
 
-    def getActiveKeyholder(self):
-        with sqlite3.connect(self.database) as c:
-            return self.keyholders.getActiveKeyholder(c)
+    def getActiveKeyholder(self, dbConnection):
+        return self.keyholders.getActiveKeyholder(dbConnection)
 
-    def addIfNotHere(self, barcode):
+    def addIfNotHere(self, dbConnection, barcode):
         now = datetime.datetime.now()
-        with sqlite3.connect(self.database) as c:
-            c.execute('''INSERT INTO visits (START,LEAVE,BARCODE,STATUS)
+        dbConnection.execute('''INSERT INTO visits (START,LEAVE,BARCODE,STATUS)
                       SELECT ?,?,?,'In'
                       WHERE NOT EXISTS(
                           SELECT 1 FROM visits
                           WHERE ((barcode==?) and (status=='In')))''',
-                      (now, now, barcode, barcode))
+                             (now, now, barcode, barcode))
 
-    def fix(self, fixData):
+    def fix(self, dbConnection, fixData):
         entries = fixData.split(',')
 
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            for entry in entries:
-                tokens = entry.split('!')
-                if len(tokens) == 3:
-                    rowID = tokens[0]
-                    newStart = parser.parse(tokens[1])
-                    newLeave = parser.parse(tokens[2])
+        for entry in entries:
+            tokens = entry.split('!')
+            if len(tokens) == 3:
+                rowID = tokens[0]
+                newStart = parser.parse(tokens[1])
+                newLeave = parser.parse(tokens[2])
 
-                    # if crossed over midnight....
-                    if newLeave < newStart:
-                        newLeave += datetime.timedelta(days=1)
+                # if crossed over midnight....
+                if newLeave < newStart:
+                    newLeave += datetime.timedelta(days=1)
 
-                    c.execute('''UPDATE visits SET start = ?, leave = ?, status = 'Out'
-                            WHERE (visits.rowid==?)''', (newStart, newLeave, rowID))
+                dbConnection.execute('''UPDATE visits SET start = ?, leave = ?, status = 'Out'
+                        WHERE (visits.rowid==?)''', (newStart, newLeave, rowID))
 
 
 # unit test
 
-
-def testOutput(testNum, test):  # pragma no cover
+def testOutput(dbConnection, testNum, test):  # pragma no cover
     result = test
     if result:
         print("Result: ", result)
-    print(testNum, visits.reports.whoIsHere())
+    print(testNum, visits.reports.whoIsHere(dbConnection))
+
+
+class TestFile():
+    def __init__(self, filename):
+        self.file = open(filename, "rb")
+        self.filename = filename
 
 
 if __name__ == "__main__":  # pragma no cover
@@ -209,17 +201,19 @@ if __name__ == "__main__":  # pragma no cover
     except IOError:
         pass  # Don't care if it didn't exist
 
-    visits = Visits(DB_STRING, 'data/members.csv',
-                    'TFI Barcode', 'TFI Display Name')
-    testOutput(1, '')
-    testOutput(2, visits.scannedMember('100091'))
-    testOutput(3, visits.scannedMember('100090'))
-    testOutput(4, visits.scannedMember('100090'))
-    gid = visits.guests.add(
-        "Test 1", "Test", "1", "noemail@domain.com", "")
-    testOutput(5, visits.enterGuest(gid))
-    testOutput(6, visits.leaveGuest(gid))
-    testOutput(7, visits.scannedMember('100091'))
-    testOutput(8, visits.addIfNotHere('100091'))
-    testOutput(9, visits.addIfNotHere('100091'))
-    testOutput(10, visits.emptyBuilding())
+    visits = Visits(DB_STRING)
+    dbConnection = sqlite3.connect(
+        DB_STRING, detect_types=sqlite3.PARSE_DECLTYPES)
+    visits.members.bulkAdd(dbConnection, TestFile("data/members.csv"))
+    testOutput(dbConnection, 1, '')
+    testOutput(dbConnection, 2, visits.scannedMember(dbConnection, '100091'))
+    testOutput(dbConnection, 3, visits.scannedMember(dbConnection, '100090'))
+    testOutput(dbConnection, 4, visits.scannedMember(dbConnection, '100090'))
+    gid = visits.guests.add(dbConnection,
+                            "Test 1", "Test", "1", "noemail@domain.com", "", False)
+    testOutput(dbConnection, 5, visits.enterGuest(dbConnection, gid))
+    testOutput(dbConnection, 6, visits.leaveGuest(dbConnection, gid))
+    testOutput(dbConnection, 7, visits.scannedMember(dbConnection, '100091'))
+    testOutput(dbConnection, 8, visits.addIfNotHere(dbConnection, '100091'))
+    testOutput(dbConnection, 9, visits.addIfNotHere(dbConnection, '100091'))
+    testOutput(dbConnection, 10, visits.emptyBuilding(dbConnection))

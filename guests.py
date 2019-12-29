@@ -14,14 +14,12 @@ class Status(IntEnum):
 
 
 class Guests(object):
-    def __init__(self, database):
-        self.database = database
+    def __init__(self):
         self.date = 0
         self.num = 1
 
-    def createTable(self):
-        with sqlite3.connect(self.database) as c:
-            self.migrate(c, 0)
+    def createTable(self, dbConnection):
+        self.migrate(dbConnection, 0)
 
     def migrate(self, dbConnection, db_schema_version):
         if db_schema_version <= 2:
@@ -38,42 +36,41 @@ class Guests(object):
             dbConnection.execute(
                 "ALTER TABLE guests ADD COLUMN newsletter INTEGER default 0")
 
-    def add(self, displayName, first, last, email, whereFound, newsletter):
+    def add(self, dbConnection, displayName, first, last, email, whereFound, newsletter):
         if self.date != datetime.date.today():
             self.date = datetime.date.today()
             self.num = 1
         else:
             self.num = self.num + 1
-        with sqlite3.connect(self.database) as c:
-            while self.num < 10000:
-                try:
-                    guest_id = self.date.strftime(
-                        "%Y%m%d") + '{0:04d}'.format(self.num)
-                    # zero padded up to 9999 for each day
-                    c.execute("INSERT INTO guests VALUES (?,?,?,?,?,?,?,?)",
-                              (guest_id, displayName, email, first,
-                               last, whereFound, Status.active, newsletter))
-                except sqlite3.DatabaseError:
-                    self.num = self.num + 1
-                else:
-                    return guest_id
 
-    def getName(self, guest_id):
-        with sqlite3.connect(self.database) as c:
-            data = c.execute(
-                "SELECT displayName FROM guests WHERE guest_id==?", (guest_id,)).fetchone()
-            if data is None:
-                return ('Invalid: ' + guest_id, None)
+        while self.num < 10000:
+            try:
+                guest_id = self.date.strftime(
+                    "%Y%m%d") + '{0:04d}'.format(self.num)
+                # zero padded up to 9999 for each day
+                dbConnection.execute("INSERT INTO guests VALUES (?,?,?,?,?,?,?,?)",
+                                     (guest_id, displayName, email, first,
+                                      last, whereFound, Status.active, newsletter))
+            except sqlite3.DatabaseError:
+                self.num = self.num + 1
             else:
-                # Add code here for inactive
-                return ('', data[0])
+                return guest_id
 
-    def getList(self):
+    def getName(self, dbConnection, guest_id):
+        data = dbConnection.execute(
+            "SELECT displayName FROM guests WHERE guest_id==?", (guest_id,)).fetchone()
+        if data is None:
+            return ('Invalid: ' + guest_id, None)
+        else:
+            # Add code here for inactive
+            return ('', data[0])
+
+    def getList(self, dbConnection):
         guestList = []
-        with sqlite3.connect(self.database) as c:
-            for row in c.execute("SELECT * FROM guests WHERE status is NOT ? ORDER BY displayName",
-                                 (Status.inactive,)):
-                guestList.append(Guest(row[0], row[1]))
+
+        for row in dbConnection.execute("SELECT * FROM guests WHERE status is NOT ? ORDER BY displayName",
+                                        (Status.inactive,)):
+            guestList.append(Guest(row[0], row[1]))
         return guestList
 
 
@@ -84,12 +81,18 @@ if __name__ == "__main__":  # pragma no cover
         os.remove(DB_STRING)   # Start with a new one
     except IOError:
         pass  # Don't care if it didn't exist
-    guests = Guests(DB_STRING)
-    guests.createTable()
+    guests = Guests()
 
-    guests.add("Test 1", "Test", "1", "noemail@domain.com", "")
-    guests.add("Test 2", "Test", "2", "noemail@domain.com", "")
-    guests.add("Test 3", "Test", "3", "noemail@domain.com", "")
+    dbConnection = sqlite3.connect(
+        DB_STRING, detect_types=sqlite3.PARSE_DECLTYPES)
+    guests.createTable(dbConnection)
 
-    for g in guests.getList():
+    guests.add(dbConnection, "Test 1", "Test", "1",
+               "noemail@domain.com", "", False)
+    guests.add(dbConnection, "Test 2", "Test",
+               "2", "noemail@domain.com", "", True)
+    guests.add(dbConnection, "Test 3", "Test", "3",
+               "noemail@domain.com", "", False)
+
+    for g in guests.getList(dbConnection):
         print(g)

@@ -50,12 +50,11 @@ class ToolUser(object):
 
 
 class Certifications(object):
-    def __init__(self, database):
-        self.database = database
+    def __init__(self):
+        pass
 
-    def createTable(self):
-        with sqlite3.connect(self.database) as c:
-            self.migrate(c, 0)
+    def createTable(self, dbConnection):
+        self.migrate(dbConnection, 0)
 
     def addTool(self, dbConnection, tool_id, grouping, name, restriction=0, comments=''):
         dbConnection.execute('INSERT INTO tools VALUES(?,?,?,?,?)',
@@ -113,9 +112,8 @@ class Certifications(object):
                                   level         INTEGER default 0)''')
             self.addTools(dbConnection)
 
-    def addNewCertification(self, member_id, tool_id, level, certifier):
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            return self.addCertification(c, member_id, tool_id, level, datetime.datetime.now(), certifier)
+    def addNewCertification(self, dbConnection, member_id, tool_id, level, certifier):
+        return self.addCertification(dbConnection, member_id, tool_id, level, datetime.datetime.now(), certifier)
 
     def addCertification(self, dbConnection, barcode, tool_id, level, date, certifier):
         # date needs to be changed to match format we want
@@ -128,9 +126,8 @@ class Certifications(object):
     def getToolList(self, certifier_id):
         return self.getListCertifyTools(sqlite3.connect(self.database), certifier_id)
 
-    def getUserList(self):
+    def getUserList(self, dbConnection):
         users = {}
-        dbConnection = sqlite3.connect(self.database)
         for row in dbConnection.execute('''SELECT user_id, tool_id, date, level FROM certifications
                                         INNER JOIN members ON members.barcode=user_id
                                         ORDER BY members.displayName'''):
@@ -141,9 +138,8 @@ class Certifications(object):
                 users[row[0]].addTool(row[1], row[2], row[3])
         return users
 
-    def getAllTools(self):
+    def getAllTools(self, dbConnection):
         tools = []
-        dbConnection = sqlite3.connect(self.database)
         for row in dbConnection.execute('SELECT id, name, grouping FROM tools', ()):
             tools.append([row[0], row[1], row[2]])
         return tools
@@ -213,10 +209,11 @@ class Certifications(object):
                                 self.addCertification(
                                     dbConnection, barcode, tool_dict[i], level, date, 'LEGACY')
 
-
         # unit test
 if __name__ == "__main__":  # pragma no cover
     DB_STRING = 'data/test.db'
-    certifications = Certifications(DB_STRING)
-    certifications.createTable()
+    dbConnection = sqlite3.connect(
+        DB_STRING, detect_types=sqlite3.PARSE_DECLTYPES)
+    certifications = Certifications()
+    certifications.createTable(dbConnection)
     certifications.importFromCSV("test.csv")

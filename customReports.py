@@ -6,9 +6,8 @@ class CustomReports:
     def __init__(self, database):
         self.database = database
 
-    def createTable(self):
-        with sqlite3.connect(self.database) as c:
-            self.migrate(c, 0)
+    def createTable(self, dbConnection):
+        self.migrate(dbConnection, 0)
 
     def migrate(self, dbConnection, db_schema_version):
         if db_schema_version < 7:
@@ -44,23 +43,21 @@ class CustomReports:
                 return (data[1], data[2], rows)
         return ("Couldn't find report", None)
 
-    def saveCustomSQL(self, sql, name):
-        with sqlite3.connect(self.database) as c:
-            try:
-                c.execute(
-                    "INSERT INTO reports VALUES (NULL,?,?,?,1)", (name, sql, ""))
-                return ""
-            except sqlite3.IntegrityError:
-                return "Report already exists with that name"
+    def saveCustomSQL(self, dbConnection, sql, name):
+        try:
+            dbConnection.execute(
+                "INSERT INTO reports VALUES (NULL,?,?,?,1)", (name, sql, ""))
+            return ""
+        except sqlite3.IntegrityError:
+            return "Report already exists with that name"
 
-    def get_report_list(self):
+    def get_report_list(self, dbConnection):
         report_list = []
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            for row in c.execute('''SELECT report_id, name
+        for row in dbConnection.execute('''SELECT report_id, name
                                 FROM reports
                                 WHERE (active = ?)
                                 ORDER BY name''', (1,)):
-                report_list.append((row[0], row[1]))
+            report_list.append((row[0], row[1]))
         return report_list
 
 
