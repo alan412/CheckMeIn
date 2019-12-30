@@ -6,9 +6,6 @@ class CustomReports:
     def __init__(self, database):
         self.database = database
 
-    def createTable(self, dbConnection):
-        self.migrate(dbConnection, 0)
-
     def migrate(self, dbConnection, db_schema_version):
         if db_schema_version < 7:
             dbConnection.execute('''CREATE TABLE reports
@@ -41,7 +38,7 @@ class CustomReports:
                 # append header to rows
                 rows.insert(0, header)
                 return (data[1], data[2], rows)
-        return ("Couldn't find report", None)
+        return ("Couldn't find report", "", None)
 
     def saveCustomSQL(self, dbConnection, sql, name):
         try:

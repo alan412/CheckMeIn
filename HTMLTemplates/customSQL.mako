@@ -24,6 +24,7 @@ ${sql}
  </fieldset>
 </FORM>
 
+% if data:
 <H2>Output</H2>
 <table class="SQLoutput">
 % for row in data:
@@ -34,6 +35,7 @@ ${sql}
 </tr>
 % endfor
 </table>
+% endif
 
 <br/>
 <FORM action="saveReport">

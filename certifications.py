@@ -53,9 +53,6 @@ class Certifications(object):
     def __init__(self):
         pass
 
-    def createTable(self, dbConnection):
-        self.migrate(dbConnection, 0)
-
     def addTool(self, dbConnection, tool_id, grouping, name, restriction=0, comments=''):
         dbConnection.execute('INSERT INTO tools VALUES(?,?,?,?,?)',
                              (tool_id, grouping, name, restriction, comments))
@@ -215,5 +212,5 @@ if __name__ == "__main__":  # pragma no cover
     dbConnection = sqlite3.connect(
         DB_STRING, detect_types=sqlite3.PARSE_DECLTYPES)
     certifications = Certifications()
-    certifications.createTable(dbConnection)
+    certifications.migrate(dbConnection, 0)
     certifications.importFromCSV("test.csv")

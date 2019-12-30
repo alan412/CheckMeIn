@@ -37,3 +37,11 @@ class SimpleCPTest(helper.CPWebCase):
     def test_fixDataOutput(self):
         self.getPage("/fixed?output=")
         self.assertStatus('200 OK')
+
+    def test_customReportGood(self):
+        self.getPage("/savedReport?report_id=1")
+        self.assertStatus('200 OK')
+
+    def test_customReportBad(self):
+        self.getPage("/savedReport?report_id=100")
+        self.assertStatus('200 OK')

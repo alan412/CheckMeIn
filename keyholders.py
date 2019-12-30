@@ -12,9 +12,6 @@ class Keyholders(object):
     def __init__(self):
         pass
 
-    def createTable(self, dbConnection):
-        self.migrate(dbConnection, 0)
-
     def migrate(self, dbConnection, db_schema_version):
         if db_schema_version < 4:
             dbConnection.execute('''CREATE TABLE keyholders
@@ -23,11 +20,6 @@ class Keyholders(object):
     def removeKeyholder(self, dbConnection):
         dbConnection.execute("UPDATE keyholders SET active = ? WHERE (active==?)",
                              (Status.inactive, Status.active))
-
-    def isKeyholder(self, dbConnection, barcode):
-        data = dbConnection.execute(
-            "SELECT barcode FROM keyholders WHERE barcode==?", (barcode,)).fetchone()
-        return (data is not None)
 
     def setActiveKeyholder(self, dbConnection, barcode):
         if barcode:
@@ -54,7 +46,7 @@ if __name__ == "__main__":  # pragma no cover
     keyholders = Keyholders()
 
     with sqlite3.connect(DB_STRING) as c:
-        keyholders.createTable(c)
+        keyholders.migrate(c, 0)
         keyholders.setActiveKeyholder(c, '100090')
         print("Active: ", keyholders.getActiveKeyholder(c))
 

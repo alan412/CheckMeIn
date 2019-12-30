@@ -18,9 +18,6 @@ class Guests(object):
         self.date = 0
         self.num = 1
 
-    def createTable(self, dbConnection):
-        self.migrate(dbConnection, 0)
-
     def migrate(self, dbConnection, db_schema_version):
         if db_schema_version <= 2:
             dbConnection.execute('''CREATE TABLE guests
@@ -85,7 +82,7 @@ if __name__ == "__main__":  # pragma no cover
 
     dbConnection = sqlite3.connect(
         DB_STRING, detect_types=sqlite3.PARSE_DECLTYPES)
-    guests.createTable(dbConnection)
+    guests.migrate(dbConnection, 0)
 
     guests.add(dbConnection, "Test 1", "Test", "1",
                "noemail@domain.com", "", False)
