@@ -17,11 +17,14 @@ class CheckMeIn(object):
             directories=['HTMLTemplates'], default_filters=['h'])
         self.visits = Visits(DB_STRING)
 
+    def dbConnect(self):
+        return sqlite3.connect(DB_STRING, detect_types=sqlite3.PARSE_DECLTYPES)
+
     def template(self, name, **kwargs):
         return self.lookup.get_template(name).render(**kwargs)
 
     def showGuestPage(self, message=''):
-        with visits.dbConnect() as dbConnection:
+        with self.dbConnect() as dbConnection:
             all_guests = self.visits.guests.getList(dbConnection)
             building_guests = self.visits.reports.guestsInBuilding(
                 dbConnection)
@@ -35,7 +38,7 @@ class CheckMeIn(object):
 
     @cherrypy.expose
     def station(self, error=''):
-        with self.visits.dbConnect() as dbConnection:
+        with self.dbConnect() as dbConnection:
             self.visits.checkBuilding(dbConnection)
             return self.template('station.mako',
                                  todaysTransactions=self.visits.reports.transactionsToday(
@@ -51,14 +54,14 @@ class CheckMeIn(object):
     @cherrypy.expose
     def who_is_here(self):
         return self.template('who_is_here.mako', now=datetime.datetime.now(),
-                             whoIsHere=self.visits.reports.whoIsHere(self.visits.dbConnect()
+                             whoIsHere=self.visits.reports.whoIsHere(self.dbConnect()
                                                                      ))
 
     @cherrypy.expose
     def keyholder(self, barcode):
         error = ''
         barcode = barcode.strip()
-        with self.visits.dbConnect() as dbConnection:
+        with self.dbConnect() as dbConnection:
             if barcode == KEYHOLDER_BARCODE or (
                     barcode == self.visits.getActiveKeyholder(dbConnection)):
                 self.visits.emptyBuilding(dbConnection)
@@ -75,7 +78,7 @@ class CheckMeIn(object):
         error = ''
 # strip whitespace before or after barcode digits (occasionally a space comes before or after
         barcodes = barcode.split()
-        with self.visits.dbConnect() as dbConnection:
+        with self.dbConnect() as dbConnection:
             for bc in barcodes:
                 if (bc == KEYHOLDER_BARCODE) or (
                         bc == self.visits.getActiveKeyholder(dbConnection)):
@@ -88,14 +91,14 @@ class CheckMeIn(object):
 
     @cherrypy.expose
     def admin(self, error=""):
-        with self.visits.dbConnect() as dbConnection:
+        with self.dbConnect() as dbConnection:
             firstDate = self.visits.reports.getEarliestDate(
                 dbConnection).isoformat()
             todayDate = datetime.date.today().isoformat()
             forgotDates = []
             for date in self.visits.reports.getForgottenDates(dbConnection):
                 forgotDates.append(date.isoformat())
-            teamList = self.visits.teams.get_team_list(dbConnection)
+            teamList = self.visits.teams.getTeamList(dbConnection)
             reportList = self.visits.customReports.get_report_list(
                 dbConnection)
         return self.template('admin.mako', forgotDates=forgotDates,
@@ -104,11 +107,11 @@ class CheckMeIn(object):
 
     @cherrypy.expose
     def reports(self, startDate, endDate):
-        return self.template('reports.mako', stats=self.visits.reports.getStats(self.visits.dbConnect(), startDate, endDate))
+        return self.template('reports.mako', stats=self.visits.reports.getStats(self.dbConnect(), startDate, endDate))
 
     @cherrypy.expose
     def createTeam(self, team_name):
-        error = self.visits.teams.create_team(
+        error = self.visits.teams.createTeam(
             self.vists.dbConnect(), team_name)
         return self.admin(error)
 
@@ -118,35 +121,36 @@ class CheckMeIn(object):
         listMentors = mentors.split()
         listCoaches = coaches.split()
 
-        with self.visits.dbConnect() as dbConnection:
-            self.visits.teams.add_team_members(
+        with self.dbConnect() as dbConnection:
+            self.visits.teams.addTeamMembers(
                 dbConnection, team_id, listStudents, listMentors, listCoaches)
 
             return self.team(dbConnection, team_id)
 
     @cherrypy.expose
     def teamAttendance(self, team_id, date, startTime, endTime):
-        print("Team Attendance: ", team_id, date, startTime, endTime)
-        firstDate = self.visits.reports.getEarliestDate().isoformat()
-        todayDate = datetime.date.today().isoformat()
-        team_name = self.visits.teams.team_name_from_id(team_id)
-        datePieces = date.split('-')
-        startTimePieces = startTime.split(':')
-        endTimePieces = endTime.split(':')
+        with self.dbConnect() as dbConnection:
+            firstDate = self.visits.reports.getEarliestDate(
+                dbConnection).isoformat()
+            todayDate = datetime.date.today().isoformat()
+            team_name = self.visits.teams.teamNameFromId(dbConnection, team_id)
+            datePieces = date.split('-')
+            startTimePieces = startTime.split(':')
+            endTimePieces = endTime.split(':')
 
-        beginMeetingTime = datetime.datetime.combine(
-            datetime.date(int(datePieces[0]), int(
-                datePieces[1]), int(datePieces[2])),
-            datetime.time(int(startTimePieces[0]), int(startTimePieces[1])))
+            beginMeetingTime = datetime.datetime.combine(
+                datetime.date(int(datePieces[0]), int(
+                    datePieces[1]), int(datePieces[2])),
+                datetime.time(int(startTimePieces[0]), int(startTimePieces[1])))
 
-        endMeetingTime = datetime.datetime.combine(
-            datetime.date(int(datePieces[0]), int(
-                datePieces[1]), int(datePieces[2])),
-            datetime.time(int(endTimePieces[0]), int(endTimePieces[1])))
+            endMeetingTime = datetime.datetime.combine(
+                datetime.date(int(datePieces[0]), int(
+                    datePieces[1]), int(datePieces[2])),
+                datetime.time(int(endTimePieces[0]), int(endTimePieces[1])))
 
-        membersHere = self.visits.reports.whichTeamMembersHere(team_id,
-                                                               beginMeetingTime,
-                                                               endMeetingTime)
+            membersHere = self.visits.reports.whichTeamMembersHere(dbConnection, team_id,
+                                                                   beginMeetingTime,
+                                                                   endMeetingTime)
 
         return self.template('team_attendance.mako', team_id=team_id,
                              team_name=team_name, firstDate=firstDate,
@@ -155,10 +159,13 @@ class CheckMeIn(object):
 
     @cherrypy.expose
     def team(self, team_id, error=''):
-        firstDate = self.visits.reports.getEarliestDate().isoformat()
-        todayDate = datetime.date.today().isoformat()
-        team_name = self.visits.teams.team_name_from_id(team_id)
-        members = self.visits.teams.get_team_members(team_id)
+        with self.dbConnect() as dbConnection:
+            firstDate = self.visits.reports.getEarliestDate(
+                dbConnection).isoformat()
+            todayDate = datetime.date.today().isoformat()
+            team_name = self.visits.teams.team_name_from_id(
+                dbConnection, team_id)
+            members = self.visits.teams.get_team_members(dbConnection, team_id)
 
         return self.template('team.mako', firstDate=firstDate, team_id=team_id,
                              todayDate=todayDate, team_name=team_name, members=members, error=error)
@@ -166,13 +173,14 @@ class CheckMeIn(object):
     @cherrypy.expose
     def reportGraph(self, startDate, endDate):
         cherrypy.response.headers['Content-Type'] = "image/png"
-        stats = self.visits.reports.getStats(startDate, endDate)
-        print(stats)
+        stats = self.visits.reports.getStats(
+            self.dbConnect(), startDate, endDate)
         return stats.getBuildingUsageGraph()
 
     @cherrypy.expose
     def saveReport(self, sql, report_name):
-        error = self.visits.customReports.saveCustomSQL(sql, report_name)
+        error = self.visits.customReports.saveCustomSQL(
+            self.dbConnect(), sql, report_name)
         return self.admin(error)
 
     @cherrypy.expose
@@ -181,7 +189,6 @@ class CheckMeIn(object):
         sql = ""
         try:
             (title, sql, data) = self.visits.customReports.customReport(report_id)
-            print("Title: ", title)
         except sqlite3.OperationalError as e:
             data = repr(e)
 
@@ -198,7 +205,7 @@ class CheckMeIn(object):
 
     @cherrypy.expose
     def bulkAddMembers(self, csvfile):
-        error = self.visits.members.bulkAdd(csvfile)
+        error = self.visits.members.bulkAdd(self.dbConnect(), csvfile)
         return self.admin(error)
 
     @cherrypy.expose
@@ -207,28 +214,29 @@ class CheckMeIn(object):
             return self.showGuestPage('Need a first and last name')
 
         displayName = first + ' ' + last[0] + '.'
-        if reason != '':
-            guest_id = self.visits.guests.add(
-                displayName, first, last, email, reason, newsletter)
-        else:
-            guest_id = self.visits.guests.add(
-                displayName, first, last, email, 'Other: ' + other_reason, newsletter)
-        self.visits.enterGuest(guest_id)
-        return self.showGuestPage('Welcome ' + displayName + '  We are glad you are here!')
+        with self.dbConnect() as dbConnection:
+            if reason != '':
+                guest_id = self.visits.guests.add(dbConnection,
+                                                  displayName, first, last, email, reason, newsletter)
+            else:
+                guest_id = self.visits.guests.add(dbConnection,
+                                                  displayName, first, last, email, 'Other: ' + other_reason, newsletter)
+            self.visits.enterGuest(dbConnection, guest_id)
+            return self.showGuestPage('Welcome ' + displayName + '  We are glad you are here!')
 
     @cherrypy.expose
     def fixData(self, date):
-        data = self.visits.reports.getData(date)
+        data = self.visits.reports.getData(self.dbConnect(), date)
         return self.template('fixData.mako', date=date, data=data)
 
     @cherrypy.expose
     def oops(self):
-        self.visits.oopsForgot()
+        self.visits.oopsForgot(self.dbConnect())
         return self.admin('Oops is fixed. :-)')
 
     @cherrypy.expose
     def fixed(self, output):
-        self.visits.fix(output)
+        self.visits.fix(self.dbConnect(), output)
         return self.admin()
 
     @cherrypy.expose
@@ -237,8 +245,9 @@ class CheckMeIn(object):
 
     @cherrypy.expose
     def leaveGuest(self, guest_id):
-        self.visits.leaveGuest(guest_id)
-        (error, name) = self.visits.guests.getName(guest_id)
+        with self.dbConnect() as dbConnection:
+            self.visits.leaveGuest(dbConnection, guest_id)
+            (error, name) = self.visits.guests.getName(dbConnection, guest_id)
         if error:
             return self.showGuestPage(error)
 
@@ -246,59 +255,69 @@ class CheckMeIn(object):
 
     @cherrypy.expose
     def returnGuest(self, guest_id):
-        self.visits.enterGuest(guest_id)
-        (error, name) = self.visits.guests.getName(guest_id)
-        if error:
-            return self.showGuestPage(error)
+        with self.dbConnect() as dbConnection:
+            self.visits.enterGuest(dbConnection, guest_id)
+            (error, name) = self.visits.guests.getName(dbConnection, guest_id)
+            if error:
+                return self.showGuestPage(error)
 
         return self.showGuestPage('Welcome back, ' + name + ' We are glad you are here!')
 
     @cherrypy.expose
     def certify(self, certifier_id):
         message = ''
-        return self.template('certify.mako', message=message,
-                             certifier=self.visits.members.getName(
-                                 certifier_id)[1],
-                             certifier_id=certifier_id,
-                             members_in_building=self.visits.getMembersInBuilding(),
-                             tools=self.visits.certifications.getToolList(certifier_id))
+        with self.dbConnect() as dbConnection:
+            return self.template('certify.mako', message=message,
+                                 certifier=self.visits.members.getName(dbConnection,
+                                                                       certifier_id)[1],
+                                 certifier_id=certifier_id,
+                                 members_in_building=self.visits.getMembersInBuilding(
+                                     dbConnection),
+                                 tools=self.visits.certifications.getToolList(dbConnection, certifier_id))
 
     @cherrypy.expose
     def addCertification(self, member_id, certifier_id, tool_id, level):
         # We don't check here for valid tool since someone is forging HTML to put an invalid one
         # and we'll catch it with the email out...
-        self.visits.certifications.addNewCertification(
-            member_id, tool_id, level, certifier_id)
+        self.visits.certifications.addNewCertification(self.dbConnect(),
+                                                       member_id, tool_id, level, certifier_id)
 
         raise cherrypy.HTTPRedirect('/certification_list')
 
     @cherrypy.expose
     def certification_list(self):
         message = ''
-        return self.template('certifications.mako', message=message,
-                             barcodes=self.visits.getMemberBarcodesInBuilding(),
-                             tools=self.visits.certifications.getAllTools(),
-                             members=self.visits.members,
-                             certifications=self.visits.certifications.getUserList())
+        with self.dbConnect() as dbConnection:
+            return self.template('certifications.mako', message=message,
+                                 barcodes=self.visits.getMemberBarcodesInBuilding(
+                                     dbConnection),
+                                 tools=self.visits.certifications.getAllTools(
+                                     dbConnection),
+                                 members=self.visits.members,
+                                 certifications=self.visits.certifications.getUserList(dbConnection))
 
     @cherrypy.expose
     def certification_list_tools(self, tools):
         message = ''
-        return self.template('certifications.mako', message=message,
-                             barcodes=self.visits.getMemberBarcodesInBuilding(),
-                             tools=self.visits.certifications.getToolsFromList(
-                                 tools),
-                             members=self.visits.members,
-                             certifications=self.visits.certifications.getUserList())
+        with self.dbConnect() as dbConnection:
+            return self.template('certifications.mako', message=message,
+                                 barcodes=self.visits.getMemberBarcodesInBuilding(
+                                     dbConnection),
+                                 tools=self.visits.certifications.getToolsFromList(dbConnection,
+                                                                                   tools),
+                                 members=self.visits.members,
+                                 certifications=self.visits.certifications.getUserList(dbConnection))
 
     @cherrypy.expose
     def all_certification_list(self):
         message = ''
-        return self.template('certifications.mako', message=message,
-                             barcodes=None,
-                             tools=self.visits.certifications.getAllTools(),
-                             members=self.visits.members,
-                             certifications=self.visits.certifications.getUserList())
+        with self.dbConnect() as dbConnection:
+            return self.template('certifications.mako', message=message,
+                                 barcodes=None,
+                                 tools=self.visits.certifications.getAllTools(
+                                     dbConnection),
+                                 members=self.visits.members,
+                                 certifications=self.visits.certifications.getUserList(dbConnection))
 
     @cherrypy.expose
     def index(self):
@@ -306,10 +325,11 @@ class CheckMeIn(object):
 
     @cherrypy.expose
     def import_csv(self):
-        self.visits.certifications.importFromCSV(
-            "students.csv", self.visits.members, sqlite3.connect(self.visits.members.database))
-        self.visits.certifications.importFromCSV(
-            "adults.csv", self.visits.members, sqlite3.connect(self.visits.members.database))
+        with self.dbConnect() as dbConnection:
+            self.visits.certifications.importFromCSV(dbConnection,
+                                                     "students.csv", self.visits.members, sqlite3.connect(self.visits.members.database))
+            self.visits.certifications.importFromCSV(dbConnection,
+                                                     "adults.csv", self.visits.members, sqlite3.connect(self.visits.members.database))
         return self.all_certification_list()
 
 

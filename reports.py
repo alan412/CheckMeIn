@@ -243,7 +243,7 @@ class Reports(object):
                               second=59, microsecond=999999)
         return self.uniqueVisitors(dbConnection, startDate, endDate)
 
-    def getStats(self, beginDateStr, endDateStr):
+    def getStats(self, dbConnection, beginDateStr, endDateStr):
         startDate = datetime.datetime(int(beginDateStr[0:4]),
                                       int(beginDateStr[5:7]), int(beginDateStr[8:10])).replace(
             hour=0, minute=0, second=0, microsecond=0)

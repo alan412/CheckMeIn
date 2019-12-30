@@ -34,10 +34,6 @@ class SimpleCPTest(helper.CPWebCase):
         self.getPage("/fixData?date=2018-06-28")
         self.assertStatus('200 OK')
 
-    def test_addMember(self):
-        self.getPage("/addMember?display=False+M.&barcode=777001")
-        self.assertStatus('200 OK')
-
     def test_fixDataOutput(self):
         self.getPage("/fixed?output=")
         self.assertStatus('200 OK')

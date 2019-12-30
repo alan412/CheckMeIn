@@ -15,17 +15,17 @@ class SimpleCPTest(helper.CPWebCase):
 
     def test_addGuest(self):
         self.getPage(
-            "/addGuest?first=Fred&last=Guest&email=&reason=Tour&other_reason=")
+            "/addGuest?first=Fred&last=Guest&email=&reason=Tour&other_reason=&newsletter=1")
         self.assertStatus('200 OK')
 
     def test_addGuest_blankName(self):
         self.getPage(
-            "/addGuest?first=&last=Guest&email=&reason=Tour&other_reason=")
+            "/addGuest?first=&last=Guest&email=&reason=Tour&other_reason=&newsletter=1")
         self.assertStatus('200 OK')
 
     def test_addGuest_otherReason(self):
         self.getPage(
-            "/addGuest?first=First&last=Guest&email=&reason=&other_reason=Random")
+            "/addGuest?first=First&last=Guest&email=&reason=&other_reason=Random&newsletter=1")
         self.assertStatus('200 OK')
 
     def test_returnGuest(self):
