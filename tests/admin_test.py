@@ -45,3 +45,7 @@ class SimpleCPTest(helper.CPWebCase):
     def test_customReportBad(self):
         self.getPage("/savedReport?report_id=100")
         self.assertStatus('200 OK')
+
+    def test_buildingGraph(self):
+        self.getPage("/reportGraph?startDate=2019-12-01&endDate=2019-12-30")
+        self.assertStatus('200 OK')

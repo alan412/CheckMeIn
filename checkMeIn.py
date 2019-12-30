@@ -67,8 +67,7 @@ class CheckMeIn(object):
                 self.visits.emptyBuilding(dbConnection)
             else:
                 error = self.visits.setActiveKeyholder(dbConnection, barcode)
-                if error:  # TODO after this case is added, remove no cover
-                    # pragma no cover
+                if error:  # pragma: no cover # TODO after this case is added, remove no cover
                     return self.template('keyholder.mako', error=error)
         return self.station()
 
@@ -112,7 +111,7 @@ class CheckMeIn(object):
     @cherrypy.expose
     def createTeam(self, team_name):
         error = self.visits.teams.createTeam(
-            self.vists.dbConnect(), team_name)
+            self.dbConnect(), team_name)
         return self.admin(error)
 
     @cherrypy.expose
@@ -125,7 +124,7 @@ class CheckMeIn(object):
             self.visits.teams.addTeamMembers(
                 dbConnection, team_id, listStudents, listMentors, listCoaches)
 
-            return self.team(dbConnection, team_id)
+            return self.team(team_id)
 
     @cherrypy.expose
     def teamAttendance(self, team_id, date, startTime, endTime):
@@ -163,9 +162,9 @@ class CheckMeIn(object):
             firstDate = self.visits.reports.getEarliestDate(
                 dbConnection).isoformat()
             todayDate = datetime.date.today().isoformat()
-            team_name = self.visits.teams.team_name_from_id(
+            team_name = self.visits.teams.teamNameFromId(
                 dbConnection, team_id)
-            members = self.visits.teams.get_team_members(dbConnection, team_id)
+            members = self.visits.teams.getTeamMembers(dbConnection, team_id)
 
         return self.template('team.mako', firstDate=firstDate, team_id=team_id,
                              todayDate=todayDate, team_name=team_name, members=members, error=error)
