@@ -1,3 +1,4 @@
+
 from unittest.mock import patch
 
 import cherrypy
@@ -21,7 +22,8 @@ class SimpleCPTest(helper.CPWebCase):
         self.assertStatus('200 OK')
 
     def test_sql(self):
-        self.getPage("/customSQLReport?sql=SELECT+*+FROM+members%3B%0D%0A+++++")
+        self.getPage(
+            "/customSQLReport?sql=SELECT+*+FROM+members%3B%0D%0A+++++")
         self.assertStatus('200 OK')
 
     def test_oops(self):
@@ -35,6 +37,7 @@ class SimpleCPTest(helper.CPWebCase):
     def test_addMember(self):
         self.getPage("/addMember?display=False+M.&barcode=777001")
         self.assertStatus('200 OK')
+
     def test_fixDataOutput(self):
         self.getPage("/fixed?output=")
         self.assertStatus('200 OK')

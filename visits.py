@@ -24,13 +24,16 @@ class Visits(object):
         self.customReports = CustomReports(database)
         self.certifications = Certifications()
         if not os.path.exists(self.database):
-            with sqlite3.connect(self.database) as c:
+            with self.dbConnect() as c:
                 self.migrate(c, 0)
         else:
-            with sqlite3.connect(self.database) as c:
+            with self.dbConnect() as c:
                 data = c.execute('PRAGMA schema_version').fetchone()
                 if data[0] != SCHEMA_VERSION:
                     self.migrate(c, data[0])
+
+    def dbConnect(self):
+        return sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES)
 
     def migrate(self, dbConnection, db_schema_version):
         if db_schema_version < SCHEMA_VERSION:
@@ -121,9 +124,8 @@ class Visits(object):
 
     def setActiveKeyholder(self, dbConnection, barcode):
         # TODO: once keyholders does verification, this should have the possibility of error
-        with sqlite3.connect(self.database) as c:
-            leavingKeyholder = self.keyholders.getActiveKeyholder(dbConnection)
-            self.keyholders.setActiveKeyholder(dbConnection, barcode)
+        leavingKeyholder = self.keyholders.getActiveKeyholder(dbConnection)
+        self.keyholders.setActiveKeyholder(dbConnection, barcode)
         self.addIfNotHere(dbConnection, barcode)
         if leavingKeyholder:
             self.scannedMember(dbConnection, leavingKeyholder)

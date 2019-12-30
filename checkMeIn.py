@@ -21,8 +21,10 @@ class CheckMeIn(object):
         return self.lookup.get_template(name).render(**kwargs)
 
     def showGuestPage(self, message=''):
-        all_guests = self.visits.guests.getList()
-        building_guests = self.visits.reports.guestsInBuilding()
+        with visits.dbConnect() as dbConnection:
+            all_guests = self.visits.guests.getList(dbConnection)
+            building_guests = self.visits.reports.guestsInBuilding(
+                dbConnection)
 
         guests_not_here = [
             guest for guest in all_guests if guest not in building_guests]
@@ -33,31 +35,38 @@ class CheckMeIn(object):
 
     @cherrypy.expose
     def station(self, error=''):
-        self.visits.checkBuilding()
-        return self.template('station.mako',
-                             todaysTransactions=self.visits.reports.transactionsToday(),
-                             numberPresent=self.visits.reports.numberPresent(),
-                             uniqueVisitorsToday=self.visits.reports.uniqueVisitorsToday(),
-                             keyholder_name=self.visits.getKeyholderName(),
-                             error=error)
+        with self.visits.dbConnect() as dbConnection:
+            self.visits.checkBuilding(dbConnection)
+            return self.template('station.mako',
+                                 todaysTransactions=self.visits.reports.transactionsToday(
+                                     dbConnection),
+                                 numberPresent=self.visits.reports.numberPresent(
+                                     dbConnection),
+                                 uniqueVisitorsToday=self.visits.reports.uniqueVisitorsToday(
+                                     dbConnection),
+                                 keyholder_name=self.visits.getKeyholderName(
+                                     dbConnection),
+                                 error=error)
 
     @cherrypy.expose
     def who_is_here(self):
         return self.template('who_is_here.mako', now=datetime.datetime.now(),
-                             whoIsHere=self.visits.reports.whoIsHere())
+                             whoIsHere=self.visits.reports.whoIsHere(self.visits.dbConnect()
+                                                                     ))
 
     @cherrypy.expose
     def keyholder(self, barcode):
         error = ''
         barcode = barcode.strip()
-        if barcode == KEYHOLDER_BARCODE or (
-                barcode == self.visits.getActiveKeyholder()):
-            self.visits.emptyBuilding()
-        else:
-            error = self.visits.setActiveKeyholder(barcode)
-            if error:  # TODO after this case is added, remove no cover
-                # pragma no cover
-                return self.template('keyholder.mako', error=error)
+        with self.visits.dbConnect() as dbConnection:
+            if barcode == KEYHOLDER_BARCODE or (
+                    barcode == self.visits.getActiveKeyholder(dbConnection)):
+                self.visits.emptyBuilding(dbConnection)
+            else:
+                error = self.visits.setActiveKeyholder(dbConnection, barcode)
+                if error:  # TODO after this case is added, remove no cover
+                    # pragma no cover
+                    return self.template('keyholder.mako', error=error)
         return self.station()
 
     @cherrypy.expose
@@ -66,37 +75,41 @@ class CheckMeIn(object):
         error = ''
 # strip whitespace before or after barcode digits (occasionally a space comes before or after
         barcodes = barcode.split()
-
-        for bc in barcodes:
-            if (bc == KEYHOLDER_BARCODE) or (
-                    bc == self.visits.getActiveKeyholder()):
-                return self.template('keyholder.mako', whoIsHere=self.visits.reports.whoIsHere())
-            else:
-                error = self.visits.scannedMember(bc)
-                if error:
-                    cherrypy.log(error)
+        with self.visits.dbConnect() as dbConnection:
+            for bc in barcodes:
+                if (bc == KEYHOLDER_BARCODE) or (
+                        bc == self.visits.getActiveKeyholder(dbConnection)):
+                    return self.template('keyholder.mako', whoIsHere=self.visits.reports.whoIsHere(dbConnection))
+                else:
+                    error = self.visits.scannedMember(dbConnection, bc)
+                    if error:
+                        cherrypy.log(error)
         return self.station(error)
 
     @cherrypy.expose
     def admin(self, error=""):
-        firstDate = self.visits.reports.getEarliestDate().isoformat()
-        todayDate = datetime.date.today().isoformat()
-        forgotDates = []
-        for date in self.visits.reports.getForgottenDates():
-            forgotDates.append(date.isoformat())
-        teamList = self.visits.teams.get_team_list()
-        reportList = self.visits.customReports.get_report_list()
+        with self.visits.dbConnect() as dbConnection:
+            firstDate = self.visits.reports.getEarliestDate(
+                dbConnection).isoformat()
+            todayDate = datetime.date.today().isoformat()
+            forgotDates = []
+            for date in self.visits.reports.getForgottenDates(dbConnection):
+                forgotDates.append(date.isoformat())
+            teamList = self.visits.teams.get_team_list(dbConnection)
+            reportList = self.visits.customReports.get_report_list(
+                dbConnection)
         return self.template('admin.mako', forgotDates=forgotDates,
                              firstDate=firstDate, todayDate=todayDate,
                              teamList=teamList, reportList=reportList, error=error)
 
     @cherrypy.expose
     def reports(self, startDate, endDate):
-        return self.template('reports.mako', stats=self.visits.reports.getStats(startDate, endDate))
+        return self.template('reports.mako', stats=self.visits.reports.getStats(self.visits.dbConnect(), startDate, endDate))
 
     @cherrypy.expose
     def createTeam(self, team_name):
-        error = self.visits.teams.create_team(team_name)
+        error = self.visits.teams.create_team(
+            self.vists.dbConnect(), team_name)
         return self.admin(error)
 
     @cherrypy.expose
@@ -105,10 +118,11 @@ class CheckMeIn(object):
         listMentors = mentors.split()
         listCoaches = coaches.split()
 
-        self.visits.teams.add_team_members(
-            team_id, listStudents, listMentors, listCoaches)
+        with self.visits.dbConnect() as dbConnection:
+            self.visits.teams.add_team_members(
+                dbConnection, team_id, listStudents, listMentors, listCoaches)
 
-        return self.team(team_id)
+            return self.team(dbConnection, team_id)
 
     @cherrypy.expose
     def teamAttendance(self, team_id, date, startTime, endTime):
