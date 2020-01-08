@@ -117,5 +117,4 @@ WHERE (start BETWEEN '2018-07-01' AND '2018-07-10');
   </fieldset>
 </form>
 <hr/>
-<A HREF="https://github.com/alan412/CheckMeIn/issues">
-To add feature requests or report issues, please put them here:<A/>
+To add feature requests or report issues, please go to:<A HREF="https://github.com/alan412/CheckMeIn/issues">https://github.com/alan412/CheckMeIn/issues</A>
