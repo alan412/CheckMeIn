@@ -116,3 +116,6 @@ WHERE (start BETWEEN '2018-07-01' AND '2018-07-10');
     <input type="submit" value="Admin Team"/>
   </fieldset>
 </form>
+<hr/>
+<A HREF="https://github.com/alan412/CheckMeIn/issues">
+To add feature requests or report issues, please put them here:<A/>
