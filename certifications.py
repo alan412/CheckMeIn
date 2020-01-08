@@ -144,7 +144,7 @@ class Certifications(object):
     def getAllTools(self):
         tools = []
         dbConnection = sqlite3.connect(self.database)
-        for row in dbConnection.execute('SELECT id, name, grouping FROM tools', ()):
+        for row in dbConnection.execute('SELECT id, name, grouping FROM tools ORDER BY name ASC', ()):
             tools.append([row[0], row[1], row[2]])
         return tools
 
