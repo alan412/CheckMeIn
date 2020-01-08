@@ -165,7 +165,7 @@ class Certifications(object):
         tools = []
         for row in dbConnection.execute('''SELECT id, name FROM tools
                  INNER JOIN certifications ON certifications.tool_id = id
-                 WHERE user_id = ? AND level >= ?''', (user_id, CertificationLevels.CERTIFIER)):
+                 WHERE user_id = ? AND level >= ? ORDER BY name ASC''', (user_id, CertificationLevels.CERTIFIER)):
             tools.append([row[0], row[1]])
         return tools
 
