@@ -32,7 +32,7 @@
       <tr><td><label for="level">New Level:</label></td>
           <td><select name="level">
             <option value="1">BASIC</option>
-            <option value="10">CERTIFIER</option>
+            <option value="10">CERTIFIED</option>
             <option value="20">DOF</option>
             <option value="30">INSTRUCTOR</option>
             <option value="40">CERTIFIER</option>
