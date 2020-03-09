@@ -278,7 +278,9 @@ class CheckMeIn(object):
         # and we'll catch it with the email out...
         self.visits.certifications.addNewCertification(
             member_id, tool_id, level, certifier_id)
+        
         return self.template('congrats.mako', message='',
+                             certifier_id=certifier_id,
                              memberName=self.visits.members.getName(member_id)[
                                  1],
                              level=self.visits.certifications.getLevelName(
