@@ -118,6 +118,18 @@ class CheckMeIn(object):
         return self.team(team_id)
 
     @cherrypy.expose
+    def teamCertifications(self, team_id):
+        message = 'Certifications for team: ' + \
+            self.visits.teams.team_name_from_id(team_id)
+        team_barcodes = self.visits.teams.get_team_members(team_id)
+        barcodes = [member.barcode for member in team_barcodes]
+        return self.template('certifications.mako', message=message,
+                             barcodes=barcodes,
+                             tools=self.visits.certifications.getAllTools(),
+                             members=self.visits.members,
+                             certifications=self.visits.certifications.getUserList())
+
+    @cherrypy.expose
     def teamAttendance(self, team_id, date, startTime, endTime):
         print("Team Attendance: ", team_id, date, startTime, endTime)
         firstDate = self.visits.reports.getEarliestDate().isoformat()

@@ -122,7 +122,7 @@ class Members(object):
 
         with dbConnection as c:
             data = c.execute(
-                "SELECT barcode FROM members WHERE (displayName==?) OR (displayName==?)", (name, name + ' (Keyholder)')).fetchone()
+                "SELECT barcode FROM members WHERE (displayName==?) OR (displayName LIKE ?)", (name, name + ' (Key%')).fetchone()
             if data is None:
                 return ''
             else:
