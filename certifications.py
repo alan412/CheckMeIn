@@ -144,7 +144,7 @@ class Certifications(object):
     def getAllTools(self):
         tools = []
         dbConnection = sqlite3.connect(self.database)
-        for row in dbConnection.execute('SELECT id, name, grouping FROM tools ORDER BY name ASC', ()):
+        for row in dbConnection.execute('SELECT id, name, grouping FROM tools ORDER BY id ASC', ()):
             tools.append([row[0], row[1], row[2]])
         return tools
 
@@ -203,6 +203,8 @@ class Certifications(object):
                             displayName += names[i] + ' '
                         displayName += names[len(names) - 1][0]
                         barcode = members.getBarcode(displayName, dbConnection)
+                        if not barcode:
+                            print(f"{row[2]} - {displayName} Not found!!!")
                     except:
                         print("Exception: ", names)
                 if barcode:
@@ -210,9 +212,10 @@ class Certifications(object):
                         if row[i] and row[i] != 'N/A':
                             (level, date) = self.parseCert(row[i])
                             if level != CertificationLevels.NONE:
+                                # print(
+                                #    f"Adding {tool_dict[i]} - level {level} for {row[2]}")
                                 self.addCertification(
                                     dbConnection, barcode, tool_dict[i], level, date, 'LEGACY')
-
 
         # unit test
 if __name__ == "__main__":  # pragma no cover
