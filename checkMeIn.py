@@ -303,11 +303,14 @@ class CheckMeIn(object):
     @cherrypy.expose
     def all_certification_list(self):
         message = ''
+        certifications = self.visits.certifications.getUserList()
+        barcodes = certifications.keys()
+
         return self.template('certifications.mako', message=message,
-                             barcodes=None,
+                             barcodes=barcodes,
                              tools=self.visits.certifications.getAllTools(),
                              members=self.visits.members,
-                             certifications=self.visits.certifications.getUserList())
+                             certifications=certifications)
 
     @cherrypy.expose
     def index(self):

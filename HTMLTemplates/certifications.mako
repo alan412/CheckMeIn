@@ -15,7 +15,7 @@
 % endfor
 </TR>
 % for user, user_tools in certifications.items():
-   % if not barcodes or (user in barcodes):
+   % if user in barcodes:
    <TR>
    <TD>${members.getName(user)[1]}</TD>
    % for tool in tools:
