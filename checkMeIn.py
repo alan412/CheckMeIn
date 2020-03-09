@@ -274,8 +274,12 @@ class CheckMeIn(object):
         # and we'll catch it with the email out...
         self.visits.certifications.addNewCertification(
             member_id, tool_id, level, certifier_id)
-
-        raise cherrypy.HTTPRedirect('/certification_list')
+        return self.template('congrats.mako', message='',
+                             memberName=self.visits.members.getName(member_id)[
+                                 1],
+                             level=self.visits.certifications.getLevelName(
+                                 level),
+                             tool=self.visits.certifications.getToolName(tool_id))
 
     @cherrypy.expose
     def certification_list(self):

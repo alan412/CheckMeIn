@@ -52,6 +52,13 @@ class ToolUser(object):
 class Certifications(object):
     def __init__(self, database):
         self.database = database
+        self.levels = {
+            CertificationLevels.BASIC: 'BASIC',
+            CertificationLevels.CERTIFIED: 'CERTIFIED',
+            CertificationLevels.DOF: 'DOF',
+            CertificationLevels.INSTRUCTOR: 'INSTRUCTOR',
+            CertificationLevels.CERTIFIER: 'CERTIFIER'
+        }
 
     def createTable(self):
         with sqlite3.connect(self.database) as c:
@@ -170,20 +177,22 @@ class Certifications(object):
         return tools
 
     def parseCert(self, str):
-        levels = {
-            CertificationLevels.BASIC: 'BASIC',
-            CertificationLevels.CERTIFIED: 'CERTIFIED',
-            CertificationLevels.DOF: 'DOF',
-            CertificationLevels.INSTRUCTOR: 'INSTRUCTOR',
-            CertificationLevels.CERTIFIER: 'CERTIFIER'
-        }
         str = str.upper()
-        for level, name in levels.items():
+        for level, name in self.levels.items():
             if str.startswith(name):
                 if str == name:
                     return (level, '')
                 return (level, str[len(name) + 1:])
         return (CertificationLevels.NONE, '')
+
+    def getToolName(self, tool_id):
+        dbConnection = sqlite3.connect(self.database)
+        for row in dbConnection.execute('SELECT name FROM tools WHERE id == ?', (tool_id, )):
+            return row[0]
+        return ''
+
+    def getLevelName(self, level):
+        return self.levels[CertificationLevels(int(level))]
 
     def importFromCSV(self, filename, members, dbConnection):
         tool_dict = {4: 1, 5: 2, 6: 3, 7: 4, 9: 5, 10: 6, 11: 7, 13: 8, 14: 9,
