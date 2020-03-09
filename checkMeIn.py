@@ -31,6 +31,14 @@ class CheckMeIn(object):
                              inBuilding=building_guests,
                              guestList=guests_not_here)
 
+    def showCertifications(self, message, barcodes, tools, show_table_header=True):
+        return self.template('certifications.mako', message=message,
+                             show_table_header=show_table_header,
+                             barcodes=barcodes,
+                             tools=tools,
+                             members=self.visits.members,
+                             certifications=self.visits.certifications.getUserList())
+
     @cherrypy.expose
     def station(self, error=''):
         self.visits.checkBuilding()
@@ -123,11 +131,7 @@ class CheckMeIn(object):
             self.visits.teams.team_name_from_id(team_id)
         team_barcodes = self.visits.teams.get_team_members(team_id)
         barcodes = [member.barcode for member in team_barcodes]
-        return self.template('certifications.mako', message=message,
-                             barcodes=barcodes,
-                             tools=self.visits.certifications.getAllTools(),
-                             members=self.visits.members,
-                             certifications=self.visits.certifications.getUserList())
+        return self.showCertifications(message, barcodes, self.visits.certifications.getAllTools())
 
     @cherrypy.expose
     def teamAttendance(self, team_id, date, startTime, endTime):
@@ -284,33 +288,32 @@ class CheckMeIn(object):
     @cherrypy.expose
     def certification_list(self):
         message = ''
-        return self.template('certifications.mako', message=message,
-                             barcodes=self.visits.getMemberBarcodesInBuilding(),
-                             tools=self.visits.certifications.getAllTools(),
-                             members=self.visits.members,
-                             certifications=self.visits.certifications.getUserList())
+        barcodes = self.visits.getMemberBarcodesInBuilding()
+        return self.showCertifications(message, barcodes, self.visits.certifications.getAllTools())
 
     @cherrypy.expose
     def certification_list_tools(self, tools):
+        return self.certification_list_monitor(tools, "0", "True")
+
+    @cherrypy.expose
+    def certification_list_monitor(self, tools, start_row, show_table_header):
         message = ''
-        return self.template('certifications.mako', message=message,
-                             barcodes=self.visits.getMemberBarcodesInBuilding(),
-                             tools=self.visits.certifications.getToolsFromList(
-                                 tools),
-                             members=self.visits.members,
-                             certifications=self.visits.certifications.getUserList())
+        barcodes = self.visits.getMemberBarcodesInBuilding()
+        start = int(start_row)
+        if start <= len(barcodes):
+            barcodes = barcodes[start:]
+        else:
+            barcodes = None
+        if show_table_header == '0' or show_table_header.upper() == 'FALSE':
+            show_table_header = False
+        return self.showCertifications(message, barcodes, self.visits.certifications.getToolsFromList(tools), show_table_header)
 
     @cherrypy.expose
     def all_certification_list(self):
         message = ''
         certifications = self.visits.certifications.getUserList()
         barcodes = certifications.keys()
-
-        return self.template('certifications.mako', message=message,
-                             barcodes=barcodes,
-                             tools=self.visits.certifications.getAllTools(),
-                             members=self.visits.members,
-                             certifications=certifications)
+        return self.showCertifications(message, barcodes, self.visits.certifications.getAllTools())
 
     @cherrypy.expose
     def index(self):
