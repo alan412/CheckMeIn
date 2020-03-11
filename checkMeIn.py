@@ -273,12 +273,22 @@ class CheckMeIn(object):
                              tools=self.visits.certifications.getToolList(certifier_id))
 
     @cherrypy.expose
+    def certify_all(self, certifier_id):
+        message = ''
+        return self.template('certify.mako', message=message,
+                             certifier=self.visits.members.getName(
+                                 certifier_id)[1],
+                             certifier_id=certifier_id,
+                             members_in_building=self.visits.getAllMembers(),
+                             tools=self.visits.certifications.getToolList(certifier_id))
+
+    @cherrypy.expose
     def addCertification(self, member_id, certifier_id, tool_id, level):
         # We don't check here for valid tool since someone is forging HTML to put an invalid one
         # and we'll catch it with the email out...
         self.visits.certifications.addNewCertification(
             member_id, tool_id, level, certifier_id)
-        
+
         return self.template('congrats.mako', message='',
                              certifier_id=certifier_id,
                              memberName=self.visits.members.getName(member_id)[
