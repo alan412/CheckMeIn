@@ -343,9 +343,7 @@ class CheckMeIn(object):
         if show_table_header == '0' or show_table_header.upper() == 'FALSE':
             show_table_header = False
 
-        return self.showCertifications(message, barcodes, self.visits.certifications.getToolsFromList(tools), show_table_header)
-
-         return self.template('certifications.mako', message=message,
+        return self.template('certifications.mako', message=message,
                                  barcodes=barcodes,
                                  tools=self.visits.certifications.getToolsFromList(dbConnection,
                                                                                    tools),
