@@ -102,15 +102,18 @@ class Members(object):
 
 # this is only for the importing of legacy data for shop certification.
 # It should not be maintained
-    def getBarcode(self, dbConnection, name):
-        data = dbConnection.execute(
-            "SELECT barcode FROM members WHERE displayName==?", (name,)).fetchone()
-        if data is None:
-            return ''
-        else:
-            # Add code here for inactive
-            return data[0]
+    def getBarcode(self, name, dbConnection=0):
+        if not dbConnection:
+            dbConnection = sqlite3.connect(self.database)
 
+        with dbConnection as c:
+            data = c.execute(
+                "SELECT barcode FROM members WHERE (displayName==?) OR (displayName LIKE ?)", (name, name + ' (Key%')).fetchone()
+            if data is None:
+                return ''
+            else:
+                # Add code here for inactive
+                return data[0]
 
 # unit test
 if __name__ == "__main__":  # pragma no cover

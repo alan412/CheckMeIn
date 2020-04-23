@@ -141,6 +141,13 @@ class Visits(object):
             listPresent.append([row[0], row[1]])
         return listPresent
 
+    def getAllMembers(self):
+        listPresent = []
+        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+            for row in c.execute('''SELECT displayName, barcode FROM members ORDER BY displayName'''):
+                listPresent.append([row[0], row[1]])
+        return listPresent
+
     def getMemberBarcodesInBuilding(self, dbConnection):
         listPresent = []
 

@@ -24,6 +24,15 @@
   </fieldset>
 </form>
 <br/>
+<form action="teamCertifications">
+  <fieldset>
+    <legend>See who has what tool certifications</legend>
+    <br/>
+    <input type="hidden" name="team_id" value="${team_id}">
+    <input type="submit" value="See Tool Certifications"/>
+  </fieldset>
+</form>
+<br/>
 <form action="addTeamMembers">
    <fieldset>
      <legend>Add Team Members</legend>

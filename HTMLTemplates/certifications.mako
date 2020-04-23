@@ -7,15 +7,21 @@
 <%def name="title()">Certifications</%def>
 <%inherit file="base.mako"/>
 
+% if message:
+<H1>${message}</H1>
+% endif
+
 <TABLE class="certifications">
+% if show_table_header:
 <TR>
    <TH></TH>
 % for tool in tools:
    <TH>${tool[1]}</TH>
 % endfor
 </TR>
+% endif
 % for user, user_tools in certifications.items():
-   % if not barcodes or (user in barcodes):
+   % if barcodes and (user in barcodes):
    <TR>
    <TD>${members.getName(user)[1]}</TD>
    % for tool in tools:

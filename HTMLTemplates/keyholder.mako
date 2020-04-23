@@ -1,6 +1,6 @@
 <%def name="scripts()">
 <script>
-window.onload = setTimeout(function(){location.href="station"},1000*60*1);  // if still here in 1 min 
+window.onload = setTimeout(function(){location.href="station"},1000*30*1);  // if still here in 30 seconds
 </script>
 </%def>
 <%def name="head()">
@@ -12,7 +12,7 @@ window.onload = setTimeout(function(){location.href="station"},1000*60*1);  // i
 
 <H1>Change Keyholder</H1>
 <P>
-You have several choices, but be quick (1 minute time limit):</P>
+You have several choices, but be quick (30 second time limit):</P>
 <UL>
 <LI>Scan your button again or keyholder.<br/>   This means you are locking up and logs everyone out that has forgotten.
 % if len(whoIsHere) > 0:

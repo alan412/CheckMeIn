@@ -51,7 +51,16 @@ class ToolUser(object):
 
 class Certifications(object):
     def __init__(self):
-        pass
+        self.levels = {
+            CertificationLevels.BASIC: 'BASIC',
+            CertificationLevels.CERTIFIED: 'CERTIFIED',
+            CertificationLevels.DOF: 'DOF',
+            CertificationLevels.INSTRUCTOR: 'INSTRUCTOR',
+            CertificationLevels.CERTIFIER: 'CERTIFIER'
+        }
+
+    def createTable(self, dbConnection):
+        self.migrate(dbConnection, 0)
 
     def addTool(self, dbConnection, tool_id, grouping, name, restriction=0, comments=''):
         dbConnection.execute('INSERT INTO tools VALUES(?,?,?,?,?)',
@@ -137,7 +146,7 @@ class Certifications(object):
 
     def getAllTools(self, dbConnection):
         tools = []
-        for row in dbConnection.execute('SELECT id, name, grouping FROM tools', ()):
+        for row in dbConnection.execute('SELECT id, name, grouping FROM tools ORDER BY id ASC', ()):
             tools.append([row[0], row[1], row[2]])
         return tools
 
@@ -158,25 +167,27 @@ class Certifications(object):
         tools = []
         for row in dbConnection.execute('''SELECT id, name FROM tools
                  INNER JOIN certifications ON certifications.tool_id = id
-                 WHERE user_id = ? AND level >= ?''', (user_id, CertificationLevels.CERTIFIER)):
+                 WHERE user_id = ? AND level >= ? ORDER BY name ASC''', (user_id, CertificationLevels.CERTIFIER)):
             tools.append([row[0], row[1]])
         return tools
 
     def parseCert(self, str):
-        levels = {
-            CertificationLevels.BASIC: 'BASIC',
-            CertificationLevels.CERTIFIED: 'CERTIFIED',
-            CertificationLevels.DOF: 'DOF',
-            CertificationLevels.INSTRUCTOR: 'INSTRUCTOR',
-            CertificationLevels.CERTIFIER: 'CERTIFIER'
-        }
         str = str.upper()
-        for level, name in levels.items():
+        for level, name in self.levels.items():
             if str.startswith(name):
                 if str == name:
                     return (level, '')
                 return (level, str[len(name) + 1:])
         return (CertificationLevels.NONE, '')
+
+    def getToolName(self, tool_id):
+        dbConnection = sqlite3.connect(self.database)
+        for row in dbConnection.execute('SELECT name FROM tools WHERE id == ?', (tool_id, )):
+            return row[0]
+        return ''
+
+    def getLevelName(self, level):
+        return self.levels[CertificationLevels(int(level))]
 
     def importFromCSV(self, filename, members, dbConnection):
         tool_dict = {4: 1, 5: 2, 6: 3, 7: 4, 9: 5, 10: 6, 11: 7, 13: 8, 14: 9,
@@ -196,6 +207,8 @@ class Certifications(object):
                             displayName += names[i] + ' '
                         displayName += names[len(names) - 1][0]
                         barcode = members.getBarcode(displayName, dbConnection)
+                        if not barcode:
+                            print(f"{row[2]} - {displayName} Not found!!!")
                     except:
                         print("Exception: ", names)
                 if barcode:
@@ -203,6 +216,8 @@ class Certifications(object):
                         if row[i] and row[i] != 'N/A':
                             (level, date) = self.parseCert(row[i])
                             if level != CertificationLevels.NONE:
+                                # print(
+                                #    f"Adding {tool_dict[i]} - level {level} for {row[2]}")
                                 self.addCertification(
                                     dbConnection, barcode, tool_dict[i], level, date, 'LEGACY')
 
