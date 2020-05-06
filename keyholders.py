@@ -2,11 +2,9 @@ import sqlite3
 import os
 from enum import IntEnum
 
-
 class Status(IntEnum):
     inactive = 0
     active = 1
-
 
 class Keyholders(object):
     def __init__(self):
@@ -27,34 +25,14 @@ class Keyholders(object):
             dbConnection.execute(
                 "UPDATE keyholders SET active = ? WHERE (barcode==?)", (Status.active, barcode))
 
+
     def getActiveKeyholder(self, dbConnection):
+        """Returns the (barcode, name) of the active keyholder"""
         data = dbConnection.execute(
-            "SELECT barcode FROM keyholders WHERE active==?", (Status.active,)).fetchone()
+            '''SELECT keyholders.barcode, displayName FROM keyholders 
+               INNER JOIN members ON keyholders.barcode = members.barcode
+               WHERE active==?''', (Status.active,)).fetchone()
         if data is None:
-            return ''
+            return ('', '')
         else:
-            return data[0]
-
-
-# unit test
-if __name__ == "__main__":  # pragma no cover
-    DB_STRING = 'data/test.db'
-    try:
-        os.remove(DB_STRING)   # Start with a new one
-    except:
-        pass  # Don't care if it didn't exist
-    keyholders = Keyholders()
-
-    with sqlite3.connect(DB_STRING) as c:
-        keyholders.migrate(c, 0)
-        keyholders.setActiveKeyholder(c, '100090')
-        print("Active: ", keyholders.getActiveKeyholder(c))
-
-        keyholders.setActiveKeyholder(c, '100091')
-        print("Active: ", keyholders.getActiveKeyholder(c))
-
-        keyholders.setActiveKeyholder(c, '100090')
-        print("Active: ", keyholders.getActiveKeyholder(c))
-
-        keyholders.setActiveKeyholder(c, '')
-        print("Active: ", keyholders.getActiveKeyholder(c))
+            return (data[0], data[1])

@@ -17,35 +17,18 @@ class SimpleCPTest(helper.CPWebCase):
         self.getPage("/admin/")
         self.assertStatus('200 OK')
 
-    def test_reports(self):
-        self.getPage("/reports?startDate=2018-09-03&endDate=2018-09-03")
-        self.assertStatus('200 OK')
-
-    def test_sql(self):
-        self.getPage(
-            "/customSQLReport?sql=SELECT+*+FROM+members%3B%0D%0A+++++")
-        self.assertStatus('200 OK')
-
     def test_oops(self):
-        self.getPage("/oops")
+        self.getPage("/admin/oops")
         self.assertStatus('200 OK')
 
     def test_fixData(self):
-        self.getPage("/fixData?date=2018-06-28")
+        self.getPage("/admin/fixData?date=2018-06-28")
         self.assertStatus('200 OK')
 
     def test_fixDataOutput(self):
-        self.getPage("/fixed?output=")
+        self.getPage("/admin/fixed?output=")
         self.assertStatus('200 OK')
-
-    def test_customReportGood(self):
-        self.getPage("/savedReport?report_id=1")
-        self.assertStatus('200 OK')
-
-    def test_customReportBad(self):
-        self.getPage("/savedReport?report_id=100")
-        self.assertStatus('200 OK')
-
-    def test_buildingGraph(self):
-        self.getPage("/reportGraph?startDate=2019-12-01&endDate=2019-12-30")
+    
+    def test_create(self):
+        self.getPage("/admin/createTeam?team_name=Test")
         self.assertStatus('200 OK')

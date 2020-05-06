@@ -71,6 +71,7 @@ class Guests(object):
         return guestList
 
 
+
 # unit test
 if __name__ == "__main__":  # pragma no cover
     DB_STRING = 'data/test.db'

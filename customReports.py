@@ -14,10 +14,12 @@ class CustomReports:
                                  sql_text TEXT,
                                  parameters TEXT,
                                  active INTEGER default 1)''')
+    def readOnlyConnect(self):
+        return sqlite3.connect('file:' + self.database + '?mode=ro', uri=True)
 
     def customSQL(self, sql):
         # open as read only
-        with sqlite3.connect('file:' + self.database + '?mode=ro', uri=True) as c:
+        with self.readOnlyConnect() as c:
             cur = c.cursor()
             cur.execute(sql)
             header = [i[0] for i in cur.description]
@@ -27,7 +29,7 @@ class CustomReports:
         return rows
 
     def customReport(self, report_id):
-        with sqlite3.connect('file:' + self.database + '?mode=ro', uri=True) as c:
+        with self.readOnlyConnect() as c:
             data = c.execute(
                 "SELECT * FROM reports WHERE (report_id=?)", (report_id, )).fetchone()
             if data:
@@ -56,12 +58,3 @@ class CustomReports:
                                 ORDER BY name''', (1,)):
             report_list.append((row[0], row[1]))
         return report_list
-
-
-        # unit test
-if __name__ == "__main__":  # pragma no cover
-    DB_STRING = 'data/test.db'
-    try:
-        os.remove(DB_STRING)   # Start with a new one
-    except IOError:
-        pass  # Don't care if it didn't exist

@@ -16,17 +16,17 @@ class SimpleCPTest(helper.CPWebCase):
         self.getPage("/station/")
         self.assertStatus('200 OK')
     def test_scanned_success(self):
-        self.getPage("/scanned?barcode=100090")
+        self.getPage("/station/scanned?barcode=100090")
         self.assertStatus('200 OK')
     def test_scanned_keyholder_from_station(self):
-        self.getPage("/scanned?barcode=999901")
+        self.getPage("/station/scanned?barcode=999901")
         self.assertStatus('200 OK')
     def test_scanned_keyholder_from_keyholder(self):
-        self.getPage("/keyholder?barcode=999901")
+        self.getPage("/station/keyholder?barcode=999901")
         self.assertStatus('200 OK')
     def test_scanned_from_keyholder(self):
-        self.getPage("/keyholder?barcode=100091")
+        self.getPage("/station/keyholder?barcode=100091")
         self.assertStatus('200 OK')
     def test_scanned_failure(self):
-        self.getPage("/scanned?barcode=fail")
+        self.getPage("/station/scanned?barcode=fail")
         self.assertStatus('200 OK')
