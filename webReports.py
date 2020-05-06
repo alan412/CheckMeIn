@@ -3,23 +3,24 @@ from webBase import WebBase
 
 class WebReports(WebBase):
     @cherrypy.expose
-    def reports(self, startDate, endDate):
-        return self.template('reports.mako', stats=self.engine.reports.getStats(self.dbConnect(), startDate, endDate))
+    def standard(self, startDate, endDate):
+        return self.template('report.mako', stats=self.engine.reports.getStats(self.dbConnect(), startDate, endDate))
+    
     @cherrypy.expose
-    def reportGraph(self, startDate, endDate):
+    def graph(self, startDate, endDate):
         cherrypy.response.headers['Content-Type'] = "image/png"
         stats = self.engine.reports.getStats(
             self.dbConnect(), startDate, endDate)
         return stats.getBuildingUsageGraph()
 
     @cherrypy.expose
-    def saveReport(self, sql, report_name):
+    def saveCustom(self, sql, report_name):
         error = self.engine.customReports.saveCustomSQL(
             self.dbConnect(), sql, report_name)
         return self.admin(error)
 
     @cherrypy.expose
-    def savedReport(self, report_id, error=''):
+    def savedCustom(self, report_id, error=''):
         title = "Error"
         sql = ""
         try:

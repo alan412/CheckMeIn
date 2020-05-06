@@ -5,7 +5,7 @@
 
 <%def name="title()">CheckMeIn Admin</%def>
 <%inherit file="base.mako"/>
-<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
+<IMG ALT="TFI Logo" SRC="/static/TFI-logo-smaller.png" WIDTH="250"/>
 
 <H1>Admin Page</H1>
 

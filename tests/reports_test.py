@@ -14,7 +14,7 @@ class SimpleCPTest(helper.CPWebCase):
         cherrypy.tree.mount(CheckMeIn(), '/', {})
 
     def test_reports(self):
-        self.getPage("/reports/reports?startDate=2018-09-03&endDate=2018-09-03")
+        self.getPage("/reports/standard?startDate=2018-09-03&endDate=2018-09-03")
         self.assertStatus('200 OK')
 
     def test_sql(self):
@@ -23,13 +23,13 @@ class SimpleCPTest(helper.CPWebCase):
         self.assertStatus('200 OK')
 
     def test_customReportGood(self):
-        self.getPage("/reports/savedReport?report_id=1")
+        self.getPage("/reports/savedCustom?report_id=1")
         self.assertStatus('200 OK')
 
     def test_customReportBad(self):
-        self.getPage("/reports/savedReport?report_id=100")
+        self.getPage("/reports/savedCustom?report_id=100")
         self.assertStatus('200 OK')
 
     def test_buildingGraph(self):
-        self.getPage("/reports/reportGraph?startDate=2019-12-01&endDate=2019-12-30")
+        self.getPage("/reports/graph?startDate=2019-12-01&endDate=2019-12-30")
         self.assertStatus('200 OK')
