@@ -10,7 +10,7 @@ class Keyholders(object):
     def __init__(self):
         pass
 
-    def migrate(self, dbConnection, db_schema_version):
+    def migrate(self, dbConnection, db_schema_version): # pragma: no cover
         if db_schema_version < 4:
             dbConnection.execute('''CREATE TABLE keyholders
                                  (barcode TEXT PRIMARY KEY, active INTEGER default 0)''')

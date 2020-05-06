@@ -9,57 +9,60 @@ class WebCertifications(WebBase):
                              show_table_header=show_table_header,
                              barcodes=barcodes,
                              tools=tools,
-                             members=self.visits.members,
-                             certifications=self.visits.certifications.getUserList())
+                             members=self.engine.members,
+                             certifications=self.engine.certifications.getUserList())
 
     @cherrypy.expose
     def certify(self, certifier_id):
         message = ''
         with self.dbConnect() as dbConnection:
             return self.template('certify.mako', message=message,
-                                 certifier=self.visits.members.getName(dbConnection,
+                                 certifier=self.engine.members.getName(dbConnection,
                                                                        certifier_id)[1],
                                  certifier_id=certifier_id,
-                                 members_in_building=self.visits.getMembersInBuilding(
+                                 members_in_building=self.engine.visits.getMembersInBuilding(
                                      dbConnection),
-                                 tools=self.visits.certifications.getToolList(dbConnection, certifier_id))
+                                 tools=self.engine.certifications.getListCertifyTools(dbConnection, certifier_id))
 
     @cherrypy.expose
     def certify_all(self, certifier_id):
         message = ''
-        return self.template('certify.mako', message=message,
-                             certifier=self.visits.members.getName(
-                                 certifier_id)[1],
-                             certifier_id=certifier_id,
-                             members_in_building=self.visits.getAllMembers(),
-                             tools=self.visits.certifications.getToolList(certifier_id))
+        with self.dbConnect() as dbConnection:
+            return self.template('certify.mako', message=message,
+                                certifier=self.engine.members.getName(dbConnection,
+                                    certifier_id)[1],
+                                certifier_id=certifier_id,
+                                members_in_building=self.engine.visits.getAllMembers(dbConnection),
+                                tools=self.engine.certifications.getListCertifyTools(dbConnection, certifier_id))
 
     @cherrypy.expose
     def addCertification(self, member_id, certifier_id, tool_id, level):
         # We don't check here for valid tool since someone is forging HTML to put an invalid one
-        # and we'll catch it with the email out...
-        self.visits.certifications.addNewCertification(self.dbConnect(),
+        # and we'll catch it with the email out...\
+        with self.dbConnect() as dbConnection:
+            self.engine.certifications.addNewCertification(dbConnection,
                                                        member_id, tool_id, level, certifier_id)
 
-        return self.template('congrats.mako', message='',
-                             certifier_id=certifier_id,
-                             memberName=self.visits.members.getName(member_id)[
-                                 1],
-                             level=self.visits.certifications.getLevelName(
-                                 level),
-                             tool=self.visits.certifications.getToolName(tool_id))
+            return self.template('congrats.mako', message='',
+                                certifier_id=certifier_id,
+                                memberName=self.engine.members.getName(dbConnection, member_id)[
+                                    1],
+                                level=self.engine.certifications.getLevelName(
+                                    level),
+                                tool=self.engine.certifications.getToolName(dbConnection, tool_id))
 
     @cherrypy.expose
     def certification_list(self):
         message = ''
         with self.dbConnect() as dbConnection:
             return self.template('certifications.mako', message=message,
-                                 barcodes=self.visits.getMemberBarcodesInBuilding(
+                                 barcodes=self.engine.visits.getMemberBarcodesInBuilding(
                                      dbConnection),
-                                 tools=self.visits.certifications.getAllTools(
+                                 tools=self.engine.certifications.getAllTools(
                                      dbConnection),
-                                 members=self.visits.members,
-                                 certifications=self.visits.certifications.getUserList(dbConnection))
+                                 dbConnection=dbConnection,
+                                 members=self.engine.members,
+                                 certifications=self.engine.certifications.getUserList(dbConnection))
 
     @cherrypy.expose
     def certification_list_tools(self, tools):
@@ -68,37 +71,31 @@ class WebCertifications(WebBase):
     @cherrypy.expose
     def certification_list_monitor(self, tools, start_row, show_table_header):
         message = ''
-        barcodes = self.visits.getMemberBarcodesInBuilding(dbConnection)
-        start = int(start_row)
-        if start <= len(barcodes):
-            barcodes = barcodes[start:]
-        else:
-            barcodes = None
-        if show_table_header == '0' or show_table_header.upper() == 'FALSE':
-            show_table_header = False
+        with self.dbConnect() as dbConnection:
+            barcodes = self.engine.visits.getMemberBarcodesInBuilding(dbConnection)
+            start = int(start_row)
+            if start <= len(barcodes):
+                barcodes = barcodes[start:]
+            else:
+                barcodes = None
+            if show_table_header == '0' or show_table_header.upper() == 'FALSE':
+                show_table_header = False
 
-        return self.template('certifications.mako', message=message,
-                                 barcodes=barcodes,
-                                 tools=self.visits.certifications.getToolsFromList(dbConnection,
-                                                                                   tools),
-                                 members=self.visits.members,
-                                 certifications=self.visits.certifications.getUserList(dbConnection))
+            return self.template('certifications.mako', message=message,
+                                    barcodes=barcodes,
+                                    tools=self.engine.certifications.getToolsFromList(dbConnection,
+                                                                                    tools),
+                                    members=self.engine.members,
+                                    dbConnection=dbConnection,
+                                    certifications=self.engine.certifications.getUserList(dbConnection))
     @cherrypy.expose
     def all_certification_list(self):
         message = ''
         with self.dbConnect() as dbConnection:
             return self.template('certifications.mako', message=message,
                                  barcodes=None,
-                                 tools=self.visits.certifications.getAllTools(
+                                 tools=self.engine.certifications.getAllTools(
                                      dbConnection),
-                                 members=self.visits.members,
-                                 certifications=self.visits.certifications.getUserList(dbConnection))
-
-    @cherrypy.expose
-    def import_csv(self):
-        with self.dbConnect() as dbConnection:
-            self.visits.certifications.importFromCSV(dbConnection,
-                                                     "students.csv", self.visits.members, sqlite3.connect(self.visits.members.database))
-            self.visits.certifications.importFromCSV(dbConnection,
-                                                     "adults.csv", self.visits.members, sqlite3.connect(self.visits.members.database))
-        return self.all_certification_list()
+                                 members=self.engine.members,
+                                 dbConnection=dbConnection,
+                                 certifications=self.engine.certifications.getUserList(dbConnection))

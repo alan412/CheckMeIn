@@ -14,7 +14,7 @@ SCHEMA_VERSION = 9
 
 
 class Visits(object):
-    def migrate(self, dbConnection, db_schema_version):
+    def migrate(self, dbConnection, db_schema_version):  #pragma: no cover
         if db_schema_version == 0:
             dbConnection.execute('''CREATE TABLE visits
                      (start timestamp, leave timestamp, barcode text, status text)''')
@@ -94,10 +94,9 @@ class Visits(object):
             listPresent.append([row[0], row[1]])
         return listPresent
 
-    def getAllMembers(self):
+    def getAllMembers(self, dbConnection):
         listPresent = []
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            for row in c.execute('''SELECT displayName, barcode FROM members ORDER BY displayName'''):
+        for row in dbConnection.execute('''SELECT displayName, barcode FROM members ORDER BY displayName'''):
                 listPresent.append([row[0], row[1]])
         return listPresent
 

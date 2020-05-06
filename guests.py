@@ -18,7 +18,7 @@ class Guests(object):
         self.date = 0
         self.num = 1
 
-    def migrate(self, dbConnection, db_schema_version):
+    def migrate(self, dbConnection, db_schema_version): # pragma: no cover
         if db_schema_version <= 2:
             dbConnection.execute('''CREATE TABLE guests
                                 (guest_id TEXT UNIQUE,
@@ -73,7 +73,7 @@ class Guests(object):
 
 
 # unit test
-if __name__ == "__main__":  # pragma no cover
+if __name__ == "__main__":  # pragma: no cover
     DB_STRING = 'data/test.db'
     try:
         os.remove(DB_STRING)   # Start with a new one

@@ -37,7 +37,7 @@ class Engine(object):
     def dbConnect(self):
        return sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES)
 
-    def migrate(self, dbConnection, db_schema_version):
+    def migrate(self, dbConnection, db_schema_version): # pragma: no cover
         if db_schema_version < SCHEMA_VERSION:
             self.visits.migrate(dbConnection, db_schema_version)
             self.members.migrate(dbConnection, db_schema_version)

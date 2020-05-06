@@ -35,7 +35,7 @@ class CheckMeIn(WebBase):
                                   now=datetime.datetime.now(),
                                   whoIsHere=self.engine.reports.whoIsHere(dbConnection))
 
-if __name__ == '__main__':  # pragma no cover
+if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(
         description="CheckMeIn - building check in and out system")
     parser.add_argument('conf')

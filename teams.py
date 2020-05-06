@@ -6,23 +6,20 @@ from members import Members
 
 TeamMember = namedtuple('TeamMember', ['name', 'barcode', 'type'])
 
-
 class Status(IntEnum):
     inactive = 0
     active = 1
-
 
 class TeamMemberType(IntEnum):
     student = 0
     mentor = 1
     coach = 2
 
-
 class Teams(object):
     def __init__(self):
         pass
 
-    def migrate(self, dbConnection, db_schema_version):
+    def migrate(self, dbConnection, db_schema_version): # pragma: no cover
         if db_schema_version < 5:
             dbConnection.execute('''CREATE TABLE teams
                                  (team_id INTEGER PRIMARY KEY,
@@ -86,38 +83,3 @@ class Teams(object):
                             ORDER BY type, displayName''', (team_id,)):
             listMembers.append(TeamMember(row[0], row[2], row[1]))
         return listMembers
-
-
-class TestFile():
-    def __init__(self, filename):
-        self.file = open(filename, "rb")
-        self.filename = filename
-
-
-        # unit test
-if __name__ == "__main__":  # pragma no cover
-    DB_STRING = 'data/test.db'
-    try:
-        os.remove(DB_STRING)   # Start with a new one
-    except IOError:
-        pass  # Don't care if it didn't exist
-    teams = Teams()
-    members = Members()
-    dbConnection = sqlite3.connect(
-        DB_STRING, detect_types=sqlite3.PARSE_DECLTYPES)
-    members.migrate(dbConnection, 0)
-    teams.migrate(dbConnection, 0)
-    tf = TestFile("data/members.csv")
-    members.bulkAdd(dbConnection, tf)
-
-    error = teams.createTeam(dbConnection, 'test')
-    assert not error
-    error = teams.createTeam(dbConnection, 'test')  # should fail...
-    assert error
-    if error:
-        print("Error adding: ", error)
-    tid = teams.teamIdFromName(dbConnection, 'test')
-    print("Team ID: ", tid)
-
-    teams.addTeamMembers(dbConnection, tid, ["100090"], [], ["100091"])
-    print("Members: ", teams.getTeamMembers(dbConnection, tid))

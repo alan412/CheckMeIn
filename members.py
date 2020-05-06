@@ -9,7 +9,7 @@ class Members(object):
     def __init__(self):
         pass
 
-    def migrate(self, dbConnection, db_schema_version):
+    def migrate(self, dbConnection, db_schema_version):   # pragma: no cover
         if db_schema_version == 0:
             dbConnection.execute('''
                 CREATE TABLE members (barcode TEXT UNIQUE,
@@ -99,27 +99,3 @@ class Members(object):
         else:
             # Add code here for inactive
             return ('', data[0])
-
-# this is only for the importing of legacy data for shop certification.
-# It should not be maintained
-    def getBarcode(self, name, dbConnection=0):
-        if not dbConnection:
-            dbConnection = sqlite3.connect(self.database)
-
-        with dbConnection as c:
-            data = c.execute(
-                "SELECT barcode FROM members WHERE (displayName==?) OR (displayName LIKE ?)", (name, name + ' (Key%')).fetchone()
-            if data is None:
-                return ''
-            else:
-                # Add code here for inactive
-                return data[0]
-
-# unit test
-if __name__ == "__main__":  # pragma no cover
-    DB_STRING = 'data/test.db'
-    try:
-        os.remove(DB_STRING)   # Start with a new one
-    except IOError:
-        pass  # Don't care if it didn't exist
-    members = Members()

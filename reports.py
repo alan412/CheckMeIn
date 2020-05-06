@@ -287,8 +287,3 @@ class Reports(object):
             data.append(
                 Datum(start=row[1], leave=row[2], name=row[0], status=row[3], rowid=row[4]))
         return data
-
-
-# unit test
-if __name__ == "__main__":  # pragma no cover
-    print("To test this module, you need to use visits module")
