@@ -5,8 +5,7 @@
 
 <%def name="title()">Tool Certification</%def>
 <%inherit file="base.mako"/>
-<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
-
+${self.logo()}<br/>
 <H1>Tool Certification</H1>
 <H2>Certifier: ${certifier} </H2>
 

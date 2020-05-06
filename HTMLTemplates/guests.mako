@@ -9,9 +9,9 @@
 <%inherit file="base.mako"/>
 <table class="header">
 <TR>
-  <TD style="text-align:center"><IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="200"/></TD>
+  <TD style="text-align:center">${self.logo()}<br/></TD>
   <TD style="text-align:center"><H1>Guest Station</H1></TD>
-  <TD style="text-align:center"><IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="200"/></TD>
+  <TD style="text-align:center">${self.logo()}<br/></TD>
 </TR>
 </table>
 

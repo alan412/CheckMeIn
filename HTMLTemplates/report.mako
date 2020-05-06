@@ -6,8 +6,7 @@
 <%def name="title()">CheckMeIn Report</%def>
 <%inherit file="base.mako"/>
 <CENTER>
-<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
-</CENTER>
+${self.logo()}<br/></CENTER>
 
 % if stats.beginDate == stats.endDate:
    <H1>Report for ${stats.beginDate}</H1>

@@ -1,7 +1,19 @@
+import datetime
 import cherrypy
 from webBase import WebBase
 
 class WebReports(WebBase):
+    @cherrypy.expose
+    def index(self, error=""):
+        with self.dbConnect() as dbConnection:
+            firstDate = self.engine.reports.getEarliestDate(
+                dbConnection).isoformat()
+            todayDate = datetime.date.today().isoformat()
+            reportList = self.engine.customReports.get_report_list(
+                dbConnection)
+        return self.template('reports.mako', 
+                             firstDate=firstDate, todayDate=todayDate,
+                             reportList=reportList, error=error)
     @cherrypy.expose
     def standard(self, startDate, endDate):
         return self.template('report.mako', stats=self.engine.reports.getStats(self.dbConnect(), startDate, endDate))

@@ -10,7 +10,7 @@ window.onload = setTimeout(function(){location.href="/station"},1000*60*60);  //
 <%inherit file="base.mako"/>
 <TABLE>
 <TR><TD WIDTH="20%">
-<IMG ALT="TFI Logo" SRC="/static/TFI-logo-smaller.png" WIDTH="250"/><br/>
+${self.logo()}<br/>
 <div id="member_id">
 <form action="/station/scanned">
      <input id="member_id" type="text" name="barcode" size="8" autofocus placeholder="Member ID"/><br/>

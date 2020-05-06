@@ -6,7 +6,7 @@
 <%def name="title()">CheckMeIn Report - CustomSQL</%def>
 <%inherit file="base.mako"/>
 <CENTER>
-<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
+${self.logo()}<br/>
 </CENTER>
 
 %if report_title:
@@ -38,7 +38,7 @@ ${sql}
 % endif
 
 <br/>
-<FORM action="saveReport">
+<FORM action="saveCustom">
      <fieldset>
         <legend>Save Report</legend>
     <label for="report_name">Report Name:</label>

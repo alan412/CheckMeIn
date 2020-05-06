@@ -5,8 +5,7 @@
 
 <%def name="title()">CheckMeIn Admin</%def>
 <%inherit file="base.mako"/>
-<IMG ALT="TFI Logo" SRC="/static/TFI-logo-smaller.png" WIDTH="250"/>
-
+${self.logo()}<br/>
 <H1>Admin Page</H1>
 
 <br/>
@@ -41,57 +40,9 @@
   <P>Wow!  No dates that haven't been cleaned up!!</P>
 %endif
 
+<H2><A HREF="/reports/">Reports</A></H2>
 
 
-<H2>Reports</H2>
-<form action="reports" width="50%">
-   <fieldset>
-       <legend>Select Dates</legend>
-   <div>
-      <label for="start_date">Start Date:</label>
-      <input id="start_date" type="date" name="startDate" value="${todayDate}"
-       min="${firstDate}" max="${todayDate}"/>
-   </div>
-   <div>
-      <label for="end_date">End Date:</label>
-      <input id="end_date" type="date" name="endDate" value="${todayDate}"
-       min="${firstDate}" max="${todayDate}"/>
-   </div>
-
-   <input type="submit" value="Generate Statistics"/>
-   </fieldset>
-</form>
-<br/>
-
-<form action="savedReport" width="50%">
-   <fieldset>
-       <legend>Saved Reports</legend>
-   <div>
-    <label for="report_id">Saved Reports:</label>
-    <select name="report_id">
-   % for report in reportList:
-        <option value="${report[0]}">${report[1]}</option>
-   % endfor
-    </select><br/>
-    </div>    
-    <input type="submit" value="Get Report"/>
-   </fieldset>
-</form>
-
-<br/>
-<FORM action="customSQLReport">
-     <fieldset>
-        <legend>For the <em>Real</em> Geek</legend>
-     <textarea name="sql" rows="10" cols="80">
-SELECT start, leave, displayName
-FROM visits
-INNER JOIN members ON members.barcode = visits.barcode
-WHERE (start BETWEEN '2018-07-01' AND '2018-07-10');
-     </textarea>
-   <br/>
-   <input type="submit" value="Generate Custom SQL Report"/>
- </fieldset>
-</FORM>
 <form action="createTeam">
   <fieldset>
     <legend>Create a Team</legend>

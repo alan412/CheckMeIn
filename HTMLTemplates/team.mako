@@ -5,8 +5,7 @@
 
 <%def name="title()">CheckMeIn Teams</%def>
 <%inherit file="base.mako"/>
-<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
-
+${self.logo()}
 <br/>
 <H1>${team_name}</H1>
 <form action="teamAttendance">

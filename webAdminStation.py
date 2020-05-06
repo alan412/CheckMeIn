@@ -7,18 +7,12 @@ class WebAdminStation(WebBase):
     @cherrypy.expose
     def index(self, error=""):
         with self.dbConnect() as dbConnection:
-            firstDate = self.engine.reports.getEarliestDate(
-                dbConnection).isoformat()
-            todayDate = datetime.date.today().isoformat()
             forgotDates = []
             for date in self.engine.reports.getForgottenDates(dbConnection):
                 forgotDates.append(date.isoformat())
             teamList = self.engine.teams.getTeamList(dbConnection)
-            reportList = self.engine.customReports.get_report_list(
-                dbConnection)
         return self.template('admin.mako', forgotDates=forgotDates,
-                             firstDate=firstDate, todayDate=todayDate,
-                             teamList=teamList, reportList=reportList, error=error)
+                             teamList=teamList, error=error)
     @cherrypy.expose
     def bulkAddMembers(self, csvfile):
         error = self.engine.members.bulkAdd(self.dbConnect(), csvfile)
