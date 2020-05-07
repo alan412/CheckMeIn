@@ -3,37 +3,33 @@ from webBase import WebBase
 
 class WebCertifications(WebBase):
 ### Certifications
-    #TODO - this should be cleaned up to use DB functionality instead of filtering on webpage
-    def showCertifications(self, message, barcodes, tools, show_table_header=True):
-        return self.template('certifications.mako', message=message,
-                             show_table_header=show_table_header,
-                             barcodes=barcodes,
-                             tools=tools,
-                             members=self.engine.members,
-                             certifications=self.engine.certifications.getUserList())
+    #TODO - this should be cleaned up so that the webpage doesn't need a DB connection    
+    def showCertifications(self, dbConnection, message, barcodes, tools, members, certifications, show_table_header=True):
+        return self.template('certifications.mako', 
+                                 message=message,
+                                 barcodes=None,
+                                 tools=tools,
+                                 members=members,
+                                 dbConnection=dbConnection,
+                                 show_table_header=show_table_header,
+                                 certifications=certifications)        
 
     @cherrypy.expose
-    def certify(self, certifier_id):
+    def certify(self, certifier_id, all = False):
         message = ''
         with self.dbConnect() as dbConnection:
+            members = self.engine.visits.getAllMembers(dbConnection) if all else self.engine.visits.getMembersInBuilding(dbConnection)
+
             return self.template('certify.mako', message=message,
                                  certifier=self.engine.members.getName(dbConnection,
                                                                        certifier_id)[1],
                                  certifier_id=certifier_id,
-                                 members_in_building=self.engine.visits.getMembersInBuilding(
-                                     dbConnection),
+                                 members_in_building=members,
                                  tools=self.engine.certifications.getListCertifyTools(dbConnection, certifier_id))
 
     @cherrypy.expose
     def certify_all(self, certifier_id):
-        message = ''
-        with self.dbConnect() as dbConnection:
-            return self.template('certify.mako', message=message,
-                                certifier=self.engine.members.getName(dbConnection,
-                                    certifier_id)[1],
-                                certifier_id=certifier_id,
-                                members_in_building=self.engine.visits.getAllMembers(dbConnection),
-                                tools=self.engine.certifications.getListCertifyTools(dbConnection, certifier_id))
+        return self.certify(certifier_id, all = True)
 
     @cherrypy.expose
     def addCertification(self, member_id, certifier_id, tool_id, level):
@@ -55,14 +51,13 @@ class WebCertifications(WebBase):
     def certification_list(self):
         message = ''
         with self.dbConnect() as dbConnection:
-            return self.template('certifications.mako', message=message,
-                                 barcodes=self.engine.visits.getMemberBarcodesInBuilding(
-                                     dbConnection),
-                                 tools=self.engine.certifications.getAllTools(
-                                     dbConnection),
-                                 dbConnection=dbConnection,
-                                 members=self.engine.members,
-                                 certifications=self.engine.certifications.getUserList(dbConnection))
+            barcodes = self.engine.visits.getMemberBarcodesInBuilding(dbConnection)
+            tools = self.engine.certifications.getAllTools(dbConnection)
+            members = self.engine.members
+            certifications = self.engine.certifications.getUserList(dbConnection)
+            
+            return self.showCertifications(dbConnection, message, barcodes,
+                                           tools, members, certifications)
 
     @cherrypy.expose
     def certification_list_tools(self, tools):
@@ -77,25 +72,24 @@ class WebCertifications(WebBase):
             if start <= len(barcodes):
                 barcodes = barcodes[start:]
             else:
-                barcodes = None
+                return self.template("blank.mako")
             if show_table_header == '0' or show_table_header.upper() == 'FALSE':
                 show_table_header = False
 
-            return self.template('certifications.mako', message=message,
-                                    barcodes=barcodes,
-                                    tools=self.engine.certifications.getToolsFromList(dbConnection,
-                                                                                    tools),
-                                    members=self.engine.members,
-                                    dbConnection=dbConnection,
-                                    certifications=self.engine.certifications.getUserList(dbConnection))
+            tools = self.engine.certifications.getToolsFromList(dbConnection,tools)
+            members = self.engine.members
+            certifications = self.engine.certifications.getUserList(dbConnection)
+
+            return self.showCertifications(dbConnection, message, barcodes,
+                                           tools, members, certifications, show_table_header)
     @cherrypy.expose
     def all_certification_list(self):
         message = ''
         with self.dbConnect() as dbConnection:
-            return self.template('certifications.mako', message=message,
-                                 barcodes=None,
-                                 tools=self.engine.certifications.getAllTools(
-                                     dbConnection),
-                                 members=self.engine.members,
-                                 dbConnection=dbConnection,
-                                 certifications=self.engine.certifications.getUserList(dbConnection))
+            barcodes = None
+            tools = self.engine.certifications.getAllTools(dbConnection)
+            members = self.engine.members
+            certifications = self.engine.certifications.getUserList(dbConnection)
+
+            return self.showCertifications(dbConnection, message, barcodes,
+                                           tools, members, certifications)

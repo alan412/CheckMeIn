@@ -37,6 +37,17 @@ class SimpleCPTest(helper.CPWebCase):
         self.getPage(
             "/certification/certification_list_tools?tools=1_2_3")
         self.assertStatus('200 OK')
+    
+    def test_monitor_normal(self):
+        self.getPage(
+            "/certification/certification_list_monitor?tools=1_2_3&start_row=0&show_table_header=1")
+        self.assertStatus('200 OK')
+
+    def test_monitor_blank(self):
+        self.getPage(
+            "/certification/certification_list_monitor?tools=1_2_3&start_row=100&show_table_header=0")
+        self.assertStatus('200 OK')
+
 
     def test_all_certification_list(self):
         self.getPage(
