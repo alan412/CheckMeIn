@@ -3,14 +3,10 @@ from webBase import WebBase
 
 class WebCertifications(WebBase):
 ### Certifications
-    #TODO - this should be cleaned up so that the webpage doesn't need a DB connection    
-    def showCertifications(self, dbConnection, message, barcodes, tools, members, certifications, show_table_header=True):
+    def showCertifications(self, message, tools, certifications, show_table_header=True):
         return self.template('certifications.mako', 
                                  message=message,
-                                 barcodes=None,
                                  tools=tools,
-                                 members=members,
-                                 dbConnection=dbConnection,
                                  show_table_header=show_table_header,
                                  certifications=certifications)        
 
@@ -51,13 +47,10 @@ class WebCertifications(WebBase):
     def certification_list(self):
         message = ''
         with self.dbConnect() as dbConnection:
-            barcodes = self.engine.visits.getMemberBarcodesInBuilding(dbConnection)
             tools = self.engine.certifications.getAllTools(dbConnection)
-            members = self.engine.members
-            certifications = self.engine.certifications.getUserList(dbConnection)
+            certifications = self.engine.certifications.getInBuildingUserList(dbConnection)
             
-            return self.showCertifications(dbConnection, message, barcodes,
-                                           tools, members, certifications)
+            return self.showCertifications(message, tools, certifications)
 
     @cherrypy.expose
     def certification_list_tools(self, tools):
@@ -67,29 +60,28 @@ class WebCertifications(WebBase):
     def certification_list_monitor(self, tools, start_row, show_table_header):
         message = ''
         with self.dbConnect() as dbConnection:
-            barcodes = self.engine.visits.getMemberBarcodesInBuilding(dbConnection)
+            certifications = self.engine.certifications.getInBuildingUserList(dbConnection)
             start = int(start_row)
-            if start <= len(barcodes):
-                barcodes = barcodes[start:]
+            if start <= len(certifications):
+                ### This depends on python 3.6 or higher for the dictionary to be ordered by insertion order
+                listCertKeys = list(certifications.keys())[start:]
+                subsetCerts = {}
+                for cert in listCertKeys:
+                    subsetCerts[cert] = certifications[cert]                 
+                certifications = subsetCerts
             else:
                 return self.template("blank.mako")
             if show_table_header == '0' or show_table_header.upper() == 'FALSE':
                 show_table_header = False
 
             tools = self.engine.certifications.getToolsFromList(dbConnection,tools)
-            members = self.engine.members
-            certifications = self.engine.certifications.getUserList(dbConnection)
 
-            return self.showCertifications(dbConnection, message, barcodes,
-                                           tools, members, certifications, show_table_header)
+            return self.showCertifications(message, tools, certifications, show_table_header)
     @cherrypy.expose
     def all_certification_list(self):
         message = ''
         with self.dbConnect() as dbConnection:
-            barcodes = None
             tools = self.engine.certifications.getAllTools(dbConnection)
-            members = self.engine.members
-            certifications = self.engine.certifications.getUserList(dbConnection)
+            certifications = self.engine.certifications.getAllUserList(dbConnection)
 
-            return self.showCertifications(dbConnection, message, barcodes,
-                                           tools, members, certifications)
+            return self.showCertifications(message, tools, certifications)

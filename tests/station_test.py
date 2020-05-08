@@ -18,6 +18,13 @@ class SimpleCPTest(helper.CPWebCase):
     def test_scanned_success(self):
         self.getPage("/station/scanned?barcode=100090")
         self.assertStatus('200 OK')
+    def test_scanned_success2(self):   #if before made in, this should make out
+        self.getPage("/station/scanned?barcode=100090")
+        self.assertStatus('200 OK')
+
+    def test_scanned_bogus(self):
+        self.getPage("/station/scanned?barcode=000090")
+        self.assertStatus('200 OK')
     def test_scanned_keyholder_from_station(self):
         self.getPage("/station/scanned?barcode=999901")
         self.assertStatus('200 OK')

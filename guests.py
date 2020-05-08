@@ -69,28 +69,3 @@ class Guests(object):
                                         (Status.inactive,)):
             guestList.append(Guest(row[0], row[1]))
         return guestList
-
-
-
-# unit test
-if __name__ == "__main__":  # pragma: no cover
-    DB_STRING = 'data/test.db'
-    try:
-        os.remove(DB_STRING)   # Start with a new one
-    except IOError:
-        pass  # Don't care if it didn't exist
-    guests = Guests()
-
-    dbConnection = sqlite3.connect(
-        DB_STRING, detect_types=sqlite3.PARSE_DECLTYPES)
-    guests.migrate(dbConnection, 0)
-
-    guests.add(dbConnection, "Test 1", "Test", "1",
-               "noemail@domain.com", "", False)
-    guests.add(dbConnection, "Test 2", "Test",
-               "2", "noemail@domain.com", "", True)
-    guests.add(dbConnection, "Test 3", "Test", "3",
-               "noemail@domain.com", "", False)
-
-    for g in guests.getList(dbConnection):
-        print(g)

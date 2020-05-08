@@ -16,13 +16,13 @@ SCHEMA_VERSION = 9
 class Engine(object):
     def __init__(self, dbString):
         self.database = dbString
-        if not os.path.exists(self.database):
+        if not os.path.exists(self.database): #pragma: no cover
             with self.dbConnect() as c:
                 self.migrate(c, 0)
         else:
             with self.dbConnect() as c:
                 data = c.execute('PRAGMA schema_version').fetchone()
-                if data[0] != SCHEMA_VERSION:
+                if data[0] != SCHEMA_VERSION:  #pragma: no cover
                     self.migrate(c, data[0])
 
         self.visits = Visits()

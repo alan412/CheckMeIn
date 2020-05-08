@@ -16,8 +16,10 @@ class CertificationLevels(IntEnum):
 
 
 class ToolUser(object):
-    def __init__(self):
+    def __init__(self, displayName, barcode):
         self.tools = {}
+        self.displayName = displayName
+        self.barcode = barcode
 
     def addTool(self, tool_id, date, level):
         if tool_id in self.tools:
@@ -59,11 +61,11 @@ class Certifications(object):
             CertificationLevels.CERTIFIER: 'CERTIFIER'
         }
 
-    def addTool(self, dbConnection, tool_id, grouping, name, restriction=0, comments=''):
+    def addTool(self, dbConnection, tool_id, grouping, name, restriction=0, comments=''): #pragma: no cover
         dbConnection.execute('INSERT INTO tools VALUES(?,?,?,?,?)',
                              (tool_id, grouping, name, restriction, comments))
 
-    def addTools(self, dbConnection):
+    def addTools(self, dbConnection):  #pragma: no cover
         tools = [[1, 1, "Sheet Metal Brake"],
                  [2, 1, "Blind Rivet Gun"],
                  [3, 1, "Stretcher Shrinker"],
@@ -123,18 +125,32 @@ class Certifications(object):
 
         dbConnection.execute('''INSERT INTO certifications(user_id, tool_id, certifier_id, date, level)
                                 SELECT ?, ?, ?, ?, ?
-                                WHERE NOT EXISTS(SELECT 1 FROM certifications WHERE user_id=? AND tool_id=? AND level=?)''',
+                                WHERE NOT EXISTS(SELECT 1 FROM certifications WHERE user_id==? AND tool_id==? AND level==?)''',
                              (barcode, tool_id, certifier, date, level, barcode, tool_id, level))
 
-    def getUserList(self, dbConnection):
+    def getAllUserList(self, dbConnection):
         users = {}
-        for row in dbConnection.execute('''SELECT user_id, tool_id, date, level FROM certifications
+        for row in dbConnection.execute('''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
                                         INNER JOIN members ON members.barcode=user_id
                                         ORDER BY members.displayName'''):
             try:
                 users[row[0]].addTool(row[1], row[2], row[3])
             except KeyError:
-                users[row[0]] = ToolUser()
+                users[row[0]] = ToolUser(row[4], row[0])
+                users[row[0]].addTool(row[1], row[2], row[3])
+        return users
+    
+    def getInBuildingUserList(self, dbConnection):
+        users = {}
+        for row in dbConnection.execute('''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
+                                        INNER JOIN members ON members.barcode=user_id
+                                        INNER JOIN visits ON visits.barcode=user_id
+                                        WHERE visits.status="In"
+                                        ORDER BY members.displayName'''):
+            try:
+                users[row[0]].addTool(row[1], row[2], row[3])
+            except KeyError:
+                users[row[0]] = ToolUser(row[4], row[0])
                 users[row[0]].addTool(row[1], row[2], row[3])
         return users
 

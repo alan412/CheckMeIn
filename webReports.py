@@ -1,5 +1,7 @@
 import datetime
+import sqlite3
 import cherrypy
+
 from webBase import WebBase
 
 class WebReports(WebBase):
@@ -29,7 +31,7 @@ class WebReports(WebBase):
     def saveCustom(self, sql, report_name):
         error = self.engine.customReports.saveCustomSQL(
             self.dbConnect(), sql, report_name)
-        return self.admin(error)
+        return self.index(error)
 
     @cherrypy.expose
     def savedCustom(self, report_id, error=''):

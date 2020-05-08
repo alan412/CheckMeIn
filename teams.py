@@ -45,13 +45,6 @@ class Teams(object):
             team_list.append((row[0], row[1]))
         return team_list
 
-    def teamIdFromName(self, dbConnection, name):
-        data = dbConnection.execute(
-            "SELECT * FROM teams WHERE (name=?)", (name, )).fetchone()
-        if data:
-            return data[0]
-        return ''
-
     def teamNameFromId(self, dbConnection, team_id):
         data = dbConnection.execute(
             "SELECT * FROM teams WHERE (team_id=?)", (team_id, )).fetchone()

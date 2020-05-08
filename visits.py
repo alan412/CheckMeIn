@@ -75,15 +75,6 @@ class Visits(object):
             "UPDATE visits SET status = 'In' WHERE status=='Forgot' AND leave > ?",
             (startDate,))
 
-    def setActiveKeyholder(self, dbConnection, barcode):
-        # TODO: once keyholders does verification, this should have the possibility of error
-        leavingKeyholder = self.keyholders.getActiveKeyholder(dbConnection)
-        self.keyholders.setActiveKeyholder(dbConnection, barcode)
-        self.addIfNotHere(dbConnection, barcode)
-        if leavingKeyholder:
-            self.scannedMember(dbConnection, leavingKeyholder)
-        return ''
-
     def getMembersInBuilding(self, dbConnection):
         listPresent = []
         for row in dbConnection.execute('''SELECT displayName, visits.barcode
@@ -99,25 +90,6 @@ class Visits(object):
         for row in dbConnection.execute('''SELECT displayName, barcode FROM members ORDER BY displayName'''):
                 listPresent.append([row[0], row[1]])
         return listPresent
-
-    def getMemberBarcodesInBuilding(self, dbConnection):
-        listPresent = []
-
-        for row in dbConnection.execute('''SELECT visits.barcode
-                FROM visits
-                INNER JOIN members ON members.barcode = visits.barcode
-                WHERE visits.status=='In' ORDER BY displayName'''):
-            listPresent.append(row[0])
-        return listPresent
-
-    def addIfNotHere(self, dbConnection, barcode):
-        now = datetime.datetime.now()
-        dbConnection.execute('''INSERT INTO visits (START,LEAVE,BARCODE,STATUS)
-                      SELECT ?,?,?,'In'
-                      WHERE NOT EXISTS(
-                          SELECT 1 FROM visits
-                          WHERE ((barcode==?) and (status=='In')))''',
-                             (now, now, barcode, barcode))
 
     def fix(self, dbConnection, fixData):
         entries = fixData.split(',')

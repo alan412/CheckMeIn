@@ -22,13 +22,11 @@
 </TR>
 % endif
 % for user, user_tools in certifications.items():
-   % if not barcodes or (user in barcodes):
    <TR>
-   <TD>${members.getName(dbConnection,user)[1]}</TD>
+   <TD>${user_tools.displayName}</TD>
    % for tool in tools:
       ${user_tools.getHTMLCellTool(tool[0]) | n}
    % endfor
    </TR>
-   % endif
 % endfor
 </TABLE>
