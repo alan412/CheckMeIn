@@ -24,8 +24,11 @@ class SimpleCPTest(helper.CPWebCase):
     def test_fixData(self):
         self.getPage("/admin/fixData?date=2018-06-28")
         self.assertStatus('200 OK')
+    def test_fixedData(self):
+        self.getPage("/admin/fixed?output=3%212018-06-28+2%3A25PM%212018-06-28+3%3A25PM%2C18%212018-06-28+7%3A9PM%212018-06-28+11%3A3PM%2C")
+        self.assertStatus('200 OK')
 
-    def test_fixDataOutput(self):
+    def test_fixDataNoOutput(self):
         self.getPage("/admin/fixed?output=")
         self.assertStatus('200 OK')
     

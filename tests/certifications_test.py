@@ -18,6 +18,11 @@ class SimpleCPTest(helper.CPWebCase):
             "/certification/certify?certifier_id=100091")
         self.assertStatus('200 OK')
 
+    def test_invalid_certify(self):
+        self.getPage(
+            "/certification/certify?certifier_id=000091")
+        self.assertStatus('200 OK')
+
     def test_certify_all(self):
         self.getPage(
             "/certification/certify_all?certifier_id=100090")

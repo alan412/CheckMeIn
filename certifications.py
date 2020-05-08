@@ -47,7 +47,7 @@ class ToolUser(object):
         }
         try:
             return HTMLDetails[level]
-        except KeyError:
+        except KeyError:  #pragma: no cover
             return "Key: " + str(level)
 
 

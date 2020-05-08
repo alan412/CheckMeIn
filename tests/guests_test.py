@@ -29,7 +29,7 @@ class SimpleCPTest(helper.CPWebCase):
         self.assertStatus('200 OK')
 
     def test_returnGuest(self):
-        self.getPage("/guests/returnGuest?guest_id=201808180002")
+        self.getPage("/guests/returnGuest?guest_id=201910190006")
         self.assertStatus('200 OK')
 
     def test_returnGuestError(self):
@@ -37,7 +37,7 @@ class SimpleCPTest(helper.CPWebCase):
         self.assertStatus('200 OK')
 
     def test_leaveGuest(self):
-        self.getPage("/guests/leaveGuest?guest_id=201809030001")
+        self.getPage("/guests/leaveGuest?guest_id=201910190006")
         self.assertStatus('200 OK')
 
     def test_leaveGuestError(self):
