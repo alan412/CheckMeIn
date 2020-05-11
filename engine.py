@@ -10,12 +10,21 @@ from customReports import CustomReports
 from certifications import Certifications
 from visits import Visits
 
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 
 # This is the engine for all of the backend
 class Engine(object):
     def __init__(self, dbString):
         self.database = dbString
+        self.visits = Visits()
+        self.guests = Guests()
+        self.keyholders = Keyholders()
+        self.reports = Reports()
+        self.teams = Teams()
+        self.customReports = CustomReports(self.database)   # needs path since it will open read only
+        self.certifications = Certifications()
+        self.members = Members()
+                
         if not os.path.exists(self.database): #pragma: no cover
             with self.dbConnect() as c:
                 self.migrate(c, 0)
@@ -25,14 +34,7 @@ class Engine(object):
                 if data[0] != SCHEMA_VERSION:  #pragma: no cover
                     self.migrate(c, data[0])
 
-        self.visits = Visits()
-        self.guests = Guests()
-        self.keyholders = Keyholders()
-        self.reports = Reports()
-        self.teams = Teams()
-        self.customReports = CustomReports(self.database)   # needs path since it will open read only
-        self.certifications = Certifications()
-        self.members = Members()
+
    
     def dbConnect(self):
        return sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES)

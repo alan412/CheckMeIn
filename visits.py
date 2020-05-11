@@ -10,9 +10,6 @@ from keyholders import Keyholders
 from customReports import CustomReports
 from certifications import Certifications
 
-SCHEMA_VERSION = 9
-
-
 class Visits(object):
     def migrate(self, dbConnection, db_schema_version):  #pragma: no cover
         if db_schema_version == 0:

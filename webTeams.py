@@ -2,7 +2,50 @@ import datetime
 import cherrypy
 from webBase import WebBase
 
+class Team(WebBase):
+   @cherrypy.expose
+   def index(self, programId):
+        (name, number) = self.engine.teams.splitProgramInfo(programId)
+        print(f'name: {name} number: {number}')
+        with self.dbConnect() as dbConnection:
+            team = self.engine.teams.getTeamFromProgramInfo(dbConnection, name, number)
+            if not team:
+                return self.template('newTeam.mako', programName=name.upper(), programNumber=number, error="Team doesn't exist yet")
+
+            firstDate = self.engine.reports.getEarliestDate(
+                dbConnection).isoformat()
+            todayDate = datetime.date.today().isoformat()
+            team_name = team.name
+            members = self.engine.teams.getTeamMembers(dbConnection, team.teamId)
+
+        return self.template('team.mako', firstDate=firstDate, team_id=team.teamId,
+                             todayDate=todayDate, team_name=team_name, members=members, error="")
+
+
 class WebTeams(WebBase):
+    def __init__(self, lookup, engine):
+        super().__init__(lookup, engine)
+        self.teams = Team(lookup, engine)
+
+    def teamPage(self, programId):
+        return f'Program: {programId}'
+
+    @cherrypy.expose
+    def index(self):
+        with self.dbConnect() as dbConnection:
+            teamList=self.engine.teams.getActiveTeamList(dbConnection)
+            return self.template('teams.mako', 
+                    teamList=teamList)
+
+    def _cp_dispatch(self, vpath):    
+        print(vpath)  
+        cherrypy.request.params['programId'] = vpath.pop()
+        if len(vpath) == 0:
+            programId = cherrypy.request.params['programId']
+            return self.teams
+
+        return vpath
+
 ### Teams
     @cherrypy.expose
     def addTeamMembers(self, team_id, students, mentors, coaches):
