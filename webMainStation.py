@@ -46,6 +46,27 @@ class WebMainStation(WebBase):
         raise cherrypy.HTTPRedirect("/station")
 
     @cherrypy.expose
+    def checkin(self, barcode):
+        with self.dbConnect() as dbConnection:
+            (current_keyholder_bc, _) = self.engine.keyholders.getActiveKeyholder(
+                dbConnection)
+            error = self.engine.visits.checkInMember(dbConnection, barcode)
+            if not current_keyholder_bc:
+                self.engine.keyholders.setActiveKeyholder(
+                    dbConnection, barcode)
+        raise cherrypy.HTTPRedirect("/station")
+
+    @cherrypy.expose
+    def checkout(self, barcode):
+        with self.dbConnect() as dbConnection:
+            (current_keyholder_bc, _) = self.engine.keyholders.getActiveKeyholder(
+                dbConnection)
+            if (barcode == current_keyholder_bc):
+                return self.template('keyholder.mako', whoIsHere=self.engine.reports.whoIsHere(dbConnection))
+            error = self.engine.visits.checkOutMember(dbConnection, barcode)
+        raise cherrypy.HTTPRedirect("/station")
+
+    @cherrypy.expose
     def keyholder(self, barcode):
         error = ''
         bc = barcode.strip()
@@ -62,3 +83,7 @@ class WebMainStation(WebBase):
                 if error:  # pragma: no cover # TODO after this case is added, remove no cover
                     return self.template('keyholder.mako', error=error)
         raise cherrypy.HTTPRedirect("/station")
+
+# TODO: Add checkIn and checkOut
+# TODO: Add newKeyholder = barcode, forces new keyholder
+# TODO: Final Checkout for keyholder, lets them say OK, Cancel

@@ -10,8 +10,9 @@ from keyholders import Keyholders
 from customReports import CustomReports
 from certifications import Certifications
 
+
 class Visits(object):
-    def migrate(self, dbConnection, db_schema_version):  #pragma: no cover
+    def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
         if db_schema_version == 0:
             dbConnection.execute('''CREATE TABLE visits
                      (start timestamp, leave timestamp, barcode text, status text)''')
@@ -30,6 +31,14 @@ class Visits(object):
         dbConnection.execute(
             "UPDATE visits SET leave = ?, status = 'Out' WHERE (barcode==?) AND (status=='In')",
             (now, guest_id))
+
+    def checkInMember(self, dbConnection, barcode):
+        # For now members and guests are the same
+        return self.enterGuest(dbConnection, barcode)
+
+    def checkOutMember(self, dbConnection, barcode):
+        # For now members and guests are the same
+        return self.leaveGuest(dbConnection, barcode)
 
     def scannedMember(self, dbConnection, barcode):
         now = datetime.datetime.now()
@@ -85,7 +94,7 @@ class Visits(object):
     def getAllMembers(self, dbConnection):
         listPresent = []
         for row in dbConnection.execute('''SELECT displayName, barcode FROM members ORDER BY displayName'''):
-                listPresent.append([row[0], row[1]])
+            listPresent.append([row[0], row[1]])
         return listPresent
 
     def fix(self, dbConnection, fixData):

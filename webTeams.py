@@ -2,13 +2,15 @@ import datetime
 import cherrypy
 from webBase import WebBase
 
+
 class Team(WebBase):
-   @cherrypy.expose
-   def index(self, programId):
+    @cherrypy.expose
+    def index(self, programId):
         (name, number) = self.engine.teams.splitProgramInfo(programId)
         print(f'name: {name} number: {number}')
         with self.dbConnect() as dbConnection:
-            team = self.engine.teams.getTeamFromProgramInfo(dbConnection, name, number)
+            team = self.engine.teams.getTeamFromProgramInfo(
+                dbConnection, name, number)
             if not team:
                 return self.template('newTeam.mako', programName=name.upper(), programNumber=number, error="Team doesn't exist yet")
 
@@ -16,7 +18,8 @@ class Team(WebBase):
                 dbConnection).isoformat()
             todayDate = datetime.date.today().isoformat()
             team_name = team.name
-            members = self.engine.teams.getTeamMembers(dbConnection, team.teamId)
+            members = self.engine.teams.getTeamMembers(
+                dbConnection, team.teamId)
 
         return self.template('team.mako', firstDate=firstDate, team_id=team.teamId,
                              todayDate=todayDate, team_name=team_name, members=members, error="")
@@ -33,12 +36,12 @@ class WebTeams(WebBase):
     @cherrypy.expose
     def index(self):
         with self.dbConnect() as dbConnection:
-            teamList=self.engine.teams.getActiveTeamList(dbConnection)
-            return self.template('teams.mako', 
-                    teamList=teamList)
+            teamList = self.engine.teams.getActiveTeamList(dbConnection)
+            return self.template('teams.mako',
+                                 teamList=teamList)
 
-    def _cp_dispatch(self, vpath):    
-        print(vpath)  
+    def _cp_dispatch(self, vpath):
+        print(vpath)
         cherrypy.request.params['programId'] = vpath.pop()
         if len(vpath) == 0:
             programId = cherrypy.request.params['programId']
@@ -46,7 +49,7 @@ class WebTeams(WebBase):
 
         return vpath
 
-### Teams
+# Teams
     @cherrypy.expose
     def addTeamMembers(self, team_id, students, mentors, coaches):
         listStudents = students.split()
@@ -109,3 +112,5 @@ class WebTeams(WebBase):
 
         return self.template('team.mako', firstDate=firstDate, team_id=team_id,
                              todayDate=todayDate, team_name=team_name, members=members, error=error)
+
+# TODO: Let coach select who from the team to check in
