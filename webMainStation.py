@@ -61,4 +61,4 @@ class WebMainStation(WebBase):
                     dbConnection, barcode)
                 if error:  # pragma: no cover # TODO after this case is added, remove no cover
                     return self.template('keyholder.mako', error=error)
-        return self.index()
+        raise cherrypy.HTTPRedirect("/station")
