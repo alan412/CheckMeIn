@@ -60,7 +60,7 @@ ${self.logo()}<br/>
     <label for="team_id">Team Name:</label>        
     <select name="team_id">
    % for team in teamList:
-        <option value="${team[0]}">${team[1]}</option>
+        <option value="${team.teamId}">${team.name}</option>
    % endfor
     </select><br/>
     </div>    

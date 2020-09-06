@@ -2,17 +2,19 @@ import datetime
 import cherrypy
 from webBase import WebBase
 
+
 class WebAdminStation(WebBase):
-### Admin
+    # Admin
     @cherrypy.expose
     def index(self, error=""):
         with self.dbConnect() as dbConnection:
             forgotDates = []
             for date in self.engine.reports.getForgottenDates(dbConnection):
                 forgotDates.append(date.isoformat())
-            teamList = self.engine.teams.getTeamList(dbConnection)
+            teamList = self.engine.teams.getActiveTeamList(dbConnection)
         return self.template('admin.mako', forgotDates=forgotDates,
                              teamList=teamList, error=error)
+
     @cherrypy.expose
     def bulkAddMembers(self, csvfile):
         error = self.engine.members.bulkAdd(self.dbConnect(), csvfile)
@@ -32,8 +34,11 @@ class WebAdminStation(WebBase):
     def fixed(self, output):
         self.engine.visits.fix(self.dbConnect(), output)
         return self.index()
+
     @cherrypy.expose
     def createTeam(self, team_name):
+        # TODO: needs to be fixed
         error = self.engine.teams.createTeam(
-            self.dbConnect(), team_name)
+            self.dbConnect(), "Sample", "", team_name)
+
         return self.index(error)
