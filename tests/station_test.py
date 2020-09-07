@@ -40,6 +40,10 @@ class SimpleCPTest(helper.CPWebCase):
         self.getPage("/station/scanned?barcode=999901")
         self.assertStatus('200 OK')
 
+    def test_makeKeyholder(self):
+        self.getPage("/station/makeKeyholder?barcode=100090")
+        self.assertStatus('303 See Other')
+
     def test_scanned_keyholder_from_keyholder(self):
         self.getPage("/station/keyholder?barcode=999901")
         self.assertStatus('303 See Other')

@@ -62,8 +62,23 @@ class WebMainStation(WebBase):
             (current_keyholder_bc, _) = self.engine.keyholders.getActiveKeyholder(
                 dbConnection)
             if (barcode == current_keyholder_bc):
-                return self.template('keyholder.mako', whoIsHere=self.engine.reports.whoIsHere(dbConnection))
+                whoIsHere = self.engine.reports.whoIsHere(dbConnection)
+                if len(whoIsHere) > 1:
+                    return self.template('keyholderCheckout.mako', barcode=barcode, whoIsHere=self.engine.reports.whoIsHere(dbConnection))
             error = self.engine.visits.checkOutMember(dbConnection, barcode)
+        raise cherrypy.HTTPRedirect("/station")
+
+    @cherrypy.expose
+    def makeKeyholder(self, barcode):
+        error = ''
+        bc = barcode.strip()
+        with self.dbConnect() as dbConnection:
+            self.visits.checkInMember(
+                dbConnection, barcode)  # make sure checked in
+            error = self.engine.keyholders.setActiveKeyholder(
+                dbConnection, barcode)
+            if error:  # pragma: no cover # TODO after this case is added, remove no cover
+                return self.template('keyholder.mako', error=error)
         raise cherrypy.HTTPRedirect("/station")
 
     @cherrypy.expose
@@ -78,12 +93,6 @@ class WebMainStation(WebBase):
                     dbConnection, current_keyholder_bc)
                 self.engine.keyholders.removeKeyholder(dbConnection)
             else:
-                error = self.engine.keyholders.setActiveKeyholder(
-                    dbConnection, barcode)
-                if error:  # pragma: no cover # TODO after this case is added, remove no cover
-                    return self.template('keyholder.mako', error=error)
-        raise cherrypy.HTTPRedirect("/station")
+                return self.makeKeyholder(barcode)
 
-# TODO: Add checkIn and checkOut
-# TODO: Add newKeyholder = barcode, forces new keyholder
-# TODO: Final Checkout for keyholder, lets them say OK, Cancel
+        raise cherrypy.HTTPRedirect("/station")
