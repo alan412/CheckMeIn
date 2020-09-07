@@ -65,6 +65,7 @@ class WebMainStation(WebBase):
                 whoIsHere = self.engine.reports.whoIsHere(dbConnection)
                 if len(whoIsHere) > 1:
                     return self.template('keyholderCheckout.mako', barcode=barcode, whoIsHere=self.engine.reports.whoIsHere(dbConnection))
+                self.engine.keyholders.removeKeyholder(dbConnection)
             error = self.engine.visits.checkOutMember(dbConnection, barcode)
         raise cherrypy.HTTPRedirect("/station")
 
@@ -73,7 +74,7 @@ class WebMainStation(WebBase):
         error = ''
         bc = barcode.strip()
         with self.dbConnect() as dbConnection:
-            self.visits.checkInMember(
+            self.engine.visits.checkInMember(
                 dbConnection, barcode)  # make sure checked in
             error = self.engine.keyholders.setActiveKeyholder(
                 dbConnection, barcode)
