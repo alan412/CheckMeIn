@@ -36,9 +36,6 @@ class Person(object):
         self.hours += hours
         self.date[start.date()] += hours
 
-    def getTimeForDate(self, day):
-        return self.date[day]
-
 
 class Visit(object):
     def __init__(self, start, leave):
