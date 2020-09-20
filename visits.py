@@ -62,8 +62,8 @@ class Visits(object):
 
     def checkBuilding(self, dbConnection):
         now = datetime.datetime.now()
-        if now.hour == 3 and self.reports.numberPresent() > 0:  # If between 3am and 4am
-            self.emptyBuilding(dbConnection)
+        if now.hour == 3:  # If between 3am and 4am
+            self.emptyBuilding(dbConnection, "")
 
     def emptyBuilding(self, dbConnection, keyholder_barcode):
         now = datetime.datetime.now()
