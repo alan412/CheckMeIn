@@ -32,6 +32,11 @@ class SimpleCPTest(helper.CPWebCase):
         self.getPage("/station/checkout?barcode=100090")
         self.assertStatus('303 See Other')
 
+    def test_bulkUpdate(self):
+        self.getPage(
+            "/station/bulkUpdate?inBarcodes=100090+100091&outBarcodes=")
+        self.assertStatus('303 See Other')
+
     def test_scanned_bogus(self):
         self.getPage("/station/scanned?barcode=000090")
         self.assertStatus('303 See Other')

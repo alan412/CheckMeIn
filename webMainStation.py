@@ -47,26 +47,40 @@ class WebMainStation(WebBase):
 
     @cherrypy.expose
     def checkin(self, barcode):
-        with self.dbConnect() as dbConnection:
-            (current_keyholder_bc, _) = self.engine.keyholders.getActiveKeyholder(
-                dbConnection)
-            error = self.engine.visits.checkInMember(dbConnection, barcode)
-            if not current_keyholder_bc:
-                self.engine.keyholders.setActiveKeyholder(
-                    dbConnection, barcode)
-        raise cherrypy.HTTPRedirect("/station")
+        return self.bulkUpdate(inBarcodes=barcode)
 
     @cherrypy.expose
     def checkout(self, barcode):
+        return self.bulkUpdate(outBarcodes=barcode)
+
+    @cherrypy.expose
+    def bulkUpdate(self, inBarcodes="", outBarcodes=""):
+        inBarcodeList = inBarcodes.split()
+        outBarcodeList = outBarcodes.split()
+        currentKeyholderLeaving = False
         with self.dbConnect() as dbConnection:
             (current_keyholder_bc, _) = self.engine.keyholders.getActiveKeyholder(
                 dbConnection)
-            if (barcode == current_keyholder_bc):
+            for barcode in inBarcodeList:
+                error = self.engine.visits.checkInMember(dbConnection, barcode)
+                if not current_keyholder_bc:
+                    self.engine.keyholders.setActiveKeyholder(
+                        dbConnection, barcode)
+            for barcode in outBarcodeList:
+                print(f"Leaving {barcode}")
+                if barcode == current_keyholder_bc:
+                    currentKeyholderLeaving = True
+                else:
+                    error = self.engine.visits.checkOutMember(
+                        dbConnection, barcode)
+        with self.dbConnect() as dbConnection:
+            if currentKeyholderLeaving:
                 whoIsHere = self.engine.reports.whoIsHere(dbConnection)
                 if len(whoIsHere) > 1:
-                    return self.template('keyholderCheckout.mako', barcode=barcode, whoIsHere=self.engine.reports.whoIsHere(dbConnection))
+                    return self.template('keyholderCheckout.mako', barcode=current_keyholder_bc, whoIsHere=self.engine.reports.whoIsHere(dbConnection))
                 self.engine.keyholders.removeKeyholder(dbConnection)
-            error = self.engine.visits.checkOutMember(dbConnection, barcode)
+                error = self.engine.visits.checkOutMember(
+                    dbConnection, current_keyholder_bc)
         raise cherrypy.HTTPRedirect("/station")
 
     @cherrypy.expose
