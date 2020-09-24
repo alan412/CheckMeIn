@@ -13,6 +13,7 @@ ${self.logo()}<br/>
   <H1>${report_title}</H1>
 %endif
 
+%if not report_title:
 <FORM action="customSQLReport">
      <fieldset>
         <legend>SQL command</legend>
@@ -23,6 +24,7 @@ ${sql}
    <input type="submit" value="Generate Custom SQL Report"/>
  </fieldset>
 </FORM>
+%endif
 
 % if data:
 <H2>Output</H2>
