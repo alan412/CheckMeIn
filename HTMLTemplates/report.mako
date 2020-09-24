@@ -30,7 +30,8 @@ ${self.logo()}<br/></CENTER>
 
 <H2>Graph building usage</H2>
 <CENTER>
-<IMG WIDTH="800px" HEIGHT="600px" TITLE="Building Usage graph" SRC="reportGraph?startDate=${stats.beginDate}&endDate=${stats.endDate}" ALT="Building usage graph"/>
+<IMG WIDTH="800px" HEIGHT="600px" TITLE="Building Usage graph" SRC="g
+raph?startDate=${stats.beginDate}&endDate=${stats.endDate}" ALT="Building usage graph"/>
 </CENTER>
 
 <H2>Full List</H2>
