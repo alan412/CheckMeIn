@@ -4,6 +4,7 @@ import cherrypy
 
 from webBase import WebBase
 
+
 class WebReports(WebBase):
     @cherrypy.expose
     def index(self, error=""):
@@ -13,13 +14,14 @@ class WebReports(WebBase):
             todayDate = datetime.date.today().isoformat()
             reportList = self.engine.customReports.get_report_list(
                 dbConnection)
-        return self.template('reports.mako', 
+        return self.template('reports.mako',
                              firstDate=firstDate, todayDate=todayDate,
                              reportList=reportList, error=error)
+
     @cherrypy.expose
     def standard(self, startDate, endDate):
         return self.template('report.mako', stats=self.engine.reports.getStats(self.dbConnect(), startDate, endDate))
-    
+
     @cherrypy.expose
     def graph(self, startDate, endDate):
         cherrypy.response.headers['Content-Type'] = "image/png"
@@ -29,8 +31,9 @@ class WebReports(WebBase):
 
     @cherrypy.expose
     def saveCustom(self, sql, report_name):
-        error = self.engine.customReports.saveCustomSQL(
-            self.dbConnect(), sql, report_name)
+        with self.dbConnect() as dbConnection:
+            error = self.engine.customReports.saveCustomSQL(
+                dbConnection, sql, report_name)
         return self.index(error)
 
     @cherrypy.expose
