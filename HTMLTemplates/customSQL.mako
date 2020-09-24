@@ -36,7 +36,7 @@ ${sql}
 % endfor
 </table>
 % endif
-
+%if not report_title:
 <br/>
 <FORM action="saveCustom">
      <fieldset>
@@ -48,3 +48,4 @@ ${sql}
    <input type="submit" value="Save Report"/>
  </fieldset>
 </FORM>
+% endif
