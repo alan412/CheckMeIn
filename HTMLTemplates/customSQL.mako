@@ -27,7 +27,9 @@ ${sql}
 %endif
 
 % if data:
+%if not report_title:
 <H2>Output</H2>
+%endif
 <table class="SQLoutput">
 % for row in data:
 <tr>
