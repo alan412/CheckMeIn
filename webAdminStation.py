@@ -16,6 +16,12 @@ class WebAdminStation(WebBase):
                              teamList=teamList, error=error)
 
     @cherrypy.expose
+    def emptyBuilding(self):
+        with self.dbConnect() as dbConnection:
+            self.engine.visits.emptyBuilding(dbConnection, "")
+        raise cherrypy.HTTPRedirect("/")
+
+    @cherrypy.expose
     def bulkAddMembers(self, csvfile):
         error = self.engine.members.bulkAdd(self.dbConnect(), csvfile)
         return self.index(error)

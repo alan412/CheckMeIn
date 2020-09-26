@@ -9,9 +9,6 @@ class WebMainStation(WebBase):
     @cherrypy.expose
     def index(self, error=''):
         with self.dbConnect() as dbConnection:
-            self.engine.visits.checkBuilding(
-                dbConnection)  # TODO - Move to thread
-
             (_, keyholder_name) = self.engine.keyholders.getActiveKeyholder(dbConnection)
 
             return self.template('station.mako',

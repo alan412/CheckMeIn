@@ -60,11 +60,6 @@ class Visits(object):
                 (now, barcode))
         return ''
 
-    def checkBuilding(self, dbConnection):
-        now = datetime.datetime.now()
-        if now.hour == 3:  # If between 3am and 4am
-            self.emptyBuilding(dbConnection, "")
-
     def emptyBuilding(self, dbConnection, keyholder_barcode):
         now = datetime.datetime.now()
         dbConnection.execute(
