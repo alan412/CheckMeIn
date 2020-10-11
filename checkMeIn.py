@@ -15,6 +15,7 @@ from webReports import WebReports
 
 DB_STRING = 'data/checkMeIn.db'
 
+
 class CheckMeIn(WebBase):
     def __init__(self):
         self.lookup = TemplateLookup(
@@ -22,7 +23,7 @@ class CheckMeIn(WebBase):
         self.engine = engine.Engine(DB_STRING)
         super().__init__(self.lookup, self.engine)
         self.station = WebMainStation(self.lookup, self.engine)
-        self.guests  = WebGuestStation(self.lookup, self.engine)
+        self.guests = WebGuestStation(self.lookup, self.engine)
         self.certification = WebCertifications(self.lookup, self.engine)
         self.teams = WebTeams(self.lookup, self.engine)
         self.admin = WebAdminStation(self.lookup, self.engine)
@@ -31,9 +32,12 @@ class CheckMeIn(WebBase):
     @cherrypy.expose
     def index(self):
         with self.dbConnect() as dbConnection:
-            return self.template('who_is_here.mako', 
-                                  now=datetime.datetime.now(),
-                                  whoIsHere=self.engine.reports.whoIsHere(dbConnection))
+            (_, keyholder_name) = self.engine.keyholders.getActiveKeyholder(dbConnection)
+            return self.template('who_is_here.mako',
+                                 now=datetime.datetime.now(),
+                                 keyholder=keyholder_name,
+                                 whoIsHere=self.engine.reports.whoIsHere(dbConnection))
+
 
 if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(

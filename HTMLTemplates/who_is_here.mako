@@ -11,6 +11,7 @@
 </TR>
 </table>
   <H2>Checked in at ${now.strftime("%I:%M %p")}:</H2>
+  Current Keyholder: ${keyholder}
   % if len(whoIsHere) == 1:
   <H2>1 person</H2>
   % else:
