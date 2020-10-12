@@ -23,22 +23,26 @@ class WebAdminStation(WebBase):
 
     @cherrypy.expose
     def bulkAddMembers(self, csvfile):
-        error = self.engine.members.bulkAdd(self.dbConnect(), csvfile)
+        with self.dbConnect() as dbConnection:
+            error = self.engine.members.bulkAdd(dbConnection, csvfile)
         return self.index(error)
 
     @cherrypy.expose
     def fixData(self, date):
-        data = self.engine.reports.getData(self.dbConnect(), date)
+        with self.dbConnect() as dbConnection:
+            data = self.engine.reports.getData(dbConnection, date)
         return self.template('fixData.mako', date=date, data=data)
 
     @cherrypy.expose
     def oops(self):
-        self.engine.visits.oopsForgot(self.dbConnect())
+        with self.dbConnect() as dbConnection:
+            self.engine.visits.oopsForgot(dbConnection)
         return self.index('Oops is fixed. :-)')
 
     @cherrypy.expose
     def fixed(self, output):
-        self.engine.visits.fix(self.dbConnect(), output)
+        with self.dbConnect() as dbConnection:
+            self.engine.visits.fix(dbConnection, output)
         return self.index()
 
     @cherrypy.expose
