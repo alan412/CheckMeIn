@@ -52,3 +52,11 @@ class WebAdminStation(WebBase):
             self.dbConnect(), "Sample", "", team_name)
 
         return self.index(error)
+
+    @cherypy.expose
+    def updateKeyholders(self, keyholders):
+        keyholderList = keyholders.split(',')
+        with self.dbConnect() as dbConnection:
+            self.engine.keyholders.updateKeyholders(
+                dbConnection, keyholderList)
+        return self.index('Keyholders Updated')
