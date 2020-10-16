@@ -53,7 +53,7 @@ class WebAdminStation(WebBase):
 
         return self.index(error)
 
-    @cherypy.expose
+    @cherrypy.expose
     def updateKeyholders(self, keyholders):
         keyholderList = keyholders.split(',')
         with self.dbConnect() as dbConnection:
