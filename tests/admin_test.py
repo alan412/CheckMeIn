@@ -24,17 +24,20 @@ class SimpleCPTest(helper.CPWebCase):
     def test_fixData(self):
         self.getPage("/admin/fixData?date=2018-06-28")
         self.assertStatus('200 OK')
+
     def test_fixedData(self):
-        self.getPage("/admin/fixed?output=3%212018-06-28+2%3A25PM%212018-06-28+3%3A25PM%2C18%212018-06-28+7%3A9PM%212018-06-28+11%3A3PM%2C")
+        self.getPage(
+            "/admin/fixed?output=3%212018-06-28+2%3A25PM%212018-06-28+3%3A25PM%2C18%212018-06-28+7%3A9PM%212018-06-28+11%3A3PM%2C")
         self.assertStatus('200 OK')
 
     def test_fixDataNoOutput(self):
         self.getPage("/admin/fixed?output=")
         self.assertStatus('200 OK')
-    
+
     def test_create(self):
         self.getPage("/admin/createTeam?team_name=Test")
         self.assertStatus('200 OK')
+
     def test_bulkadd(self):
         filecontents = '''"First Name","Last Name","TFI Barcode for Button","TFI Barcode AUTO","TFI Barcode AUTONUM","TFI Display Name for Button","Membership End Date"\n
 "Sasha","Mellendorf","101337","","101337","Sasha M","6/30/2020"\n
@@ -52,4 +55,16 @@ class SimpleCPTest(helper.CPWebCase):
         b += filecontents + '\n--x--\n'
 
         self.getPage('/admin/bulkAddMembers', h, 'POST', b)
+        self.assertStatus('200 OK')
+
+    def test_updateKeyholders(self):
+        keyholders = ["100001",
+                      "100091",
+                      "100089"]
+        requestStr = '/admin/updateKeyholders?keyholders='
+        for keyholder in keyholders:
+            requestStr += keyholder + "%2C"
+        requestStr = requestStr[:-3]
+        print(f'Request: {requestStr}')
+        self.getPage(requestStr)
         self.assertStatus('200 OK')
