@@ -5,8 +5,7 @@
 
 <%def name="title()">CheckMeIn Fix Data</%def>
 <%inherit file="base.mako"/>
-<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
-
+${self.logo()}<br/>
 <H1>Fix Data Page for ${date}</H1>
 <TABLE>
   <TR><TH>Display Name</TH><TH>Start</TH><TH>Leave</TH><TH>Update</TH></TR>

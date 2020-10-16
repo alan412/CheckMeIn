@@ -16,8 +16,10 @@ class CertificationLevels(IntEnum):
 
 
 class ToolUser(object):
-    def __init__(self):
+    def __init__(self, displayName, barcode):
         self.tools = {}
+        self.displayName = displayName
+        self.barcode = barcode
 
     def addTool(self, tool_id, date, level):
         if tool_id in self.tools:
@@ -45,13 +47,12 @@ class ToolUser(object):
         }
         try:
             return HTMLDetails[level]
-        except KeyError:
+        except KeyError:  #pragma: no cover
             return "Key: " + str(level)
 
 
 class Certifications(object):
-    def __init__(self, database):
-        self.database = database
+    def __init__(self):
         self.levels = {
             CertificationLevels.BASIC: 'BASIC',
             CertificationLevels.CERTIFIED: 'CERTIFIED',
@@ -60,15 +61,11 @@ class Certifications(object):
             CertificationLevels.CERTIFIER: 'CERTIFIER'
         }
 
-    def createTable(self):
-        with sqlite3.connect(self.database) as c:
-            self.migrate(c, 0)
-
-    def addTool(self, dbConnection, tool_id, grouping, name, restriction=0, comments=''):
+    def addTool(self, dbConnection, tool_id, grouping, name, restriction=0, comments=''): #pragma: no cover
         dbConnection.execute('INSERT INTO tools VALUES(?,?,?,?,?)',
                              (tool_id, grouping, name, restriction, comments))
 
-    def addTools(self, dbConnection):
+    def addTools(self, dbConnection):  #pragma: no cover
         tools = [[1, 1, "Sheet Metal Brake"],
                  [2, 1, "Blind Rivet Gun"],
                  [3, 1, "Stretcher Shrinker"],
@@ -97,7 +94,7 @@ class Certifications(object):
             else:
                 self.addTool(dbConnection, tool[0], tool[1], tool[2])
 
-    def migrate(self, dbConnection, db_schema_version):
+    def migrate(self, dbConnection, db_schema_version): # pragma: no cover
         if db_schema_version < 8:
             dbConnection.execute('''CREATE TABLE restrictions
                                     (id        INTEGER PRIMARY KEY,
@@ -120,46 +117,53 @@ class Certifications(object):
                                   level         INTEGER default 0)''')
             self.addTools(dbConnection)
 
-    def addNewCertification(self, member_id, tool_id, level, certifier):
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            return self.addCertification(c, member_id, tool_id, level, datetime.datetime.now(), certifier)
+    def addNewCertification(self, dbConnection, member_id, tool_id, level, certifier):
+        return self.addCertification(dbConnection, member_id, tool_id, level, datetime.datetime.now(), certifier)
 
     def addCertification(self, dbConnection, barcode, tool_id, level, date, certifier):
         # date needs to be changed to match format we want
 
         dbConnection.execute('''INSERT INTO certifications(user_id, tool_id, certifier_id, date, level)
                                 SELECT ?, ?, ?, ?, ?
-                                WHERE NOT EXISTS(SELECT 1 FROM certifications WHERE user_id=? AND tool_id=? AND level=?)''',
+                                WHERE NOT EXISTS(SELECT 1 FROM certifications WHERE user_id==? AND tool_id==? AND level==?)''',
                              (barcode, tool_id, certifier, date, level, barcode, tool_id, level))
 
-    def getToolList(self, certifier_id):
-        return self.getListCertifyTools(sqlite3.connect(self.database), certifier_id)
-
-    def getUserList(self):
+    def getAllUserList(self, dbConnection):
         users = {}
-        dbConnection = sqlite3.connect(self.database)
-        for row in dbConnection.execute('''SELECT user_id, tool_id, date, level FROM certifications
+        for row in dbConnection.execute('''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
                                         INNER JOIN members ON members.barcode=user_id
                                         ORDER BY members.displayName'''):
             try:
                 users[row[0]].addTool(row[1], row[2], row[3])
             except KeyError:
-                users[row[0]] = ToolUser()
+                users[row[0]] = ToolUser(row[4], row[0])
+                users[row[0]].addTool(row[1], row[2], row[3])
+        return users
+    
+    def getInBuildingUserList(self, dbConnection):
+        users = {}
+        for row in dbConnection.execute('''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
+                                        INNER JOIN members ON members.barcode=user_id
+                                        INNER JOIN visits ON visits.barcode=user_id
+                                        WHERE visits.status="In"
+                                        ORDER BY members.displayName'''):
+            try:
+                users[row[0]].addTool(row[1], row[2], row[3])
+            except KeyError:
+                users[row[0]] = ToolUser(row[4], row[0])
                 users[row[0]].addTool(row[1], row[2], row[3])
         return users
 
-    def getAllTools(self):
+    def getAllTools(self, dbConnection):
         tools = []
-        dbConnection = sqlite3.connect(self.database)
         for row in dbConnection.execute('SELECT id, name, grouping FROM tools ORDER BY id ASC', ()):
             tools.append([row[0], row[1], row[2]])
         return tools
 
-    def getToolsFromList(self, inputStr):
-        tools = self.getAllTools()
+    def getToolsFromList(self, dbConnection, inputStr):
+        tools = self.getAllTools(dbConnection)
         inputTools = inputStr.split("_")
         newToolList = []
-        print(inputTools)
 
         for tool in tools:
             if str(tool[0]) in inputTools:
@@ -176,59 +180,10 @@ class Certifications(object):
             tools.append([row[0], row[1]])
         return tools
 
-    def parseCert(self, str):
-        str = str.upper()
-        for level, name in self.levels.items():
-            if str.startswith(name):
-                if str == name:
-                    return (level, '')
-                return (level, str[len(name) + 1:])
-        return (CertificationLevels.NONE, '')
-
-    def getToolName(self, tool_id):
-        dbConnection = sqlite3.connect(self.database)
+    def getToolName(self, dbConnection, tool_id):
         for row in dbConnection.execute('SELECT name FROM tools WHERE id == ?', (tool_id, )):
             return row[0]
         return ''
 
     def getLevelName(self, level):
         return self.levels[CertificationLevels(int(level))]
-
-    def importFromCSV(self, filename, members, dbConnection):
-        tool_dict = {4: 1, 5: 2, 6: 3, 7: 4, 9: 5, 10: 6, 11: 7, 13: 8, 14: 9,
-                     15: 10, 17: 11, 18: 12, 19: 13, 20: 14, 22: 15, 23: 16, 24: 17, 25: 18}
-        print('--- IMPORT FROM ' + filename + ' ---')
-        with open(filename) as csvfile:
-            reader = csv.reader(csvfile)
-            cert_level = 0
-            cert_date = ''
-            for row in reader:
-                barcode = members.getBarcode(row[2], dbConnection)
-                if not barcode and row[2]:
-                    names = row[2].split(' ')
-                    try:
-                        displayName = ''
-                        for i in range(0, len(names) - 1):
-                            displayName += names[i] + ' '
-                        displayName += names[len(names) - 1][0]
-                        barcode = members.getBarcode(displayName, dbConnection)
-                        if not barcode:
-                            print(f"{row[2]} - {displayName} Not found!!!")
-                    except:
-                        print("Exception: ", names)
-                if barcode:
-                    for i in range(4, 26):
-                        if row[i] and row[i] != 'N/A':
-                            (level, date) = self.parseCert(row[i])
-                            if level != CertificationLevels.NONE:
-                                # print(
-                                #    f"Adding {tool_dict[i]} - level {level} for {row[2]}")
-                                self.addCertification(
-                                    dbConnection, barcode, tool_dict[i], level, date, 'LEGACY')
-
-        # unit test
-if __name__ == "__main__":  # pragma no cover
-    DB_STRING = 'data/test.db'
-    certifications = Certifications(DB_STRING)
-    certifications.createTable()
-    certifications.importFromCSV("test.csv")

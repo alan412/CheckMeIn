@@ -3,40 +3,60 @@
 <%def name="head()">
 </%def>
 
-<%def name="title()">CheckMeIn Report</%def>
+<%def name="title()">CheckMeIn Reports</%def>
 <%inherit file="base.mako"/>
-<CENTER>
-<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
-</CENTER>
 
-% if stats.beginDate == stats.endDate:
-   <H1>Report for ${stats.beginDate}</H1>
-% else:
-   <H1>Report for ${stats.beginDate} to ${stats.endDate}</H1>
-% endif
+${self.logo()}<br/>
+<H1>${self.title()}</H1>
 
-<H2>Statistics</H2>
-<UL>
-  <LI>Number of unique visitors: ${stats.uniqueVisitors}</LI>
-  <LI>Total number of hours spent: ${'% 6.1f' % stats.totalHours}</LI>
-  <LI>Average time per visitor: ${'% 6.1f' % stats.avgTime}</LI>
-  <LI>Median time per visitor: ${'% 6.1f' % stats.medianTime}</LI>
-  <LI>Top 10 by time spent</LI><TABLE>
-      % for person in stats.sortedList[:9]:
-         <TR><TD>${person.name}</TD><TD>${'% 6.1f' % person.hours}</TD></TR>
-      % endfor
-      </TABLE>
-  </UL>
-</UL>
+<form action="standard" width="50%">
+   <fieldset>
+       <legend>Select Dates</legend>
+   <div>
+      <label for="start_date">Start Date:</label>
+      <input id="start_date" type="date" name="startDate" value="${todayDate}"
+       min="${firstDate}" max="${todayDate}"/>
+   </div>
+   <div>
+      <label for="end_date">End Date:</label>
+      <input id="end_date" type="date" name="endDate" value="${todayDate}"
+       min="${firstDate}" max="${todayDate}"/>
+   </div>
 
-<H2>Graph building usage</H2>
-<CENTER>
-<IMG WIDTH="800px" HEIGHT="600px" TITLE="Building Usage graph" SRC="reportGraph?startDate=${stats.beginDate}&endDate=${stats.endDate}" ALT="Building usage graph"/>
-</CENTER>
+   <input type="submit" value="Generate Statistics"/>
+   </fieldset>
+</form>
+<br/>
 
-<H2>Full List</H2>
-<TABLE>
-    % for person in stats.sortedList:
-       <TR><TD>${person.name}</TD><TD>${'% 6.1f' % person.hours}</TD></TR>
-    % endfor
-</TABLE>
+<form action="savedCustom" width="50%">
+   <fieldset>
+       <legend>Saved Reports</legend>
+   <div>
+    <label for="report_id">Saved Reports:</label>
+    <select name="report_id">
+   % for report in reportList:
+        <option value="${report[0]}">${report[1]}</option>
+   % endfor
+    </select><br/>
+    </div>    
+    <input type="submit" value="Get Report"/>
+   </fieldset>
+</form>
+
+<br/>
+<FORM action="customSQLReport">
+     <fieldset>
+        <legend>For the <em>Real</em> Geek</legend>
+     <textarea name="sql" rows="10" cols="80">
+SELECT start, leave, displayName
+FROM visits
+INNER JOIN members ON members.barcode = visits.barcode
+WHERE (start BETWEEN '2018-07-01' AND '2018-07-10');
+     </textarea>
+   <br/>
+   <input type="submit" value="Generate Custom SQL Report"/>
+ </fieldset>
+</FORM>
+
+<hr/>
+To add feature requests or report issues, please go to:<A HREF="https://github.com/alan412/CheckMeIn/issues">https://github.com/alan412/CheckMeIn/issues</A>

@@ -36,9 +36,6 @@ class Person(object):
         self.hours += hours
         self.date[start.date()] += hours
 
-    def getTimeForDate(self, day):
-        return self.date[day]
-
 
 class Visit(object):
     def __init__(self, start, leave):
@@ -75,14 +72,13 @@ class BuildingUsage(object):
 
 
 class Statistics(object):
-    def __init__(self, database, beginDate, endDate):
+    def __init__(self, dbConnection, beginDate, endDate):
         self.beginDate = beginDate.date()
         self.endDate = endDate.date()
         self.visitors = {}
         self.buildingUsage = BuildingUsage()
 
-        with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            for row in c.execute(
+        for row in dbConnection.execute(
                 '''SELECT start, leave, displayName, visits.barcode
    FROM visits
    INNER JOIN members ON members.barcode = visits.barcode
@@ -92,11 +88,11 @@ class Statistics(object):
    FROM visits
    INNER JOIN guests ON guests.guest_id = visits.barcode
    WHERE (start BETWEEN ? AND ?)''', (beginDate, endDate, beginDate, endDate)):
-                try:
-                    self.visitors[row[3]].addVisit(row[0], row[1])
-                except KeyError:
-                    self.visitors[row[3]] = Person(row[2], row[0], row[1])
-                self.buildingUsage.addVisit(row[0], row[1])
+            try:
+                self.visitors[row[3]].addVisit(row[0], row[1])
+            except KeyError:
+                self.visitors[row[3]] = Person(row[2], row[0], row[1])
+            self.buildingUsage.addVisit(row[0], row[1])
         self.totalHours = 0.0
 
         for _, person in self.visitors.items():
@@ -161,13 +157,12 @@ class Statistics(object):
 
 
 class Reports(object):
-    def __init__(self, database):
-        self.database = database
+    def __init__(self):
+        pass
 
-    def whoIsHere(self):
+    def whoIsHere(self, dbConnection):
         listPresent = []
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            for row in c.execute('''SELECT displayName, start
+        for row in dbConnection.execute('''SELECT displayName, start
            FROM visits
            INNER JOIN members ON members.barcode = visits.barcode
            WHERE visits.status=='In'
@@ -176,44 +171,38 @@ class Reports(object):
            FROM visits
            INNER JOIN guests ON guests.guest_id = visits.barcode
            WHERE visits.status=='In' ORDER BY displayName'''):
-                listPresent.append(
-                    row[0] + ' - ( ' + row[1].strftime("%I:%M %p") + ' )')
+            listPresent.append(
+                row[0] + ' - ( ' + row[1].strftime("%I:%M %p") + ' )')
         return listPresent
 
-    def whichTeamMembersHere(self, team_id, startTime, endTime):
+    def whichTeamMembersHere(self, dbConnection, team_id, startTime, endTime):
         listPresent = []
-        print("WhichTeamMembersHere", team_id, ",", startTime, "-", endTime)
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            for row in c.execute('''SELECT displayName
+        for row in dbConnection.execute('''SELECT displayName
            FROM visits
            INNER JOIN members ON members.barcode = visits.barcode
            INNER JOIN team_members ON team_members.barcode = visits.barcode
            WHERE (visits.start <= ?) AND (visits.leave >= ?) AND team_members.team_id = ?
            ORDER BY displayName ASC''', (endTime, startTime, team_id)):
-                listPresent.append(row[0])
-        print(listPresent)
+            listPresent.append(row[0])
         return listPresent
 
-    def guestsInBuilding(self):
+    def guestsInBuilding(self, dbConnection):
         listPresent = []
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            for row in c.execute('''SELECT displayName, start, guests.guest_id
+        for row in dbConnection.execute('''SELECT displayName, start, guests.guest_id
            FROM visits
            INNER JOIN guests ON guests.guest_id = visits.barcode
            WHERE visits.status=='In' ORDER BY displayName'''):
-                listPresent.append(Guest(row[2], row[0]))
+            listPresent.append(Guest(row[2], row[0]))
         return listPresent
 
-    def numberPresent(self):
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            (numPeople, ) = c.execute(
-                "SELECT count(*) FROM visits WHERE status == 'In'").fetchone()
-            return numPeople
+    def numberPresent(self, dbConnection):
+        (numPeople, ) = dbConnection.execute(
+            "SELECT count(*) FROM visits WHERE status == 'In'").fetchone()
+        return numPeople
 
-    def transactions(self, startDate, endDate):
+    def transactions(self, dbConnection, startDate, endDate):
         listTransactions = []
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            for row in c.execute('''SELECT displayName, start, leave, visits.status
+        for row in dbConnection.execute('''SELECT displayName, start, leave, visits.status
            FROM visits
            INNER JOIN members ON members.barcode = visits.barcode
            WHERE (start BETWEEN ? and ?)
@@ -224,35 +213,34 @@ class Reports(object):
            WHERE (start BETWEEN ? and ?)
            ORDER BY start''', (startDate, endDate, startDate, endDate)):
 
-                listTransactions.append(Transaction(row[0], row[1], 'In'))
-                if row[3] != 'In':
-                    listTransactions.append(
-                        Transaction(row[0], row[2], row[3]))
+            listTransactions.append(Transaction(row[0], row[1], 'In'))
+            if row[3] != 'In':
+                listTransactions.append(
+                    Transaction(row[0], row[2], row[3]))
 
         return sorted(listTransactions, key=lambda x: x[1], reverse=True)
 
-    def transactionsToday(self):
+    def transactionsToday(self, dbConnection):
         now = datetime.datetime.now()
         startDate = now.replace(hour=0, minute=0, second=0, microsecond=0)
         endDate = now.replace(hour=23, minute=59,
                               second=59, microsecond=999999)
-        return self.transactions(startDate, endDate)
+        return self.transactions(dbConnection, startDate, endDate)
 
-    def uniqueVisitors(self, startDate, endDate):
-        with sqlite3.connect(self.database) as c:
-            numUniqueVisitors = c.execute(
-                "SELECT COUNT(DISTINCT barcode) FROM visits WHERE (start BETWEEN ? AND ?)",
-                (startDate, endDate)).fetchone()[0]
+    def uniqueVisitors(self, dbConnection, startDate, endDate):
+        numUniqueVisitors = dbConnection.execute(
+            "SELECT COUNT(DISTINCT barcode) FROM visits WHERE (start BETWEEN ? AND ?)",
+            (startDate, endDate)).fetchone()[0]
         return numUniqueVisitors
 
-    def uniqueVisitorsToday(self):
+    def uniqueVisitorsToday(self, dbConnection):
         now = datetime.datetime.now()
         startDate = now.replace(hour=0, minute=0, second=0, microsecond=0)
         endDate = now.replace(hour=23, minute=59,
                               second=59, microsecond=999999)
-        return self.uniqueVisitors(startDate, endDate)
+        return self.uniqueVisitors(dbConnection, startDate, endDate)
 
-    def getStats(self, beginDateStr, endDateStr):
+    def getStats(self, dbConnection, beginDateStr, endDateStr):
         startDate = datetime.datetime(int(beginDateStr[0:4]),
                                       int(beginDateStr[5:7]), int(beginDateStr[8:10])).replace(
             hour=0, minute=0, second=0, microsecond=0)
@@ -260,24 +248,22 @@ class Reports(object):
                                     int(endDateStr[5:7]), int(endDateStr[8:10])).replace(
             hour=23, minute=59, second=59, microsecond=999999)
 
-        return Statistics(self.database, startDate, endDate)
+        return Statistics(dbConnection, startDate, endDate)
 
-    def getEarliestDate(self):
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            data = c.execute(
-                "SELECT start FROM visits ORDER BY start ASC LIMIT 1").fetchone()
-            return data[0]
+    def getEarliestDate(self, dbConnection):
+        data = dbConnection.execute(
+            "SELECT start FROM visits ORDER BY start ASC LIMIT 1").fetchone()
+        return data[0]
 
-    def getForgottenDates(self):
+    def getForgottenDates(self, dbConnection):
         dates = []
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            for row in c.execute("SELECT start FROM visits WHERE status=='Forgot'"):
-                day = row[0].date()
-                if day not in dates:
-                    dates.append(day)
+        for row in dbConnection.execute("SELECT start FROM visits WHERE status=='Forgot'"):
+            day = row[0].date()
+            if day not in dates:
+                dates.append(day)
         return dates
 
-    def getData(self, dateStr):
+    def getData(self, dbConnection, dateStr):
         data = []
         date = datetime.datetime(int(dateStr[0:4]), int(
             dateStr[5:7]), int(dateStr[8:10]))
@@ -285,8 +271,7 @@ class Reports(object):
         endDate = date.replace(
             hour=23, minute=59, second=59, microsecond=999999)
 
-        with sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-            for row in c.execute('''SELECT displayName, start, leave, visits.status, visits.rowid
+        for row in dbConnection.execute('''SELECT displayName, start, leave, visits.status, visits.rowid
            FROM visits
            INNER JOIN members ON members.barcode = visits.barcode
            WHERE (start BETWEEN ? and ?)
@@ -296,11 +281,6 @@ class Reports(object):
            INNER JOIN guests ON guests.guest_id = visits.barcode
            WHERE (start BETWEEN ? and ?)
            ORDER BY start''', (startDate, endDate, startDate, endDate)):
-                data.append(
-                    Datum(start=row[1], leave=row[2], name=row[0], status=row[3], rowid=row[4]))
+            data.append(
+                Datum(start=row[1], leave=row[2], name=row[0], status=row[3], rowid=row[4]))
         return data
-
-
-# unit test
-if __name__ == "__main__":  # pragma no cover
-    print("To test this module, you need to use visits module")

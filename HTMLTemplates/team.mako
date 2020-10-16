@@ -5,11 +5,10 @@
 
 <%def name="title()">CheckMeIn Teams</%def>
 <%inherit file="base.mako"/>
-<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
-
+${self.logo()}
 <br/>
 <H1>${team_name}</H1>
-<form action="teamAttendance">
+<form action="attendance">
   <fieldset>
     <legend>See who was here during a team meeting</legend>
     <br/>
@@ -24,7 +23,7 @@
   </fieldset>
 </form>
 <br/>
-<form action="teamCertifications">
+<form action="certifications">
   <fieldset>
     <legend>See who has what tool certifications</legend>
     <br/>
@@ -33,7 +32,7 @@
   </fieldset>
 </form>
 <br/>
-<form action="addTeamMembers">
+<form action="addMembers">
    <fieldset>
      <legend>Add Team Members</legend>
      <P>This needs to be the barcodes for each member.</P>

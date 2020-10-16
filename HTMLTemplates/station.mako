@@ -1,6 +1,6 @@
 <%def name="scripts()">
 <script>
-window.onload = setTimeout(function(){location.href="station"},1000*60*60);  // every hour
+window.onload = setTimeout(function(){location.href="/station"},1000*60);  // every minute
 </script>
 </%def>
 <%def name="head()">
@@ -10,9 +10,9 @@ window.onload = setTimeout(function(){location.href="station"},1000*60*60);  // 
 <%inherit file="base.mako"/>
 <TABLE>
 <TR><TD WIDTH="20%">
-<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/><br/>
+${self.logo()}<br/>
 <div id="member_id">
-<form action="scanned">
+<form action="/station/scanned">
      <input id="member_id" type="text" name="barcode" size="8" autofocus placeholder="Member ID"/><br/>
 </form>
 </div>
@@ -22,7 +22,7 @@ window.onload = setTimeout(function(){location.href="station"},1000*60*60);  // 
      <H2><div id="clockbox"></div></H2>
 </TD>
     <TD class="who_is_here" valign=center><CENTER><P>To see who is here:</P>
-<A HREF="http://tfi.ev3hub.com/"><IMG ALT="qr-code" WIDTH="100" SRC="static/qrcode-who_is_here.png"/></A>
+<A HREF="http://tfi.ev3hub.com/"><IMG ALT="qr-code" WIDTH="100" SRC="/static/qrcode-who_is_here.png"/></A>
 <br/>
 <A HREF="http://tfi.ev3hub.com">http://tfi.ev3hub.com</A>
 <center/>

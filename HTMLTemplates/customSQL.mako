@@ -6,13 +6,14 @@
 <%def name="title()">CheckMeIn Report - CustomSQL</%def>
 <%inherit file="base.mako"/>
 <CENTER>
-<IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="250"/>
+${self.logo()}<br/>
 </CENTER>
 
 %if report_title:
   <H1>${report_title}</H1>
 %endif
 
+%if not report_title:
 <FORM action="customSQLReport">
      <fieldset>
         <legend>SQL command</legend>
@@ -23,8 +24,12 @@ ${sql}
    <input type="submit" value="Generate Custom SQL Report"/>
  </fieldset>
 </FORM>
+%endif
 
+% if data:
+%if not report_title:
 <H2>Output</H2>
+%endif
 <table class="SQLoutput">
 % for row in data:
 <tr>
@@ -34,9 +39,10 @@ ${sql}
 </tr>
 % endfor
 </table>
-
+% endif
+%if not report_title:
 <br/>
-<FORM action="saveReport">
+<FORM action="saveCustom">
      <fieldset>
         <legend>Save Report</legend>
     <label for="report_name">Report Name:</label>
@@ -46,3 +52,4 @@ ${sql}
    <input type="submit" value="Save Report"/>
  </fieldset>
 </FORM>
+% endif

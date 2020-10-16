@@ -1,3 +1,4 @@
+
 from unittest.mock import patch
 
 import cherrypy
@@ -16,25 +17,39 @@ class SimpleCPTest(helper.CPWebCase):
         self.getPage("/admin/")
         self.assertStatus('200 OK')
 
-    def test_reports(self):
-        self.getPage("/reports?startDate=2018-09-03&endDate=2018-09-03")
-        self.assertStatus('200 OK')
-
-    def test_sql(self):
-        self.getPage("/customSQLReport?sql=SELECT+*+FROM+members%3B%0D%0A+++++")
-        self.assertStatus('200 OK')
-
     def test_oops(self):
-        self.getPage("/oops")
+        self.getPage("/admin/oops")
         self.assertStatus('200 OK')
 
     def test_fixData(self):
-        self.getPage("/fixData?date=2018-06-28")
+        self.getPage("/admin/fixData?date=2018-06-28")
+        self.assertStatus('200 OK')
+    def test_fixedData(self):
+        self.getPage("/admin/fixed?output=3%212018-06-28+2%3A25PM%212018-06-28+3%3A25PM%2C18%212018-06-28+7%3A9PM%212018-06-28+11%3A3PM%2C")
         self.assertStatus('200 OK')
 
-    def test_addMember(self):
-        self.getPage("/addMember?display=False+M.&barcode=777001")
+    def test_fixDataNoOutput(self):
+        self.getPage("/admin/fixed?output=")
         self.assertStatus('200 OK')
-    def test_fixDataOutput(self):
-        self.getPage("/fixed?output=")
+    
+    def test_create(self):
+        self.getPage("/admin/createTeam?team_name=Test")
+        self.assertStatus('200 OK')
+    def test_bulkadd(self):
+        filecontents = '''"First Name","Last Name","TFI Barcode for Button","TFI Barcode AUTO","TFI Barcode AUTONUM","TFI Display Name for Button","Membership End Date"\n
+"Sasha","Mellendorf","101337","","101337","Sasha M","6/30/2020"\n
+"Linda","Whipker","100063","","101387","","6/30/2020"\n
+"Test","User","","","101387","",""\n
+'''
+        filesize = len(filecontents)
+        h = [('Content-type', 'multipart/form-data; boundary=x'),
+             ('Content-Length', str(108 + filesize))]
+        b = ('--x\n'
+             'Content-Disposition: form-data; name="csvfile"; '
+             'filename="bulkadd.csv"\r\n'
+             'Content-Type: text/plain\r\n'
+             '\r\n')
+        b += filecontents + '\n--x--\n'
+
+        self.getPage('/admin/bulkAddMembers', h, 'POST', b)
         self.assertStatus('200 OK')

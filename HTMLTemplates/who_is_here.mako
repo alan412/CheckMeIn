@@ -6,11 +6,12 @@
 <%inherit file="base.mako"/>
 <table class="header">
 <TR>
-  <TD><IMG ALT="TFI Logo" SRC="static/TFI-logo-smaller.png" WIDTH="150"/></TD>
+  <TD>${self.logo()}</TD>
   <TD><input type="button" value="Refresh" onClick="document.location.reload(true)"/></TD>
 </TR>
 </table>
   <H2>Checked in at ${now.strftime("%I:%M %p")}:</H2>
+  Current Keyholder: ${keyholder}
   % if len(whoIsHere) == 1:
   <H2>1 person</H2>
   % else:
