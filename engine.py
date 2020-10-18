@@ -9,10 +9,13 @@ from keyholders import Keyholders
 from customReports import CustomReports
 from certifications import Certifications
 from visits import Visits
+from passwords import Passwords
 
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 11
 
 # This is the engine for all of the backend
+
+
 class Engine(object):
     def __init__(self, dbString):
         self.database = dbString
@@ -21,25 +24,25 @@ class Engine(object):
         self.keyholders = Keyholders()
         self.reports = Reports()
         self.teams = Teams()
-        self.customReports = CustomReports(self.database)   # needs path since it will open read only
+        self.passwords = Passwords()
+        # needs path since it will open read only
+        self.customReports = CustomReports(self.database)
         self.certifications = Certifications()
         self.members = Members()
-                
-        if not os.path.exists(self.database): #pragma: no cover
+
+        if not os.path.exists(self.database):  # pragma: no cover
             with self.dbConnect() as c:
                 self.migrate(c, 0)
         else:
             with self.dbConnect() as c:
                 data = c.execute('PRAGMA schema_version').fetchone()
-                if data[0] != SCHEMA_VERSION:  #pragma: no cover
+                if data[0] != SCHEMA_VERSION:  # pragma: no cover
                     self.migrate(c, data[0])
 
-
-   
     def dbConnect(self):
-       return sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES)
+        return sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES)
 
-    def migrate(self, dbConnection, db_schema_version): # pragma: no cover
+    def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
         if db_schema_version < SCHEMA_VERSION:
             self.visits.migrate(dbConnection, db_schema_version)
             self.members.migrate(dbConnection, db_schema_version)
@@ -48,11 +51,13 @@ class Engine(object):
             self.teams.migrate(dbConnection, db_schema_version)
             self.customReports.migrate(dbConnection, db_schema_version)
             self.certifications.migrate(dbConnection, db_schema_version)
+            self.passwords.migrate(dbConnection, db_schema_version)
             dbConnection.execute(
                 'PRAGMA schema_version = ' + str(SCHEMA_VERSION))
         elif db_schema_version != SCHEMA_VERSION:
             raise Exception("Unknown DB schema version" +
                             str(db_schema_version) + ": " + self.database)
+
     def getGuestLists(self, dbConnection):
         all_guests = self.guests.getList(dbConnection)
 
@@ -60,5 +65,5 @@ class Engine(object):
 
         guests_not_here = [
             guest for guest in all_guests if guest not in building_guests]
-        
+
         return (building_guests, guests_not_here)
