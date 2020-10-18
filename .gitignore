@@ -115,3 +115,6 @@ nohup.out
 
 #editor stuff
 .vscode
+
+#web sessions
+sessions/
