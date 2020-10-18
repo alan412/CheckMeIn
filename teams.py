@@ -8,14 +8,17 @@ from members import Members
 
 TeamMember = namedtuple('TeamMember', ['name', 'barcode', 'type'])
 
+
 class Status(IntEnum):
     inactive = 0
     active = 1
+
 
 class TeamMemberType(IntEnum):
     student = 0
     mentor = 1
     coach = 2
+
 
 class TeamInfo(object):
     def __init__(self, teamId, programName, programNumber, name, startDate):
@@ -24,14 +27,16 @@ class TeamInfo(object):
         self.programNumber = programNumber
         self.name = name
         self.startDate = startDate
+
     def getProgramId(self):
         return f'{self.programName}{self.programNumber}' if self.programNumber else self.programName
+
 
 class Teams(object):
     def __init__(self):
         pass
 
-    def migrate(self, dbConnection, db_schema_version): # pragma: no cover
+    def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
         if db_schema_version < 5:
             dbConnection.execute('''CREATE TABLE teams
                                  (team_id INTEGER PRIMARY KEY,
@@ -49,13 +54,13 @@ class Teams(object):
                                         active INTEGER default 1,
                                         CONSTRAINT unq UNIQUE (program_name, program_number, start_date))
             ''')
-        now = datetime.datetime.now()
-        for row in dbConnection.execute("SELECT * FROM teams"):
-            dbConnection.execute('''
-                INSERT INTO new_teams VALUES (?,?,?,?,?,?)''',
+            now = datetime.datetime.now()
+            for row in dbConnection.execute("SELECT * FROM teams"):
+                dbConnection.execute('''
+                    INSERT INTO new_teams VALUES (?,?,?,?,?,?)''',
                                      (row[0], 'LEGACY', row[0], row[1], now, '1'))
-        dbConnection.execute('''DROP TABLE teams''')
-        dbConnection.execute(
+            dbConnection.execute('''DROP TABLE teams''')
+            dbConnection.execute(
                 '''ALTER TABLE new_teams RENAME TO teams''')
 
     def createTeam(self, dbConnection, program_name, program_number, team_name):
