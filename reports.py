@@ -162,17 +162,22 @@ class Reports(object):
 
     def whoIsHere(self, dbConnection):
         listPresent = []
-        for row in dbConnection.execute('''SELECT displayName, start
+        for row in dbConnection.execute('''SELECT displayName, start, active
            FROM visits
+           LEFT JOIN keyholders ON visits.barcode = keyholders.barcode
            INNER JOIN members ON members.barcode = visits.barcode
            WHERE visits.status=='In'
            UNION
-           SELECT displayName, start
+           SELECT displayName, start, active
            FROM visits
+           LEFT JOIN keyholders ON visits.barcode = keyholders.barcode
            INNER JOIN guests ON guests.guest_id = visits.barcode
            WHERE visits.status=='In' ORDER BY displayName'''):
+            displayName = row[0]
+            if(row[2] != None):
+                displayName = displayName + "(Keyholder)"
             listPresent.append(
-                row[0] + ' - ( ' + row[1].strftime("%I:%M %p") + ' )')
+                displayName + ' - ( ' + row[1].strftime("%I:%M %p") + ' )')
         return listPresent
 
     def whichTeamMembersHere(self, dbConnection, team_id, startTime, endTime):
@@ -202,21 +207,26 @@ class Reports(object):
 
     def transactions(self, dbConnection, startDate, endDate):
         listTransactions = []
-        for row in dbConnection.execute('''SELECT displayName, start, leave, visits.status
+        for row in dbConnection.execute('''SELECT displayName, start, leave, visits.status, active
            FROM visits
+           LEFT JOIN keyholders ON visits.barcode = keyholders.barcode
            INNER JOIN members ON members.barcode = visits.barcode
            WHERE (start BETWEEN ? and ?)
            UNION
-           SELECT displayName, start, leave, visits.status
+           SELECT displayName, start, leave, visits.status, active
            FROM visits
+           LEFT JOIN keyholders ON visits.barcode = keyholders.barcode
            INNER JOIN guests ON guests.guest_id = visits.barcode
            WHERE (start BETWEEN ? and ?)
            ORDER BY start''', (startDate, endDate, startDate, endDate)):
+            displayName = row[0]
+            if(row[4] != None):
+                displayName = displayName + "(Keyholder)"
 
-            listTransactions.append(Transaction(row[0], row[1], 'In'))
+            listTransactions.append(Transaction(displayName, row[1], 'In'))
             if row[3] != 'In':
                 listTransactions.append(
-                    Transaction(row[0], row[2], row[3]))
+                    Transaction(displayName, row[2], row[3]))
 
         return sorted(listTransactions, key=lambda x: x[1], reverse=True)
 
