@@ -9,7 +9,7 @@ from keyholders import Keyholders
 from customReports import CustomReports
 from certifications import Certifications
 from visits import Visits
-from passwords import Passwords
+from accounts import Accounts
 from devices import Devices
 
 SCHEMA_VERSION = 11
@@ -25,7 +25,7 @@ class Engine(object):
         self.keyholders = Keyholders()
         self.reports = Reports()
         self.teams = Teams()
-        self.passwords = Passwords()
+        self.accounts = Accounts()
         self.devices = Devices()
         # needs path since it will open read only
         self.customReports = CustomReports(self.database)
@@ -53,7 +53,7 @@ class Engine(object):
             self.teams.migrate(dbConnection, db_schema_version)
             self.customReports.migrate(dbConnection, db_schema_version)
             self.certifications.migrate(dbConnection, db_schema_version)
-            self.passwords.migrate(dbConnection, db_schema_version)
+            self.accounts.migrate(dbConnection, db_schema_version)
             self.devices.migrate(dbConnection, db_schema_version)
             dbConnection.execute(
                 'PRAGMA schema_version = ' + str(SCHEMA_VERSION))

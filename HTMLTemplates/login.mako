@@ -9,8 +9,20 @@ ${self.logo()}<br/>
 <H1>Login Page</H1>
 
 <form action="loginAttempt">
+<fieldset>
+   <legend>Login</legend>
    <input id="user_id" type="text" name="username" placeholder="Login Name" /><br />
    <input id="pass_id" class="password" type="password" name="password" placeholder="Password" /><br />
    <input type="submit" value="Login"/>
 </fieldset>
 </form>
+
+<form action="forgotPassword">
+<fieldset>
+   <legend>Login</legend>
+   <input id="user_id" type="text" name="username" placeholder="Login Name" /><br />
+   <input type="submit" value="Forgot password"/>
+</fieldset>
+</form>
+
+

@@ -1,6 +1,6 @@
 import datetime
 import cherrypy
-from passwords import Passwords, Role
+from accounts import Accounts, Role
 from webBase import WebBase
 
 
@@ -43,8 +43,8 @@ class WebAdminStation(WebBase):
             # For seeding database only - DO NOT KEEP!!!
             # self.engine.passwords.addUser(
             #    dbConnection, username, password, '123456', Role.admin)
-            barcode = self.engine.passwords.getBarcode(
-                dbConnection, username, password, Role.admin)
+            barcode = self.engine.accounts.getAdminBarcode(
+                dbConnection, username, password)
             if not barcode:
                 return self.template('login.mako', error="Invalid username/password")
             Cookie('barcode').set(barcode)
@@ -111,6 +111,55 @@ class WebAdminStation(WebBase):
             self.dbConnect(), "Sample", "", team_name)
 
         return self.index(error)
+
+    @cherrypy.expose
+    def users(self):
+        if not Cookie('barcode').get(''):
+            raise cherrypy.HTTPRedirect("/admin/login")
+        with self.dbConnect() as dbConnection:
+            users = self.engine.accounts.getUsers(dbConnection)
+        return self.template('users.mako', error="", username=Cookie('username').get(''), users=users)
+
+    @cherrypy.expose
+    def deleteUser(self, barcode):
+        if not Cookie('barcode').get(''):
+            raise cherrypy.HTTPRedirect("/admin/login")
+        with self.dbConnect() as dbConnection:
+            self.engine.accounts.removeUser(dbConnection, barcode)
+        raise cherrypy.HTTPRedirect("/admin/users")
+
+    @cherrypy.expose
+    def changeAccess(self, barcode, admin=False, keyholder=False):
+        if not Cookie('barcode').get(''):
+            raise cherrypy.HTTPRedirect("/admin/login")
+        newRole = Role()
+        newRole.setAdmin(admin)
+        newRole.setKeyholder(keyholder)
+
+        with self.dbConnect() as dbConnection:
+            self.engine.accounts.changeRole(dbConnection, barcode, newRole)
+        raise cherrypy.HTTPRedirect("/admin/users")
+
+    @cherrypy.expose
+    def forgotPassword(self, user):
+        with self.dbConnect() as dbConnection:
+            self.engine.accounts.forgotPassword(dbConnection, user)
+        return "You have been e-mailed a way to reset your password.  It will only be good for 24 hours."
+
+    @cherrypy.expose
+    def resetPasswordToken(self, user, token):
+        with self.dbConnect() as dbConnection:
+            return self.template('newPassword.mako', error='', user=user, token=token)
+        raise cherrypy.HTTPRedirect("/")
+
+    @cherrypy.expose
+    def newPassword(self, user, token, newPass1, newPass2):
+        if newPass1 != newPass2:
+            return self.template('newPassword.mako', error='Passwords must match', user=user, token=token)
+        if self.verify_forgot(user, token, newPass1):
+            raise cherrypy.HTTPRedirect("/admin/login")
+        return self.forgotPassword(user)
+
 
     @cherrypy.expose
     def updateKeyholders(self, keyholders):
