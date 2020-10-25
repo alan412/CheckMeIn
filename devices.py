@@ -13,20 +13,21 @@ class Devices(object):
     def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
         if db_schema_version < 11:
             dbConnection.execute('''CREATE TABLE devices
-                                 (barcode TEXT PRIMARY KEY,
-                                  mac UNIQUE,
+                                 (mac TEXT PRIMARY KEY,
+                                  barcode TEXT,
                                   name TEXT)''')
 
-    def addDevice(self, dbConnection, mac, name, barcode):
+    def add(self, dbConnection, mac, name, barcode):
         dbConnection.execute(
             "INSERT INTO devices(barcode, mac, name) VALUES(?,?,?)", (barcode, mac, name))
 
-    def delDevice(self, dbConnection, mac, barcode):
+    def delete(self, dbConnection, mac, barcode):
         dbConnection.execute(
             "DELETE from devices WHERE (mac=?) AND (barcode=?)", (mac, barcode))
 
-    def getDevices(self, dbConnection, barcode):
+    def getList(self, dbConnection, barcode):
         listDevices = []
+        print(f'BARCODE: {barcode}')
         for row in dbConnection.execute('''SELECT name, mac, barcode
             FROM devices
             WHERE barcode = ?

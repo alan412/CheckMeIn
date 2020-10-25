@@ -60,18 +60,16 @@ class Accounts(object):
             '''INSERT INTO accounts(user, password, barcode, role) VALUES(?,?,?,?)''',
             (user, pwd_context.hash(password), barcode, role.getValue()))
 
-    def getAdminBarcode(self, dbConnection, user, password):
+    def getBarcode(self, dbConnection, user, password):
         print(f"User: {user}")
         data = dbConnection.execute(
             '''SELECT password, barcode, role FROM accounts WHERE user = (?)''', (user,)).fetchone()
         if data is None:
-            return ''
+            return ('', Role(0))
         print(f"Data: {data}")
         if not pwd_context.verify(password, data[0]):
-            return ''
-        if not Role(data[2]).isAdmin():
-            return ''
-        return data[1]
+            return ('', Role(0))
+        return (data[1], Role(data[2]))
 
     def changePassword(self, dbConnection, user, oldPassword, newPassword):
         dbConnection.execute(

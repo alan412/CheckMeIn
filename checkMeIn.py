@@ -12,6 +12,7 @@ from webCertifications import WebCertifications
 from webTeams import WebTeams
 from webAdminStation import WebAdminStation
 from webReports import WebReports
+from webProfileStation import WebProfileStation
 
 DB_STRING = 'data/checkMeIn.db'
 
@@ -28,6 +29,7 @@ class CheckMeIn(WebBase):
         self.teams = WebTeams(self.lookup, self.engine)
         self.admin = WebAdminStation(self.lookup, self.engine)
         self.reports = WebReports(self.lookup, self.engine)
+        self.profile = WebProfileStation(self.lookup, self.engine)
 
     @cherrypy.expose
     def index(self):

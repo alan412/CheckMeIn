@@ -6,7 +6,7 @@
 <%def name="title()">CheckMeIn Admin</%def>
 <%inherit file="base.mako"/>
 ${self.logo()}<br/>
-<A style="text-align:right" HREF="/admin/logout">Logout ${username}</A>
+<A style="text-align:right" HREF="/profile/logout">Logout ${username}</A>
 <H1>Admin Page</H1>
 
 <br/>
