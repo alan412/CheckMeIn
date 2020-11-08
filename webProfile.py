@@ -4,12 +4,7 @@ from accounts import Accounts, Role
 from webBase import WebBase, Cookie
 
 
-class WebProfileStation(WebBase):
-    def getBarcode(self):
-        barcode = Cookie('barcode').get('')
-        if not barcode:
-            raise cherrypy.HTTPRedirect("/profile/login")
-        return barcode
+class WebProfile(WebBase):
 
     @cherrypy.expose
     def logout(self):
@@ -32,9 +27,10 @@ class WebProfileStation(WebBase):
             Cookie('barcode').set(barcode)
             Cookie('username').set(username)
             Cookie('role').set(role.getValue())
-        raise cherrypy.HTTPRedirect("/profile")
+        dest = Cookie('source').get("/profile")
+        raise cherrypy.HTTPRedirect(dest)
 
-    # Admin
+    # Profile
     @cherrypy.expose
     def index(self, error=""):
         barcode = self.getBarcode()
@@ -56,16 +52,27 @@ class WebProfileStation(WebBase):
     def newPassword(self, user, token, newPass1, newPass2):
         if newPass1 != newPass2:
             return self.template('newPassword.mako', error='Passwords must match', user=user, token=token)
-        if self.verify_forgot(user, token, newPass1):
-            raise cherrypy.HTTPRedirect("/profile/login")
+        with self.dbConnect() as dbConnection:
+            if self.engine.accounts.verify_forgot(dbConnection, user, token, newPass1):
+                raise cherrypy.HTTPRedirect("/profile/login")
         return self.forgotPassword(user)
 
     @cherrypy.expose
-    def profile(self):
-        barcode = self.getBarcode()
-        with self.dbConnect() as dbConnection:
-            devices = self.engine.devices.getList(dbConnection, barcode)
-        return self.template('profile.mako', error='', user=Cookie('user'.get(''), devices=devices))
+    def changePassword(self, oldPass, newPass1, newPass2):
+        user = self.getUser()
+        if newPass1 != newPass2:
+            error = "New Passwords must match"
+        else:
+            with self.dbConnect() as dbConnection:
+                barcode = self.engine.accounts.getBarcode(
+                    dbConnection, user, oldPass)
+                if barcode:
+                    self.engine.accounts.changePassword(
+                        dbConnection, oldPass, newPass1)
+                    error = ""
+                else:
+                    error = "Incorrect password"
+        return self.index(error)
 
     @cherrypy.expose
     def addDevice(self, mac, name):

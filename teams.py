@@ -32,7 +32,7 @@ class TeamInfo(object):
         return f'{self.programName}{self.programNumber}' if self.programNumber else self.programName
 
 
-class Teams(object):
+class Teams(object):  # pragma: no cover
     def __init__(self):
         pass
 

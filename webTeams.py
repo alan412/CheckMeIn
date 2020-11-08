@@ -3,7 +3,7 @@ import cherrypy
 from webBase import WebBase
 
 
-class Team(WebBase):
+class Team(WebBase):  # pragma: no cover
     @cherrypy.expose
     def index(self, programId):
         (name, number) = self.engine.teams.splitProgramInfo(programId)
@@ -25,13 +25,10 @@ class Team(WebBase):
                              todayDate=todayDate, team_name=team_name, members=members, error="")
 
 
-class WebTeams(WebBase):
+class WebTeams(WebBase):  # pragma: no cover
     def __init__(self, lookup, engine):
         super().__init__(lookup, engine)
         self.teams = Team(lookup, engine)
-
-    def teamPage(self, programId):
-        return f'Program: {programId}'
 
     @cherrypy.expose
     def index(self):
@@ -41,13 +38,12 @@ class WebTeams(WebBase):
                                  teamList=teamList)
 
     def _cp_dispatch(self, vpath):
-        print(vpath)
         cherrypy.request.params['programId'] = vpath.pop()
         if len(vpath) == 0:
             programId = cherrypy.request.params['programId']
             return self.teams
 
-        return vpath
+        return vpath  # pragma: no cover
 
 # Teams
     @cherrypy.expose

@@ -1,5 +1,6 @@
 
 import cherrypy
+from accounts import Role
 
 
 class Cookie(object):
@@ -35,3 +36,18 @@ class WebBase(object):
 
     def dbConnect(self):
         return self.engine.dbConnect()
+
+    def getBarcode(self):
+        return self.getCookie('barcode')
+
+    def getUser(self):
+        return self.getCookie('username')
+
+    def getRole(self):
+        return Role(self.getCookie('Role'))
+
+    def getCookie(self, cookie):
+        value = Cookie(cookie).get('')
+        if not value:
+            raise cherrypy.HTTPRedirect("/profile/login")
+        return value

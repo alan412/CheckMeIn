@@ -5,9 +5,10 @@ from webBase import WebBase, Cookie
 
 
 class WebAdminStation(WebBase):
-    def checkPermissions(self):
+    def checkPermissions(self, source="/admin"):
         role = Role(Cookie('role').get(0))
         if not role.isAdmin():
+            Cookie('source').set(source)
             raise cherrypy.HTTPRedirect("/profile/login")
     # Admin
 
@@ -27,7 +28,7 @@ class WebAdminStation(WebBase):
     def emptyBuilding(self):
         with self.dbConnect() as dbConnection:
             self.engine.visits.emptyBuilding(dbConnection, "")
-        raise cherrypy.HTTPRedirect("/")
+        return "Building Empty"
 
     @cherrypy.expose
     def bulkAddMembers(self, csvfile):

@@ -20,7 +20,7 @@ ${self.logo()}<br/>
 <form action="forgotPassword">
 <fieldset>
    <legend>Forgot Password</legend>
-   <input id="user_id" type="text" name="username" placeholder="Login Name" /><br />
+   <input id="user_id" type="text" name="user" placeholder="Login Name" /><br />
    <input type="submit" value="Forgot password"/>
 </fieldset>
 </form>

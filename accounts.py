@@ -3,6 +3,10 @@ from enum import IntEnum
 import time
 import random
 import datetime
+import smtplib
+import urllib
+import email.utils
+from email.mime.text import MIMEText
 
 
 class Role:
@@ -48,10 +52,10 @@ class Accounts(object):
     def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
         if db_schema_version < 11:
             dbConnection.execute('''CREATE TABLE accounts
-                                 (user TEXT PRIMARY KEY,
+                                 (user TEXT PRIMARY KEY collate nocase,
                                   password TEXT,
                                   forgot TEXT,
-                                  forgotTime DATETIME,
+                                  forgotTime TIMESTAMP,
                                   barcode TEXT UNIQUE,
                                   role INTEGER default 0)''')
 
@@ -78,32 +82,60 @@ class Accounts(object):
 
     def emailToken(self, dbConnection, username, token):
         data = dbConnection.execute(
-            '''SELECT email from accounts INNER JOIN members ON accounts.barcode = members.barcode WHERE username = ?''',
+            '''SELECT email from accounts INNER JOIN members ON accounts.barcode = members.barcode WHERE user = ?''',
             (username, )).fetchone()
-        email = data[0]
-        print("********* TOKEN EMAIL NOT IMPLEMENTED YET ************")
-        print(f"Token: {token} to {email}")
+        mail = data[0]
+
+        safe_username = urllib.parse.quote_plus(username)
+        msg = MIMEText("Please go to http://tfi.ev3hub.com/resetPasswordToken?user=" + safe_username +
+                       "&token=" + token + " to reset your password.  If you" +
+                       " did not request that you had forgotten " +
+                       "your password, then you can safely ignore this e-mail." +
+                       " This expires in 24 hours.\n\nThank you,\nTFI")
+
+        from_email = 'tfi@ev3hub.com'
+        msg['To'] = email.utils.formataddr((username, mail))
+        msg['From'] = email.utils.formataddr(('TFI CheckMeIn', from_email))
+        msg['Subject'] = 'Forgotten Password'
+
+        print(f"Simulating sending: {from_email}, {mail},{msg.as_string()}")
+        return ''
+
+        try:
+            server = smtplib.SMTP('localhost')
+            server.sendmail(from_email, [email], msg.as_string())
+            server.quit()
+        except IOError:
+            print('Failed to send e-mail')
+            print('Email would have been:', msg)
+        return ''
 
     def forgotPassword(self, dbConnection, username):
         data = dbConnection.execute(
-            '''SELECT forgotTime from accounts WHERE username = ?''', (username,))
-        longAgo = datetime.datetime.now - data[0]
-        if longAgo.total_seconds() < 60:   # to keep people from spamming others...
-            return
+            '''SELECT forgotTime from accounts WHERE user = ?''', (username,)).fetchone()
 
+        if data == None:
+            return
+        if data[0] != None:
+            print(f'before subtract {data[0]}')
+            longAgo = datetime.datetime.now() - data[0]
+            print('after subtract')
+            if longAgo.total_seconds() < 60:   # to keep people from spamming others...
+                return
+        print('creting token')
         chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
         forgotID = ''.join(random.SystemRandom().choice(chars)
                            for _ in range(8))
 
         dbConnection.execute(
-            '''UPDATE accounts SET forgot = ?, forgotTime = ? WHERE username = ?''',
+            '''UPDATE accounts SET forgot = ?, forgotTime = ? WHERE user = ?''',
             (pwd_context.hash(forgotID), datetime.datetime.now(), username))
 
-        emailToken(dbConnection, username, forgotID)
+        self.emailToken(dbConnection, username, forgotID)
 
-    def verify_forgot(self, username, forgot, newPassword):
+    def verify_forgot(self, dbConnection, username, forgot, newPassword):
         data = dbConnection.execute(
-            '''SELECT forgot, forgotTime from accounts WHERE username = ?''', (username,)).fetchone()
+            '''SELECT forgot, forgotTime from accounts WHERE user = ?''', (username,)).fetchone()
         forgotTime = data[1]
 
         longAgo = datetime.datetime.now() - forgotTime
@@ -111,7 +143,7 @@ class Accounts(object):
             return False
         if pwd_context.verify(forgot, data[0]):
             dbConnection.execute(
-                '''UPDATE acccounts SET forgot = ?, password = ? WHERE username = ?''',
+                '''UPDATE acccounts SET forgot = ?, password = ? WHERE user = ?''',
                 ('', pwd_context.hash(newPassword), username))
             return True
         return False
