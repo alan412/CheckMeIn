@@ -6,7 +6,8 @@ from webBase import WebBase, Cookie
 
 class WebAdminStation(WebBase):
     def checkPermissions(self, source="/admin"):
-        role = Role(Cookie('role').get(0))
+        role = self.getRole(source)
+        print(f'Role:{role}')
         if not role.isAdmin():
             Cookie('source').set(source)
             raise cherrypy.HTTPRedirect("/profile/login")

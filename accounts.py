@@ -65,12 +65,10 @@ class Accounts(object):
             (user, pwd_context.hash(password), barcode, role.getValue()))
 
     def getBarcode(self, dbConnection, user, password):
-        print(f"User: {user}")
         data = dbConnection.execute(
             '''SELECT password, barcode, role FROM accounts WHERE user = (?)''', (user,)).fetchone()
         if data is None:
             return ('', Role(0))
-        print(f"Data: {data}")
         if not pwd_context.verify(password, data[0]):
             return ('', Role(0))
         return (data[1], Role(data[2]))
@@ -98,10 +96,7 @@ class Accounts(object):
         msg['From'] = email.utils.formataddr(('TFI CheckMeIn', from_email))
         msg['Subject'] = 'Forgotten Password'
 
-        print(f"Simulating sending: {from_email}, {mail},{msg.as_string()}")
-        return ''
-
-        try:
+        try:  # pragma: no cover
             server = smtplib.SMTP('localhost')
             server.sendmail(from_email, [email], msg.as_string())
             server.quit()

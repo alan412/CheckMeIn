@@ -37,17 +37,18 @@ class WebBase(object):
     def dbConnect(self):
         return self.engine.dbConnect()
 
-    def getBarcode(self):
-        return self.getCookie('barcode')
+    def getBarcode(self, source):
+        return self.getCookie('barcode', source)
 
-    def getUser(self):
-        return self.getCookie('username')
+    def getUser(self, source):
+        return self.getCookie('username', source)
 
-    def getRole(self):
-        return Role(self.getCookie('Role'))
+    def getRole(self, source):
+        return Role(self.getCookie('role', source))
 
-    def getCookie(self, cookie):
+    def getCookie(self, cookie, source):
         value = Cookie(cookie).get('')
         if not value:
+            Cookie('source').set(source)
             raise cherrypy.HTTPRedirect("/profile/login")
         return value

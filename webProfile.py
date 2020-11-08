@@ -33,7 +33,7 @@ class WebProfile(WebBase):
     # Profile
     @cherrypy.expose
     def index(self, error=""):
-        barcode = self.getBarcode()
+        barcode = self.getBarcode('/profile')
         with self.dbConnect() as dbConnection:
             devices = self.engine.devices.getList(dbConnection, barcode)
         return self.template('profile.mako', error='', username=Cookie('username').get(''), devices=devices)
@@ -59,7 +59,7 @@ class WebProfile(WebBase):
 
     @cherrypy.expose
     def changePassword(self, oldPass, newPass1, newPass2):
-        user = self.getUser()
+        user = self.getUser('/profile')
         if newPass1 != newPass2:
             error = "New Passwords must match"
         else:
@@ -76,7 +76,7 @@ class WebProfile(WebBase):
 
     @cherrypy.expose
     def addDevice(self, mac, name):
-        barcode = self.getBarcode()
+        barcode = self.getBarcode('/profile')
 
         with self.dbConnect() as dbConnection:
             devices = self.engine.devices.add(dbConnection, mac, name, barcode)
@@ -84,7 +84,7 @@ class WebProfile(WebBase):
 
     @cherrypy.expose
     def delDevice(self, mac):
-        barcode = self.getBarcode()
+        barcode = self.getBarcode('/profile')
         with self.dbConnect() as dbConnection:
             devices = self.engine.devices.delete(dbConnection, mac, barcode)
         raise cherrypy.HTTPRedirect("/profile")
