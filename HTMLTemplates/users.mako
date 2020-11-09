@@ -49,7 +49,7 @@ function changeAccess(userName, barcode, keyholder, admin){
 <%def name="title()">CheckMeIn Users</%def>
 <%inherit file="base.mako"/>
 ${self.logo()}
-<A style="text-align:right" HREF="/admin/logout">Logout ${username}</A><br/>
+<A style="text-align:right" HREF="/profile/logout">Logout ${username}</A><br/>
 	<fieldset>
 	<legend>Add Keyholder or Admin</legend>
     <form action="addUser">
