@@ -88,7 +88,7 @@ class Accounts(object):
         data = dbConnection.execute(
             '''SELECT email from accounts INNER JOIN members ON accounts.barcode = members.barcode WHERE user = ?''',
             (username, )).fetchone()
-        mail = data[0]
+        emailAddress = data[0]
 
         safe_username = urllib.parse.quote_plus(username)
         msg = MIMEText("Please go to http://tfi.ev3hub.com/resetPasswordToken?user=" + safe_username +
@@ -98,13 +98,13 @@ class Accounts(object):
                        " This expires in 24 hours.\n\nThank you,\nTFI")
 
         from_email = 'tfi@ev3hub.com'
-        msg['To'] = email.utils.formataddr((username, mail))
+        msg['To'] = email.utils.formataddr((username, emailAddress))
         msg['From'] = email.utils.formataddr(('TFI CheckMeIn', from_email))
         msg['Subject'] = 'Forgotten Password'
 
         try:  # pragma: no cover
             server = smtplib.SMTP('localhost')
-            server.sendmail(from_email, [email], msg.as_string())
+            server.sendmail(from_email, [emailAddress], msg.as_string())
             server.quit()
         except IOError:
             print('Failed to send e-mail')
