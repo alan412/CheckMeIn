@@ -75,20 +75,6 @@ class SimpleCPTest(helper.CPWebCase):
             self.getPage('/admin/bulkAddMembers', h, 'POST', b)
             self.assertStatus('200 OK')
 
-    def prepare_updateKeyholders(self, keyholders):
-        requestStr = '/admin/updateKeyholders?keyholders='
-        for keyholder in keyholders:
-            requestStr += keyholder + "%2C"
-        return requestStr[:-3]
-
-    def test_updateKeyholders(self):
-        with self.patch_session():
-            self.getPage(self.prepare_updateKeyholders(
-                ["100001", "100091", "10089"]))
-            self.assertStatus('200 OK')
-            self.getPage(self.prepare_updateKeyholders(["100091", "10089"]))
-            self.assertStatus('200 OK')
-
     def test_users(self):
         with self.patch_session():
             self.getPage("/admin/users")

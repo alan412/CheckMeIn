@@ -5,7 +5,6 @@ from members import Members
 from guests import Guests
 from reports import Reports
 from teams import Teams
-from keyholders import Keyholders
 from customReports import CustomReports
 from certifications import Certifications
 from visits import Visits
@@ -22,7 +21,6 @@ class Engine(object):
         self.database = dbString
         self.visits = Visits()
         self.guests = Guests()
-        self.keyholders = Keyholders()
         self.reports = Reports()
         self.teams = Teams()
         self.accounts = Accounts()
@@ -49,7 +47,6 @@ class Engine(object):
             self.visits.migrate(dbConnection, db_schema_version)
             self.members.migrate(dbConnection, db_schema_version)
             self.guests.migrate(dbConnection, db_schema_version)
-            self.keyholders.migrate(dbConnection, db_schema_version)
             self.teams.migrate(dbConnection, db_schema_version)
             self.customReports.migrate(dbConnection, db_schema_version)
             self.certifications.migrate(dbConnection, db_schema_version)

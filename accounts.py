@@ -9,6 +9,11 @@ import email.utils
 from email.mime.text import MIMEText
 
 
+class Status(IntEnum):
+    inactive = 0
+    active = 1
+
+
 class Role:
     KEYHOLDER = 0x10
     ADMIN = 0x20
@@ -57,6 +62,7 @@ class Accounts(object):
                                   forgot TEXT,
                                   forgotTime TIMESTAMP,
                                   barcode TEXT UNIQUE,
+                                  activeKeyholder INTEGER default 0,
                                   role INTEGER default 0)''')
 
     def addUser(self, dbConnection, user, password, barcode, role):
@@ -159,6 +165,27 @@ class Accounts(object):
             dictUsers[row[0]] = {'barcode': row[1],
                                  'role': Role(row[2]), 'displayName': row[3]}
         return dictUsers
+
+    def removeKeyholder(self, dbConnection):
+        dbConnection.execute("UPDATE accounts SET activeKeyholder = ? WHERE (activeKeyholder==?)",
+                             (Status.inactive, Status.active))
+
+    def setActiveKeyholder(self, dbConnection, barcode):
+        if barcode:
+            self.removeKeyholder(dbConnection)
+            dbConnection.execute(
+                "UPDATE accounts SET activeKeyholder = ? WHERE (barcode==?) AND (role & ? != 0)", (Status.active, barcode, Role.KEYHOLDER))
+
+    def getActiveKeyholder(self, dbConnection):
+        """Returns the (barcode, name) of the active keyholder"""
+        data = dbConnection.execute(
+            '''SELECT accounts.barcode, displayName FROM accounts
+               INNER JOIN members ON accounts.barcode = members.barcode
+               WHERE activeKeyholder==?''', (Status.active,)).fetchone()
+        if data is None:
+            return ('', '')
+        else:
+            return (data[0], data[1])
 
 
 # This is temporary - just to give us some fake data to play with

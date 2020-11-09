@@ -92,12 +92,3 @@ class WebAdminStation(WebBase):
         with self.dbConnect() as dbConnection:
             self.engine.accounts.changeRole(dbConnection, barcode, newRole)
         raise cherrypy.HTTPRedirect("/admin/users")
-
-    @cherrypy.expose
-    def updateKeyholders(self, keyholders):
-        # TODO: this will go away when doorapp gets keyholders from checkmein
-        keyholderList = keyholders.split(',')
-        with self.dbConnect() as dbConnection:
-            self.engine.keyholders.updateKeyholders(
-                dbConnection, keyholderList)
-        return self.index('Keyholders Updated')

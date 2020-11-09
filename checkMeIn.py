@@ -34,7 +34,7 @@ class CheckMeIn(WebBase):
     @cherrypy.expose
     def index(self):
         with self.dbConnect() as dbConnection:
-            (_, keyholder_name) = self.engine.keyholders.getActiveKeyholder(dbConnection)
+            (_, keyholder_name) = self.engine.accounts.getActiveKeyholder(dbConnection)
             return self.template('who_is_here.mako',
                                  now=datetime.datetime.now(),
                                  keyholder=keyholder_name,
