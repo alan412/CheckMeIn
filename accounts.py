@@ -117,7 +117,6 @@ class Accounts(object):
             print('after subtract')
             if longAgo.total_seconds() < 60:   # to keep people from spamming others...
                 return
-        print('creting token')
         chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
         forgotID = ''.join(random.SystemRandom().choice(chars)
                            for _ in range(8))

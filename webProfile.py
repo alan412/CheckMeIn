@@ -68,7 +68,7 @@ class WebProfile(WebBase):
                     dbConnection, user, oldPass)
                 if barcode:
                     self.engine.accounts.changePassword(
-                        dbConnection, oldPass, newPass1)
+                        dbConnection, user, oldPass, newPass1)
                     error = ""
                 else:
                     error = "Incorrect password"
