@@ -22,6 +22,10 @@ ${self.logo()}<br/>
 </form>
 % else:
 <H1>${displayName}</H1>
+   % if role.isKeyholder():
+      <H3><A HREF="/station/makeKeyholder?barcode=${barcode}">Make ME Keyholder</A>
+   % endif
+   
    % if inBuilding:
       <H3><A HREF="/station/checkout?barcode=${barcode}">Check out</A></H3>
    % else:
