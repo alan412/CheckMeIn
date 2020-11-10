@@ -10,15 +10,16 @@ ${self.logo()}<br/>
 <H2><A HREF="/station">Main Station</A></H2>
 <H2><A HREF="/guests">Guest Station</A></H2>
 <H2><A HREF="/certifications">Certification Monitor</A></H2>
+# TODO: This will allow you to set the certification monitor settings
+
 <form action="/links">
        <td><select name="barcode" id="barcode">
-	   % for userBarcode in activeMembers:
-	       <option value="${userBarcode}">${activeMembers[userBarcode]} - ${userBarcode}</option>
+	   % for user in activeMembers:
+	       <option value="${user[1]}">${user[0]} - ${user[1]}</option>
 	   % endfor
 		</select></td></tr>
         <input type="submit" value="Show Links"/>
 </form>
-# TODO: This will allow you to set the certification monitor settings
 % else:
 <H1>${displayName}</H1>
    % if inBuilding:
@@ -37,6 +38,12 @@ ${self.logo()}<br/>
       <H2><A HREF="/admin">Admin Console</A></H2>
       <H2><A HREF="/admin/users">Manage Users</A></H2>
       <H2><A HREF="/reports">Reports</A></H2>
+   % endif
+
+   % if role.isShopCertifier():
+   <H1>Shop Certifier Tasks</H1>
+
+
    % endif
 
 

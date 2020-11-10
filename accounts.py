@@ -57,7 +57,7 @@ class Role:
             roleStr += "Admin "
         if self.isKeyholder():
             roleStr += "Keyholder "
-        if self.isCertifier():
+        if self.isShopCertifier():
             roleStr += "Certifier "
         return roleStr
 

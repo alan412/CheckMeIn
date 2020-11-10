@@ -21,7 +21,7 @@ class SimpleCPTest(helper.CPWebCase):
         sess_mock = RamSession()
         sess_mock['username'] = 'alan'
         sess_mock['barcode'] = '100091'
-        sess_mock['role'] = 0x30  # give me permission to EVERYTHING!!!
+        sess_mock['role'] = 0xFF  # give me permission to EVERYTHING!!!
         return patch('cherrypy.session', sess_mock, create=True)
 
     def test_admin(self):

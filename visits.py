@@ -88,12 +88,6 @@ class Visits(object):
             listPresent.append([row[0], row[1]])
         return listPresent
 
-    def getAllMembers(self, dbConnection):
-        listPresent = []
-        for row in dbConnection.execute('''SELECT displayName, barcode FROM members ORDER BY displayName'''):
-            listPresent.append([row[0], row[1]])
-        return listPresent
-
     def fix(self, dbConnection, fixData):
         entries = fixData.split(',')
 

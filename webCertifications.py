@@ -12,10 +12,11 @@ class WebCertifications(WebBase):
                              certifications=certifications)
 
     @cherrypy.expose
-    def certify(self, certifier_id, all=False):
+    def certify(self, all=False):
+        certifier_id = self.getBarcode("\certifications\certify")
         message = ''
         with self.dbConnect() as dbConnection:
-            members = self.engine.visits.getAllMembers(
+            members = self.engine.members.getActive(
                 dbConnection) if all else self.engine.visits.getMembersInBuilding(dbConnection)
 
             return self.template('certify.mako', message=message,
@@ -26,11 +27,8 @@ class WebCertifications(WebBase):
                                  tools=self.engine.certifications.getListCertifyTools(dbConnection, certifier_id))
 
     @cherrypy.expose
-    def certify_all(self, certifier_id):
-        return self.certify(certifier_id, all=True)
-
-    @cherrypy.expose
-    def addCertification(self, member_id, certifier_id, tool_id, level):
+    def addCertification(self, member_id, tool_id, level):
+        certifier_id = self.getBarcode("\certifications\certify")
         # We don't check here for valid tool since someone is forging HTML to put an invalid one
         # and we'll catch it with the email out...\
         with self.dbConnect() as dbConnection:
