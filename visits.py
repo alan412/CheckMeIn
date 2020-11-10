@@ -16,12 +16,15 @@ class Visits(object):
             dbConnection.execute('''CREATE TABLE visits
                      (start timestamp, leave timestamp, barcode text, status text)''')
 
-    def enterGuest(self, dbConnection, guest_id):
-        now = datetime.datetime.now()
+    def inBuilding(self, dbConnection, barcode):
         data = dbConnection.execute(
             "SELECT * FROM visits WHERE (barcode==?) and (status=='In')",
-            (guest_id,)).fetchone()
-        if data is None:
+            (barcode,)).fetchone()
+        return data != None
+
+    def enterGuest(self, dbConnection, guest_id):
+        now = datetime.datetime.now()
+        if not self.inBuilding(dbConnection, guest_id):
             dbConnection.execute("INSERT INTO visits VALUES (?,?,?,'In')",
                                  (now, now, guest_id))
 

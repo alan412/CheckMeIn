@@ -17,15 +17,22 @@ class Status(IntEnum):
 class Role:
     KEYHOLDER = 0x10
     ADMIN = 0x20
+    CERTIFIER = 0x40
 
     def __init__(self, value=0):
         self.value = value
 
+    def isRole(self, role):
+        return self.value & role
+
     def isKeyholder(self):
-        return self.value & self.KEYHOLDER
+        return self.isRole(self.KEYHOLDER)
 
     def isAdmin(self):
-        return self.value & self.ADMIN
+        return self.isRole(self.ADMIN)
+
+    def isCertifier(self):
+        return self.isRole(self.CERTIFIER)
 
     def setValue(self, check, value):
         if type(check) == str:
@@ -38,6 +45,9 @@ class Role:
     def setAdmin(self, admin):
         self.setValue(admin, self.ADMIN)
 
+    def setCertifier(self, admin):
+        self.setValue(admin, self.CERTIFIER)
+
     def getValue(self):
         return self.value
 
@@ -47,6 +57,8 @@ class Role:
             roleStr += "Admin "
         if self.isKeyholder():
             roleStr += "Keyholder "
+        if self.isCertifier():
+            roleStr += "Certifier "
         return roleStr
 
 
