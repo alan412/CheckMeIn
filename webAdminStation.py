@@ -1,16 +1,14 @@
 import datetime
 import cherrypy
+import random
+import sqlite3
 from accounts import Accounts, Role
 from webBase import WebBase, Cookie
 
 
 class WebAdminStation(WebBase):
     def checkPermissions(self, source="/admin"):
-        role = self.getRole(source)
-        print(f'Role:{role}')
-        if not role.isAdmin():
-            Cookie('source').set(source)
-            raise cherrypy.HTTPRedirect("/profile/login")
+        super().checkPermissions(Role.ADMIN, source)
     # Admin
 
     @cherrypy.expose
@@ -69,11 +67,31 @@ class WebAdminStation(WebBase):
         return self.index(error)
 
     @cherrypy.expose
-    def users(self):
+    def users(self, error=""):
         self.checkPermissions()
         with self.dbConnect() as dbConnection:
             users = self.engine.accounts.getUsers(dbConnection)
-        return self.template('users.mako', error="", username=Cookie('username').get(''), users=users)
+            nonUsers = self.engine.accounts.getNonAccounts(dbConnection)
+        return self.template('users.mako', error=error, username=Cookie('username').get(''), users=users, nonAccounts=nonUsers)
+
+    @cherrypy.expose
+    def addUser(self, user, barcode, keyholder=0, admin=0):
+        error = ""
+        self.checkPermissions()
+        with self.dbConnect() as dbConnection:
+            chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
+            tempPassword = ''.join(random.SystemRandom().choice(chars)
+                                   for _ in range(12))
+            role = Role()
+            role.setAdmin(admin)
+            role.setKeyholder(admin)
+            try:
+                self.engine.accounts.addUser(
+                    dbConnection, user, tempPassword, barcode, role)
+                # self.engine.accounts.forgotPassword(dbConnection, user)
+            except sqlite3.IntegrityError:
+                error = "Username already in use"
+        return self.users(error)
 
     @cherrypy.expose
     def deleteUser(self, barcode):

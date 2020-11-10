@@ -9,7 +9,11 @@ ${self.logo()}<br/>
 <A style="text-align:right" HREF="/profile/logout">Logout ${username}</A>
 <H1>Admin Page</H1>
 
-<br/>
+<P style="margin-top: 1cm; margin-bottom: 1cm">
+<A HREF="users"><button style="margin-right: 1cm">Modify Users</button></a>
+<A HREF="/reports"><button>Reports</button></a>
+</P>
+
 <form action="bulkAddMembers" method="post" enctype="multipart/form-data">
 <fieldset>
     <legend>Bulk add members</legend>
@@ -19,7 +23,7 @@ ${self.logo()}<br/>
   </fieldset>
 </form>
 <br/>
-<A HREF="users">Modify keyholders and admins</A>
+
 <form action="oops">
    <fieldset>
      <legend>Oops</legend>
@@ -41,8 +45,6 @@ ${self.logo()}<br/>
 %else:
   <P>Wow!  No dates that haven't been cleaned up!!</P>
 %endif
-
-<H2><A HREF="/reports/">Reports</A></H2>
 
 
 <form action="createTeam">

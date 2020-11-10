@@ -43,6 +43,13 @@ class WebBase(object):
     def getUser(self, source):
         return self.getCookie('username', source)
 
+    def checkPermissions(self, roleCheck, source):
+        role = Role(Cookie('role').get(0))
+        if role.getValue() & roleCheck:
+            return
+        Cookie('source').set(source)
+        raise cherrypy.HTTPRedirect("/profile/login")
+
     def getRole(self, source):
         return Role(self.getCookie('role', source))
 

@@ -55,12 +55,16 @@ ${self.logo()}
     <form action="addUser">
        <table>
        <tr><td>Username:</td>
-       <td><input id="username"></td></tr>
+       <td><input name="user" id="username"></td></tr>
        <tr><td>Barcode:</td>
-       <td><input id="barcode"></td></tr>
+       <td><select name="barcode" id="barcode">
+	   % for user in nonAccounts:
+	       <option value="${nonAccounts[user]}">${user} - ${nonAccounts[user]}</option>
+	   % endfor
+		</select></td></tr>
        <tr><td>Access type:</td>
-       <td><input type="checkbox" id="keyholder" value="Keyholder" checked/>Keyholder</td>
-       <td><input type="checkbox" id="admin" value="admin"/>Admin</td>
+       <td><input type="checkbox" id="keyholder" name="keyholder" value="1" checked/>Keyholder</td>
+       <td><input type="checkbox" id="admin" name="admin" value="1"/>Admin</td>
       </table>
       <input type="submit" value="Add"/>
       </form>

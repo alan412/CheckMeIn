@@ -3,11 +3,16 @@ import sqlite3
 import cherrypy
 
 from webBase import WebBase
+from accounts import Role
 
 
 class WebReports(WebBase):
+    def checkPermissions(self, source="/reports"):
+        super().checkPermissions(Role.ADMIN, source)
+
     @cherrypy.expose
     def index(self, error=""):
+        self.checkPermissions()
         with self.dbConnect() as dbConnection:
             firstDate = self.engine.reports.getEarliestDate(
                 dbConnection).isoformat()
@@ -20,10 +25,12 @@ class WebReports(WebBase):
 
     @cherrypy.expose
     def standard(self, startDate, endDate):
+        self.checkPermissions()
         return self.template('report.mako', stats=self.engine.reports.getStats(self.dbConnect(), startDate, endDate))
 
     @cherrypy.expose
     def graph(self, startDate, endDate):
+        self.checkPermissions()
         cherrypy.response.headers['Content-Type'] = "image/png"
         stats = self.engine.reports.getStats(
             self.dbConnect(), startDate, endDate)
@@ -31,6 +38,7 @@ class WebReports(WebBase):
 
     @cherrypy.expose
     def saveCustom(self, sql, report_name):
+        self.checkPermissions()
         with self.dbConnect() as dbConnection:
             error = self.engine.customReports.saveCustomSQL(
                 dbConnection, sql, report_name)
@@ -38,6 +46,7 @@ class WebReports(WebBase):
 
     @cherrypy.expose
     def savedCustom(self, report_id, error=''):
+        self.checkPermissions()
         title = "Error"
         sql = ""
         try:
@@ -49,6 +58,7 @@ class WebReports(WebBase):
 
     @cherrypy.expose
     def customSQLReport(self, sql):
+        self.checkPermissions()
         try:
             data = self.engine.customReports.customSQL(sql)
         except sqlite3.OperationalError as e:
