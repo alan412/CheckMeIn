@@ -25,7 +25,7 @@ class CheckMeIn(WebBase):
         super().__init__(self.lookup, self.engine)
         self.station = WebMainStation(self.lookup, self.engine)
         self.guests = WebGuestStation(self.lookup, self.engine)
-        self.certification = WebCertifications(self.lookup, self.engine)
+        self.certifications = WebCertifications(self.lookup, self.engine)
         self.teams = WebTeams(self.lookup, self.engine)
         self.admin = WebAdminStation(self.lookup, self.engine)
         self.reports = WebReports(self.lookup, self.engine)
@@ -39,6 +39,11 @@ class CheckMeIn(WebBase):
                                  now=datetime.datetime.now(),
                                  keyholder=keyholder_name,
                                  whoIsHere=self.engine.reports.whoIsHere(dbConnection))
+
+    @cherrypy.expose
+    def links(self, barcode=None):
+        role = self.engine.accounts.getRole(barcode)
+        return self.template('links.mako', barcode=barcode, role=role)
 
 
 if __name__ == '__main__':  # pragma: no cover

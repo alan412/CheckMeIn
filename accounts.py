@@ -79,6 +79,13 @@ class Accounts(object):
             return ('', Role(0))
         return (data[1], Role(data[2]))
 
+    def getRole(self, dbConnection, barcode):
+        data = dbConnection.execute(
+            '''SELECT role FROM accounts WHERE barcode = (?)''', (barcode,)).fetchone()
+        if data is None:
+            return Role(0)
+        return Role(data[0])
+
     def changePassword(self, dbConnection, user, oldPassword, newPassword):
         dbConnection.execute(
             '''UPDATE accounts SET password = ? WHERE (user = ?)''', (pwd_context.hash(newPassword), user))
@@ -141,11 +148,13 @@ class Accounts(object):
         longAgo = datetime.datetime.now() - forgotTime
         if (longAgo.total_seconds() > 60*60*24):   # more than a day ago
             return False
+        print(f'Forgot: {forgot}')
         if pwd_context.verify(forgot, data[0]):
             dbConnection.execute(
                 '''UPDATE accounts SET forgot = ?, password = ? WHERE user = ?''',
                 ('', pwd_context.hash(newPassword), username))
             return True
+        print(f'Did not verify')
         return False
 
     def changeRole(self, dbConnection, barcode, newRole):
@@ -164,6 +173,16 @@ class Accounts(object):
             ORDER BY user'''):
             dictUsers[row[0]] = {'barcode': row[1],
                                  'role': Role(row[2]), 'displayName': row[3]}
+        return dictUsers
+
+    def getNonAccounts(self, dbConnection):
+        dictUsers = {}
+        for row in dbConnection.execute('''SELECT members.barcode, displayName
+            FROM members
+            LEFT JOIN accounts USING (barcode)
+            WHERE (user is NULL) AND (membershipExpires > ?)
+            ORDER BY displayName''', (datetime.datetime.now(), )):
+            dictUsers[row[1]] = row[0]
         return dictUsers
 
     def removeKeyholder(self, dbConnection):
