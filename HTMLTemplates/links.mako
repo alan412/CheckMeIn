@@ -10,6 +10,14 @@ ${self.logo()}<br/>
 <H2><A HREF="/station">Main Station</A></H2>
 <H2><A HREF="/guests">Guest Station</A></H2>
 <H2><A HREF="/certifications">Certification Monitor</A></H2>
+<form action="/links">
+       <td><select name="barcode" id="barcode">
+	   % for userBarcode in activeMembers:
+	       <option value="${userBarcode}">${activeMembers[userBarcode]} - ${userBarcode}</option>
+	   % endfor
+		</select></td></tr>
+        <input type="submit" value="Show Links"/>
+</form>
 # TODO: This will allow you to set the certification monitor settings
 % else:
 <H1>${displayName}</H1>

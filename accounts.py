@@ -15,9 +15,9 @@ class Status(IntEnum):
 
 
 class Role:
+    SHOP_CERTIFIER = 0x08
     KEYHOLDER = 0x10
     ADMIN = 0x20
-    CERTIFIER = 0x40
 
     def __init__(self, value=0):
         self.value = value
@@ -31,8 +31,8 @@ class Role:
     def isAdmin(self):
         return self.isRole(self.ADMIN)
 
-    def isCertifier(self):
-        return self.isRole(self.CERTIFIER)
+    def isShopCertifier(self):
+        return self.isRole(self.SHOP_CERTIFIER)
 
     def setValue(self, check, value):
         if type(check) == str:
@@ -45,8 +45,8 @@ class Role:
     def setAdmin(self, admin):
         self.setValue(admin, self.ADMIN)
 
-    def setCertifier(self, admin):
-        self.setValue(admin, self.CERTIFIER)
+    def setShopCertifier(self, admin):
+        self.setValue(admin, self.SHOP_CERTIFIER)
 
     def getValue(self):
         return self.value
@@ -194,7 +194,7 @@ class Accounts(object):
             LEFT JOIN accounts USING (barcode)
             WHERE (user is NULL) AND (membershipExpires > ?)
             ORDER BY displayName''', (datetime.datetime.now(), )):
-            dictUsers[row[1]] = row[0]
+            dictUsers[row[0]] = row[1]
         return dictUsers
 
     def removeKeyholder(self, dbConnection):
@@ -228,7 +228,7 @@ if __name__ == '__main__':  # pragma: no cover
         accounts = Accounts()
 
         accounts.addUser(dbConnection, 'alan', 'password',
-                         '100091', Role(Role.ADMIN | Role.KEYHOLDER))
+                         '100091', Role(Role.ADMIN | Role.KEYHOLDER | Role.SHOP_CERTIFIER))
         accounts.addUser(dbConnection, 'abigail', 'password',
                          '100090', Role(Role.ADMIN))
         accounts.addUser(dbConnection, 'gsmith', 'password',
