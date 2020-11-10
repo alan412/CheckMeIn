@@ -7,9 +7,9 @@
 <%inherit file="base.mako"/>
 ${self.logo()}<br/>
 % if barcode==None:
-<H2><A HREF="/station">Main Station</A></H2>
-<H2><A HREF="/guests">Guest Station</A></H2>
-<H2><A HREF="/certifications">Certification Monitor</A></H2>
+<H3><A HREF="/station">Main Station</A></H3>
+<H3><A HREF="/guests">Guest Station</A></H3>
+<H3><A HREF="/certifications">Certification Monitor</A></H3>
 # TODO: This will allow you to set the certification monitor settings
 
 <form action="/links">
@@ -23,27 +23,27 @@ ${self.logo()}<br/>
 % else:
 <H1>${displayName}</H1>
    % if inBuilding:
-      <H2><A HREF="/station/checkout?barcode=${barcode}">Check out</A></H2>
+      <H3><A HREF="/station/checkout?barcode=${barcode}">Check out</A></H3>
    % else:
-      <H2><A HREF="/station/checkin?barcode=${barcode}">Check in</A></H2>
+      <H3><A HREF="/station/checkin?barcode=${barcode}">Check in</A></H3>
    % endif
-   <H2><A HREF="/">See who is here</A></H2>
+   <H3><A HREF="/">See who is here</A></H3>
 
    % if role.isKeyholder() or role.isAdmin():
-      <H2><A HREF="/profile/">Profile</A></H2>
+      <H3><A HREF="/profile/">Profile</A></H3>
    % endif
 
    % if role.isAdmin():
-   <H1>Admin Tasks</H1>
-      <H2><A HREF="/admin">Admin Console</A></H2>
-      <H2><A HREF="/admin/users">Manage Users</A></H2>
-      <H2><A HREF="/reports">Reports</A></H2>
+   <H2>Admin Tasks</H2>
+      <H3><A HREF="/admin">Admin Console</A></H3>
+      <H3><A HREF="/admin/users">Manage Users</A></H3>
+      <H3><A HREF="/reports">Reports</A></H3>
    % endif
 
    % if role.isShopCertifier():
-   <H1>Shop Certifier Tasks</H1>
-
-
+   <H2>Shop Certifier Tasks</H2>
+     <H3><A HREF="/certifications/certify">Certify those in building</A></H3>
+     <H3><A HREF="/certifications/certify?all=True">Certify any member</A></H3>
    % endif
 
 
