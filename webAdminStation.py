@@ -75,7 +75,7 @@ class WebAdminStation(WebBase):
         return self.template('users.mako', error=error, username=Cookie('username').get(''), users=users, nonAccounts=nonUsers)
 
     @cherrypy.expose
-    def addUser(self, user, barcode, keyholder=0, admin=0):
+    def addUser(self, user, barcode, keyholder=0, admin=0, certifier=0):
         error = ""
         self.checkPermissions()
         with self.dbConnect() as dbConnection:
@@ -85,6 +85,7 @@ class WebAdminStation(WebBase):
             role = Role()
             role.setAdmin(admin)
             role.setKeyholder(admin)
+            role.setShopCertifier(certifier)
             try:
                 self.engine.accounts.addUser(
                     dbConnection, user, tempPassword, barcode, role)
@@ -101,11 +102,12 @@ class WebAdminStation(WebBase):
         raise cherrypy.HTTPRedirect("/admin/users")
 
     @cherrypy.expose
-    def changeAccess(self, barcode, admin=False, keyholder=False):
+    def changeAccess(self, barcode, admin=False, keyholder=False, certifier=False):
         self.checkPermissions()
         newRole = Role()
         newRole.setAdmin(admin)
         newRole.setKeyholder(keyholder)
+        newRole.setShopCertifier(certifier)
 
         with self.dbConnect() as dbConnection:
             self.engine.accounts.changeRole(dbConnection, barcode, newRole)

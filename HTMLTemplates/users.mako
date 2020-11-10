@@ -6,15 +6,17 @@ function deleteUser(userName, barcode) {
 			window.location.href = "deleteUser?barcode="+barcode;
 		}
 }
-function changeAccess(userName, barcode, keyholder, admin){
+function changeAccess(userName, barcode, keyholder, admin, certifier){
 	$('#dlgUsername').html(userName);
 	$('#dlgKeyholder').prop('checked', keyholder);
 	$('#dlgAdmin').prop('checked', admin);
+	$('#dlgCertifier').prop('checked', certifier);
 
+    var dWidth = $(window).width() * 0.8;
 	$("#changeAccessDialog").dialog({
         autoOpen: false,
-        resizable: false,
         modal: true,
+		width: dWidth,
         buttons: {
             " Cancel ": function() {
                 $(this).dialog('close');
@@ -29,6 +31,12 @@ function changeAccess(userName, barcode, keyholder, admin){
 				}
 				requestStr += '&keyholder='
 				if ($('#dlgKeyholder').is(':checked')) {
+					requestStr += '1'
+				}else{
+					requestStr += '0'
+				}
+				requestStr += '&certifier='
+				if ($('#dlgCertifier').is(':checked')) {
 					requestStr += '1'
 				}else{
 					requestStr += '0'
@@ -65,6 +73,7 @@ ${self.logo()}
        <tr><td>Access type:</td>
        <td><input type="checkbox" id="keyholder" name="keyholder" value="1" checked/>Keyholder</td>
        <td><input type="checkbox" id="admin" name="admin" value="1"/>Admin</td>
+	   <td><input type="checkbox" id="certifier" name="certifier" value="1"/>Shop Certifier</td>
       </table>
       <input type="submit" value="Add"/>
       </form>
@@ -88,7 +97,9 @@ ${self.logo()}
 				<TD align="center"><button name="Delete" onclick="deleteUser('${user}', '${users[user].get('barcode','')}')">Delete</button>
 					<button name="ChangeAccess" onclick="changeAccess('${user}', '${users[user].get('barcode','')}', 
 						${users[user].get('role',0).isKeyholder()},
-						${users[user].get('role',0).isAdmin()})">Change Access</button>
+						${users[user].get('role',0).isAdmin()},
+						${users[user].get('role',0).isShopCertifier()},
+						)">Change Access</button>
 			</TR>
 			% endfor
 		</table>
@@ -98,6 +109,7 @@ ${self.logo()}
 <H2 id="dlgUsername"></H2>
 <label><input type="checkbox" id="dlgAdmin" />Admin</label>
 <label><input type="checkbox" id="dlgKeyholder" />Keyholder</label>
+<label><input type="checkbox" id="dlgCertifier" />Certifier</label>
 </div>
 <hr/>
 To add feature requests or report issues, please go to:<A HREF="https://github.com/alan412/CheckMeIn/issues">https://github.com/alan412/CheckMeIn/issues</A>
