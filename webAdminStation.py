@@ -84,7 +84,7 @@ class WebAdminStation(WebBase):
                                    for _ in range(12))
             role = Role()
             role.setAdmin(admin)
-            role.setKeyholder(admin)
+            role.setKeyholder(keyholder)
             role.setShopCertifier(certifier)
             try:
                 self.engine.accounts.addUser(
