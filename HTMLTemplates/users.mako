@@ -67,7 +67,7 @@ ${self.logo()}
        <tr><td>Barcode:</td>
        <td><select name="barcode" id="barcode">
 	   % for barcode in nonAccounts:
-	       <option value="${barcode}">${nonAccounts[barcode]} - ${barcode}}</option>
+	       <option value="${barcode}">${nonAccounts[barcode]} - ${barcode}</option>
 	   % endfor
 		</select></td></tr>
        <tr><td>Access type:</td>
