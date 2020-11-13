@@ -44,7 +44,7 @@ class CheckMeIn(WebBase):
     def unlock(self, location, barcode):
         # For now there is only one location
         with self.dbConnect() as dbConnection:
-            self.engine.unlocks.addEntry(location, barcode)
+            self.engine.unlocks.addEntry(dbConnection, location, barcode)
         self.station.checkin(barcode)
 
     @cherrypy.expose
