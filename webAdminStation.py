@@ -29,6 +29,7 @@ class WebAdminStation(WebBase):
     def emptyBuilding(self):
         with self.dbConnect() as dbConnection:
             self.engine.visits.emptyBuilding(dbConnection, "")
+            self.engine.accounts.removeKeyholder(dbConnection)
         return "Building Empty"
 
     @cherrypy.expose
