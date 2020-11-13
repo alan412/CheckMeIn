@@ -2,8 +2,10 @@ import datetime
 import cherrypy
 import random
 import sqlite3
+import json
 from accounts import Accounts, Role
 from webBase import WebBase, Cookie
+from cryptography.fernet import Fernet
 
 
 class WebAdminStation(WebBase):
@@ -112,3 +114,56 @@ class WebAdminStation(WebBase):
         with self.dbConnect() as dbConnection:
             self.engine.accounts.changeRole(dbConnection, barcode, newRole)
         raise cherrypy.HTTPRedirect("/admin/users")
+
+    @cherrypy.expose
+    def importDoorJSON(self):
+        # This will be removed after it works
+        with open('data/users.json', 'r') as user_file:
+            doorData = json.loads(user_file.read())
+            keyholders = {}
+            for user, dictionary in doorData.items():
+                role = Role(Role.KEYHOLDER)
+                if dictionary['admin']:
+                    role.setAdmin(True)
+                barcode = dictionary['barcode']
+                if barcode in keyholders:
+                    keyholders[barcode]['devices'].append({'name': user,
+                                                           'MAC': dictionary['MAC']})
+                else:
+                    keyholders[barcode] = {
+                        'user': user,
+                        'role': role,
+                        'password': dictionary['password'],
+                        'devices': [{'name': 'phone', 'MAC': dictionary['MAC']}]}
+        print(f'{keyholders}')
+        with self.dbConnect() as dbConnection:
+            for keyholder, data in keyholders.items():
+                try:
+                    self.engine.accounts.addHashedUser(
+                        dbConnection, data['user'], data['password'], keyholder, data['role'])
+                except sqlite3.IntegrityError:
+                    pass
+                for device in data['devices']:
+                    self.engine.devices.add(
+                        dbConnection, device['MAC'], device['name'], keyholder)
+        return self.users("Imported successfully")
+
+    @cherrypy.expose
+    def getKeyholderJSON(self):
+        jsonData = ''
+        with self.dbConnect() as dbConnection:
+            keyholders = self.engine.accounts.getKeyholders(dbConnection)
+            for keyholder in keyholders:
+                keyholder['devices'] = []
+                devices = self.engine.devices.getList(
+                    dbConnection, keyholder['barcode'])
+                for device in devices:
+                    keyholder['devices'].append(
+                        {'name': device.name, 'mac': device.mac})
+        #    print(keyholders)
+            jsonData = json.dumps(keyholders)
+            return jsonData
+        # encrypt now
+        #    key = Fernet.generate_key()
+        #    f = Fernet(key)
+        #    return f.encrypt(jsonData.encode('utf-8'))

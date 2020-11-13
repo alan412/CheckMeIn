@@ -61,6 +61,9 @@ class Role:
             roleStr += "Certifier "
         return roleStr
 
+    def __repr__(self):
+        return str(self.value)
+
 
 class Accounts(object):
     def __init__(self):
@@ -77,10 +80,13 @@ class Accounts(object):
                                   activeKeyholder INTEGER default 0,
                                   role INTEGER default 0)''')
 
-    def addUser(self, dbConnection, user, password, barcode, role):
+    def addHashedUser(self, dbConnection, user, hashedPassword, barcode, role):
         dbConnection.execute(
             '''INSERT INTO accounts(user, password, barcode, role) VALUES(?,?,?,?)''',
-            (user, pwd_context.hash(password), barcode, role.getValue()))
+            (user, hashedPassword, barcode, role.getValue()))
+
+    def addUser(self, dbConnection, user, password, barcode, role):
+        return self.addHashedUser(dbConnection, user, pwd_context.hash(password), barcode, role)
 
     def getBarcode(self, dbConnection, user, password):
         data = dbConnection.execute(
@@ -218,8 +224,16 @@ class Accounts(object):
         else:
             return (data[0], data[1])
 
+    def getKeyholders(self, dbConnection):
+        keyholders = []
+        for row in dbConnection.execute('''SELECT user, barcode, password
+            FROM accounts
+            WHERE (role & ? != 0)''', (Role.KEYHOLDER, )):
+            keyholders.append(
+                {'user': row[0], 'barcode': row[1], 'password': row[2]})
+        return keyholders
 
-# This is temporary - just to give us some fake data to play with
+        # This is temporary - just to give us some fake data to play with
 import sqlite3
 
 if __name__ == '__main__':  # pragma: no cover
