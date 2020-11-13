@@ -27,7 +27,6 @@ class Devices(object):
 
     def getList(self, dbConnection, barcode):
         listDevices = []
-        print(f'BARCODE: {barcode}')
         for row in dbConnection.execute('''SELECT name, mac, barcode
             FROM devices
             WHERE barcode = ?

@@ -64,7 +64,6 @@ class WebMainStation(WebBase):
                     self.engine.accounts.setActiveKeyholder(
                         dbConnection, barcode)
             for barcode in outBarcodeList:
-                print(f"Leaving {barcode}")
                 if barcode == current_keyholder_bc:
                     currentKeyholderLeaving = True
                 else:
