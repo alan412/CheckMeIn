@@ -10,6 +10,7 @@ from certifications import Certifications
 from visits import Visits
 from accounts import Accounts
 from devices import Devices
+from unlocks import Unlocks
 
 SCHEMA_VERSION = 11
 
@@ -25,6 +26,7 @@ class Engine(object):
         self.teams = Teams()
         self.accounts = Accounts()
         self.devices = Devices()
+        self.unlocks = Unlocks()
         # needs path since it will open read only
         self.customReports = CustomReports(self.database)
         self.certifications = Certifications()
@@ -52,6 +54,7 @@ class Engine(object):
             self.certifications.migrate(dbConnection, db_schema_version)
             self.accounts.migrate(dbConnection, db_schema_version)
             self.devices.migrate(dbConnection, db_schema_version)
+            self.unlocks.migrate(dbConnection, db_schema_version)
             dbConnection.execute(
                 'PRAGMA schema_version = ' + str(SCHEMA_VERSION))
         elif db_schema_version != SCHEMA_VERSION:
