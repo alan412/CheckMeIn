@@ -162,8 +162,8 @@ class WebAdminStation(WebBase):
                         {'name': device.name, 'mac': device.mac})
         #    print(keyholders)
             jsonData = json.dumps(keyholders)
-            return jsonData
         # encrypt now
-        #    key = Fernet.generate_key()
-        #    f = Fernet(key)
-        #    return f.encrypt(jsonData.encode('utf-8'))
+            with open('data/checkmein.key', 'rb') as key_file:
+                key = key_file.read()
+            f = Fernet(key)
+            return f.encrypt(jsonData.encode('utf-8'))
