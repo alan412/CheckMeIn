@@ -37,7 +37,9 @@ ${self.logo()}<br/>
 		</select>
           <select name="numDays">
              <option value="7">Last week</option>
-             <option value="14">Last 2 weeks</option>
+             <option selected value="14">Last 2 weeks</option>
+             <option value="21">Last 3 weeks</option>
+             <option value="30">Last month</option>
           </select>
          <input type="submit" value="Trace Contacts"/>
          

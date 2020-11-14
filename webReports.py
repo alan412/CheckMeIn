@@ -28,8 +28,6 @@ class WebReports(WebBase):
     @cherrypy.expose
     def tracing(self, barcode, numDays):
         self.checkPermissions()
-        # Overwrite numDays for testing
-        numDays = 90
 
         with self.dbConnect() as dbConnection:
             dictVisits = Tracing().getDictVisits(dbConnection, barcode, numDays)
