@@ -27,6 +27,22 @@ ${self.logo()}<br/>
    </fieldset>
 </form>
 <br/>
+<form action="tracing" width="50%">
+   <fieldset>
+         <legend>Tracing</legend>
+         <select name="barcode" id="barcode">
+	   % for user in activeMembers:
+	       <option value="${user[1]}">${user[0]} - ${user[1]}</option>
+	   % endfor
+		</select>
+          <select name="numDays">
+             <option value="7">Last week</option>
+             <option value="14">Last 2 weeks</option>
+          </select>
+         <input type="submit" value="Trace Contacts"/>
+         
+   </fieldset>
+</form>
 
 <form action="savedCustom" width="50%">
    <fieldset>

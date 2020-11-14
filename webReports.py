@@ -4,6 +4,7 @@ import cherrypy
 
 from webBase import WebBase
 from accounts import Role
+from tracing import Tracing
 
 
 class WebReports(WebBase):
@@ -19,9 +20,26 @@ class WebReports(WebBase):
             todayDate = datetime.date.today().isoformat()
             reportList = self.engine.customReports.get_report_list(
                 dbConnection)
+            activeMembers = self.engine.members.getActive(dbConnection)
         return self.template('reports.mako',
                              firstDate=firstDate, todayDate=todayDate,
-                             reportList=reportList, error=error)
+                             reportList=reportList, activeMembers=activeMembers, error=error)
+
+    @cherrypy.expose
+    def tracing(self, barcode, numDays):
+        self.checkPermissions()
+        # Overwrite numDays for testing
+        numDays = 90
+
+        with self.dbConnect() as dbConnection:
+            dictVisits = Tracing().getDictVisits(dbConnection, barcode, numDays)
+            (_, displayName) = self.engine.members.getName(
+                dbConnection, barcode)
+
+        return self.template('tracing.mako',
+                             displayName=displayName,
+                             dictVisits=dictVisits,
+                             error="")
 
     @cherrypy.expose
     def standard(self, startDate, endDate):
