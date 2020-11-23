@@ -22,3 +22,11 @@ class SimpleCPTest(helper.CPWebCase):
         self.getPage(
             "/teams/teamAttendance?team_id=1&date=12-01-19&startTime=11:30&endTime=12:30")
         self.assertStatus('200 OK')
+
+    def test_index(self):
+        self.getPage("/teams")
+#        self.assertStatus('200 OK')
+
+    def test_teamIndex(self):
+        self.getPage("/teams/LEGACY5")
+     #   self.assertStatus('200 OK')

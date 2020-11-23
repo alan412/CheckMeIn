@@ -15,3 +15,11 @@ class SimpleCPTest(helper.CPWebCase):
     def test_index(self):
         self.getPage("/")
         self.assertStatus('200 OK')
+
+    def test_links(self):
+        self.getPage("/links")
+        self.assertStatus('200 OK')
+
+    def test_links_full(self):
+        self.getPage("/links?barcode=100091")
+        self.assertStatus('200 OK')

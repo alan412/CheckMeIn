@@ -90,6 +90,15 @@ class Members(object):
 
         return f"Imported {numMembers} from {csvFile.filename}"
 
+    def getActive(self, dbConnection):
+        listUsers = []
+        for row in dbConnection.execute('''SELECT displayName, barcode
+            FROM members
+            WHERE (membershipExpires > ?)
+            ORDER BY displayName''', (datetime.datetime.now(), )):
+            listUsers.append([row[0], row[1]])
+        return listUsers
+
 # TODO: should this check for inactive?
     def getName(self, dbConnection, barcode):
         data = dbConnection.execute(

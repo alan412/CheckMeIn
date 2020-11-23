@@ -47,7 +47,7 @@ class ToolUser(object):
         }
         try:
             return HTMLDetails[level]
-        except KeyError:  #pragma: no cover
+        except KeyError:  # pragma: no cover
             return "Key: " + str(level)
 
 
@@ -61,11 +61,11 @@ class Certifications(object):
             CertificationLevels.CERTIFIER: 'CERTIFIER'
         }
 
-    def addTool(self, dbConnection, tool_id, grouping, name, restriction=0, comments=''): #pragma: no cover
+    def addTool(self, dbConnection, tool_id, grouping, name, restriction=0, comments=''):  # pragma: no cover
         dbConnection.execute('INSERT INTO tools VALUES(?,?,?,?,?)',
                              (tool_id, grouping, name, restriction, comments))
 
-    def addTools(self, dbConnection):  #pragma: no cover
+    def addTools(self, dbConnection):  # pragma: no cover
         tools = [[1, 1, "Sheet Metal Brake"],
                  [2, 1, "Blind Rivet Gun"],
                  [3, 1, "Stretcher Shrinker"],
@@ -94,7 +94,7 @@ class Certifications(object):
             else:
                 self.addTool(dbConnection, tool[0], tool[1], tool[2])
 
-    def migrate(self, dbConnection, db_schema_version): # pragma: no cover
+    def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
         if db_schema_version < 8:
             dbConnection.execute('''CREATE TABLE restrictions
                                     (id        INTEGER PRIMARY KEY,
@@ -121,7 +121,7 @@ class Certifications(object):
         return self.addCertification(dbConnection, member_id, tool_id, level, datetime.datetime.now(), certifier)
 
     def addCertification(self, dbConnection, barcode, tool_id, level, date, certifier):
-        # date needs to be changed to match format we want
+        # TODO: need to verify that the certifier can indeed certify on this tool
 
         dbConnection.execute('''INSERT INTO certifications(user_id, tool_id, certifier_id, date, level)
                                 SELECT ?, ?, ?, ?, ?
@@ -132,14 +132,15 @@ class Certifications(object):
         users = {}
         for row in dbConnection.execute('''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
                                         INNER JOIN members ON members.barcode=user_id
-                                        ORDER BY members.displayName'''):
+                                        WHERE membershipExpires > ?
+                                        ORDER BY members.displayName''', (datetime.datetime.now(),)):
             try:
                 users[row[0]].addTool(row[1], row[2], row[3])
             except KeyError:
                 users[row[0]] = ToolUser(row[4], row[0])
                 users[row[0]].addTool(row[1], row[2], row[3])
         return users
-    
+
     def getInBuildingUserList(self, dbConnection):
         users = {}
         for row in dbConnection.execute('''SELECT user_id, tool_id, date, level, members.displayName FROM certifications

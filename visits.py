@@ -6,7 +6,6 @@ from members import Members
 from guests import Guests
 from reports import Reports
 from teams import Teams
-from keyholders import Keyholders
 from customReports import CustomReports
 from certifications import Certifications
 
@@ -17,12 +16,15 @@ class Visits(object):
             dbConnection.execute('''CREATE TABLE visits
                      (start timestamp, leave timestamp, barcode text, status text)''')
 
-    def enterGuest(self, dbConnection, guest_id):
-        now = datetime.datetime.now()
+    def inBuilding(self, dbConnection, barcode):
         data = dbConnection.execute(
             "SELECT * FROM visits WHERE (barcode==?) and (status=='In')",
-            (guest_id,)).fetchone()
-        if data is None:
+            (barcode,)).fetchone()
+        return data != None
+
+    def enterGuest(self, dbConnection, guest_id):
+        now = datetime.datetime.now()
+        if not self.inBuilding(dbConnection, guest_id):
             dbConnection.execute("INSERT INTO visits VALUES (?,?,?,'In')",
                                  (now, now, guest_id))
 
@@ -83,12 +85,6 @@ class Visits(object):
             INNER JOIN members ON members.barcode = visits.barcode
             WHERE visits.status=='In'
             ORDER BY displayName'''):
-            listPresent.append([row[0], row[1]])
-        return listPresent
-
-    def getAllMembers(self, dbConnection):
-        listPresent = []
-        for row in dbConnection.execute('''SELECT displayName, barcode FROM members ORDER BY displayName'''):
             listPresent.append([row[0], row[1]])
         return listPresent
 
