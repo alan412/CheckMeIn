@@ -145,8 +145,11 @@ class WebAdminStation(WebBase):
                 except sqlite3.IntegrityError:
                     pass
                 for device in data['devices']:
-                    self.engine.devices.add(
-                        dbConnection, device['MAC'], device['name'], keyholder)
+                    try:
+                        self.engine.devices.add(
+                            dbConnection, device['MAC'], device['name'], keyholder)
+                    except sqlite3.IntegrityError:
+                        pass
         return self.users("Imported successfully")
 
     @cherrypy.expose
