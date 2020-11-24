@@ -117,42 +117,6 @@ class WebAdminStation(WebBase):
         raise cherrypy.HTTPRedirect("/admin/users")
 
     @cherrypy.expose
-    def importDoorJSON(self):
-        # This will be removed after it works
-        with open('data/users.json', 'r') as user_file:
-            doorData = json.loads(user_file.read())
-            keyholders = {}
-            for user, dictionary in doorData.items():
-                role = Role(Role.KEYHOLDER)
-                if dictionary['admin']:
-                    role.setAdmin(True)
-                barcode = dictionary['barcode']
-                if barcode in keyholders:
-                    keyholders[barcode]['devices'].append({'name': user,
-                                                           'MAC': dictionary['MAC']})
-                else:
-                    keyholders[barcode] = {
-                        'user': user,
-                        'role': role,
-                        'password': dictionary['password'],
-                        'devices': [{'name': 'phone', 'MAC': dictionary['MAC']}]}
-        print(f'{keyholders}')
-        with self.dbConnect() as dbConnection:
-            for keyholder, data in keyholders.items():
-                try:
-                    self.engine.accounts.addHashedUser(
-                        dbConnection, data['user'], data['password'], keyholder, data['role'])
-                except sqlite3.IntegrityError:
-                    pass
-                for device in data['devices']:
-                    try:
-                        self.engine.devices.add(
-                            dbConnection, device['MAC'], device['name'], keyholder)
-                    except sqlite3.IntegrityError:
-                        pass
-        return self.users("Imported successfully")
-
-    @cherrypy.expose
     def getKeyholderJSON(self):
         jsonData = ''
         with self.dbConnect() as dbConnection:
