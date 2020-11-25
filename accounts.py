@@ -161,6 +161,9 @@ class Accounts(object):
     def verify_forgot(self, dbConnection, username, forgot, newPassword):
         data = dbConnection.execute(
             '''SELECT forgot, forgotTime from accounts WHERE user = ?''', (username,)).fetchone()
+        if not data:
+            return False
+
         forgotTime = data[1]
 
         longAgo = datetime.datetime.now() - forgotTime
