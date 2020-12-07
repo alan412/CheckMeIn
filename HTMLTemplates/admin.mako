@@ -10,7 +10,7 @@ ${self.logo()}<br/>
 <H1>Admin Page</H1>
 
 <P style="margin-top: 1cm; margin-bottom: 1cm">
-<A HREF="users"><button style="margin-right: 1cm">Modify Users</button></a>
+<A HREF="users"><button style="margin-right: 1cm">Manage Users</button></a>
 <A HREF="/reports"><button>Reports</button></a>
 </P>
 
