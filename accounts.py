@@ -116,7 +116,7 @@ class Accounts(object):
         emailAddress = data[0]
 
         safe_username = urllib.parse.quote_plus(username)
-        msg = MIMEText("Please go to http://tfi-test.ev3hub.com/profile/resetPasswordToken?user=" + safe_username +
+        msg = MIMEText("Please go to http://tfi.ev3hub.com/profile/resetPasswordToken?user=" + safe_username +
                        "&token=" + token + " to reset your password.  If you" +
                        " did not request that you had forgotten " +
                        "your password, then you can safely ignore this e-mail." +
