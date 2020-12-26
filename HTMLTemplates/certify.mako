@@ -29,8 +29,8 @@ ${self.logo()}<br/>
     </tr>
       <tr><td><label for="level">New Level:</label></td>
           <td><select name="level">
-            <option value="1">BASIC (Green dot)</option>
-            <option value="10">CERTIFIED (Red dot)</option>
+            <option value="1">BASIC (Red dot)</option>
+            <option value="10">CERTIFIED (Green dot)</option>
             <option value="20">DOF</option>
             <option value="30">INSTRUCTOR</option>
             <option value="40">CERTIFIER</option>
