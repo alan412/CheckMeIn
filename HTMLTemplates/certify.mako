@@ -11,7 +11,6 @@ ${self.logo()}<br/>
 
 <br/>
 <form action="addCertification">
-  <input type="hidden" name="certifier_id" value="${certifier_id}">
   <fieldset>
     <legend>Add Tool Certification</legend>
     <table>
@@ -30,8 +29,8 @@ ${self.logo()}<br/>
     </tr>
       <tr><td><label for="level">New Level:</label></td>
           <td><select name="level">
-            <option value="1">BASIC</option>
-            <option value="10">CERTIFIED</option>
+            <option value="1">BASIC (Green dot)</option>
+            <option value="10">CERTIFIED (Red dot)</option>
             <option value="20">DOF</option>
             <option value="30">INSTRUCTOR</option>
             <option value="40">CERTIFIER</option>
