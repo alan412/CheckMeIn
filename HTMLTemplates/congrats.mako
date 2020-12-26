@@ -7,5 +7,5 @@
 
 <H1> ${memberName} is now certified as ${level} on ${tool}!!!</H1> 
 
-<A HREF="/certify?certifier_id=${certifier_id}">Certify another</A>
+<A HREF="/certifications/certify">Certify another</A>
 
