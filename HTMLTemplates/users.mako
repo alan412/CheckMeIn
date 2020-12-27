@@ -6,11 +6,12 @@ function deleteUser(userName, barcode) {
 			window.location.href = "deleteUser?barcode="+barcode;
 		}
 }
-function changeAccess(userName, barcode, keyholder, admin, certifier){
+function changeAccess(userName, barcode, keyholder, admin, certifier, coach){
 	$('#dlgUsername').html(userName);
 	$('#dlgKeyholder').prop('checked', keyholder);
 	$('#dlgAdmin').prop('checked', admin);
 	$('#dlgCertifier').prop('checked', certifier);
+	$('#dlgCoach').prop('checked', coach);
 
     var dWidth = $(window).width() * 0.8;
 	$("#changeAccessDialog").dialog({
@@ -37,6 +38,12 @@ function changeAccess(userName, barcode, keyholder, admin, certifier){
 				}
 				requestStr += '&certifier='
 				if ($('#dlgCertifier').is(':checked')) {
+					requestStr += '1'
+				}else{
+					requestStr += '0'
+				}
+				requestStr += '&coach='
+				if ($('#dlgCoach').is(':checked')) {
 					requestStr += '1'
 				}else{
 					requestStr += '0'
@@ -74,6 +81,7 @@ ${self.logo()}
        <td><input type="checkbox" id="keyholder" name="keyholder" value="1" checked/>Keyholder</td>
        <td><input type="checkbox" id="admin" name="admin" value="1"/>Admin</td>
 	   <td><input type="checkbox" id="certifier" name="certifier" value="1"/>Shop Certifier</td>
+	   <td><input type="checkbox" id="coach" name="coach" value="1"/>Coach</td>
       </table>
       <input type="submit" value="Add"/>
       </form>
@@ -99,6 +107,7 @@ ${self.logo()}
 						${users[user].get('role',0).isKeyholder()},
 						${users[user].get('role',0).isAdmin()},
 						${users[user].get('role',0).isShopCertifier()},
+						${users[user].get('role',0).isCoach()},
 						)">Change Access</button>
 			</TR>
 			% endfor
@@ -110,6 +119,7 @@ ${self.logo()}
 <label><input type="checkbox" id="dlgAdmin" />Admin</label>
 <label><input type="checkbox" id="dlgKeyholder" />Keyholder</label>
 <label><input type="checkbox" id="dlgCertifier" />Certifier</label>
+<label><input type="checkbox" id="dlgCoach" />Coach</label>
 </div>
 <hr/>
 To add feature requests or report issues, please go to:<A HREF="https://github.com/alan412/CheckMeIn/issues">https://github.com/alan412/CheckMeIn/issues</A>
