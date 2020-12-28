@@ -61,6 +61,35 @@ class WebAdminStation(WebBase):
         return self.index()
 
     @cherrypy.expose
+    def teams(self, error=""):
+        self.checkPermissions()
+        with self.dbConnect() as dbConnection:
+            activeTeams = self.engine.teams.getActiveTeamList(dbConnection)
+            activeMembers = self.engine.members.getActive(dbConnection)
+            print("BEFORE ********************")
+            coaches = self.engine.teams.getCoachesList(
+                dbConnection, activeTeams)
+            print("AFTER ********************")
+
+        return self.template('adminTeams.mako', error=error, username=Cookie('username').get(''), activeTeams=activeTeams, activeMembers=activeMembers, coaches=coaches)
+
+    @cherrypy.expose
+    def addTeam(self, programName, programNumber, teamName, coach1, coach2):
+        self.checkPermissions()
+        with self.dbConnect() as connection:
+            error = self.engine.teams.createTeam(
+                connection, programName, programNumber, teamName)
+
+        if not error:
+            with self.dbConnect() as connection:
+                teamInfo = self.engine.teams.getTeamFromProgramInfo(
+                    connection, programName, programNumber)
+                print(teamInfo, coach1, coach2)
+                self.engine.teams.addTeamMembers(connection, teamInfo.teamId,
+                                                 [], [], [coach1, coach2])
+        return self.teams(error)
+
+    @cherrypy.expose
     def createTeam(self, team_name):
         self.checkPermissions()
         # TODO: needs to be fixed

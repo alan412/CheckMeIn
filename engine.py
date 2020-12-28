@@ -12,7 +12,7 @@ from accounts import Accounts
 from devices import Devices
 from unlocks import Unlocks
 
-SCHEMA_VERSION = 11
+SCHEMA_VERSION = 12
 
 # This is the engine for all of the backend
 

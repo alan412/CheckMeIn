@@ -9,6 +9,16 @@ from members import Members
 TeamMember = namedtuple('TeamMember', ['name', 'barcode', 'type'])
 
 
+class TeamMember:
+    def __init__(self, name, barcode, type):
+        self.name = name
+        self.barcode = barcode
+        self.type = type
+
+    def display(self):
+        return self.name + "(" + self.barcode + ")"
+
+
 class Status(IntEnum):
     inactive = 0
     active = 1
@@ -62,6 +72,40 @@ class Teams(object):  # pragma: no cover
             dbConnection.execute('''DROP TABLE teams''')
             dbConnection.execute(
                 '''ALTER TABLE new_teams RENAME TO teams''')
+        if db_schema_version < 12:
+            dbConnection.execute('''CREATE TABLE new_teams 
+                                 (team_id INTEGER NOT NULL PRIMARY KEY,
+                                        program_name TEXT,
+                                        program_number INTEGER,
+                                        team_name TEXT,
+                                        start_date TIMESTAMP,
+                                        active INTEGER default 1,
+                                        CONSTRAINT unq UNIQUE (program_name, program_number, start_date))
+            ''')
+            dbConnection.execute('''CREATE TABLE new_team_members
+                                 (team_id INTEGER NOT NULL, barcode TEXT, type INTEGER default 0,
+                                 CONSTRAINT unq UNIQUE (team_id, barcode))''')
+            for row in dbConnection.execute("SELECT * from team_members"):
+                try:
+                    dbConnection.execute('''
+                        INSERT into new_team_members VALUES (?,?,?)''',
+                                         (row[0], row[1], row[2])
+                                         )
+                except sqlite3.IntegrityError:
+                    pass
+            dbConnection.execute("DROP TABLE team_members")
+            dbConnection.execute(
+                "ALTER TABLE new_team_members RENAME to team_members")
+            for row in dbConnection.execute("SELECT * FROM teams"):
+                dbConnection.execute('''
+                    INSERT into new_teams VALUES (?, ?, ?, ?, ?, ?)''',
+                                     (row[0], row[1], row[2],
+                                      row[3], row[4], row[5])
+                                     )
+            dbConnection.execute('''DROP TABLE teams''')
+            dbConnection.execute(
+                '''ALTER TABLE new_teams RENAME TO teams''')
+            print("Upgraded table...")
 
     def createTeam(self, dbConnection, program_name, program_number, team_name):
         now = datetime.datetime.now()
@@ -117,19 +161,19 @@ class Teams(object):  # pragma: no cover
         return ''
 
     def addTeamMembers(self, dbConnection, team_id, listStudents, listMentors, listCoaches):
-        fullList = []
+        fullList = set()
 
         for student in listStudents:
-            fullList.append((student, TeamMemberType.student))
+            fullList.add((student, TeamMemberType.student))
         for mentor in listMentors:
-            fullList.append((mentor, TeamMemberType.mentor))
+            fullList.add((mentor, TeamMemberType.mentor))
         for coach in listCoaches:
-            fullList.append((coach, TeamMemberType.coach))
+            fullList.add((coach, TeamMemberType.coach))
 
         # Should it check to make sure team_id is valid?
-            for member in fullList:
-                dbConnection.execute("INSERT INTO team_members VALUES (?, ?, ?)",
-                                     (team_id, member[0], member[1]))
+        for member in fullList:
+            dbConnection.execute("INSERT INTO team_members VALUES (?, ?, ?)",
+                                 (team_id, member[0], member[1]))
 
     def getTeamMembers(self, dbConnection, team_id):
         listMembers = []
@@ -140,3 +184,20 @@ class Teams(object):  # pragma: no cover
                             ORDER BY type, displayName''', (team_id,)):
             listMembers.append(TeamMember(row[0], row[2], row[1]))
         return listMembers
+
+    def getCoaches(self, dbConnection, team_id):
+        listCoaches = []
+        for row in dbConnection.execute('''SELECT displayName,type,team_members.barcode
+                            FROM team_members
+                            INNER JOIN members ON members.barcode = team_members.barcode
+                            WHERE (team_id == ?) and (type = ?)
+                            ORDER BY displayName''', (team_id, TeamMemberType.coach)):
+            listCoaches.append(TeamMember(row[0], row[2], row[1]))
+        return listCoaches
+
+    def getCoachesList(self, dbConnection, teamList):
+        print(teamList)
+        coachDict = {}
+        for team in teamList:
+            coachDict[team.teamId] = self.getCoaches(dbConnection, team.teamId)
+        return coachDict
