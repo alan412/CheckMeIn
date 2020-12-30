@@ -1,4 +1,5 @@
 import datetime
+from teams import TeamMember
 import cherrypy
 import random
 import sqlite3
@@ -6,6 +7,7 @@ import json
 from accounts import Accounts, Role
 from webBase import WebBase, Cookie
 from cryptography.fernet import Fernet
+from teams import TeamMemberType
 
 
 class WebAdminStation(WebBase):
@@ -87,9 +89,10 @@ class WebAdminStation(WebBase):
             with self.dbConnect() as connection:
                 teamInfo = self.engine.teams.getTeamFromProgramInfo(
                     connection, programName, programNumber)
-                print(teamInfo, coach1, coach2)
-                self.engine.teams.addTeamMembers(connection, teamInfo.teamId,
-                                                 [], [], [coach1, coach2])
+                self.engine.teams.addMember(
+                    connection, teamInfo.teamId, coach1, TeamMemberType.coach)
+                self.engine.teams.addMember(
+                    connection, teamInfo.teamId, coach2, TeamMemberType.coach)
         return self.teams(error)
 
     @cherrypy.expose

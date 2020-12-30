@@ -10,27 +10,11 @@ class WebTeams(WebBase):  # pragma: no cover
 # Teams
 
     @cherrypy.expose
-    def addTeamMembers(self, team_id, students, mentors, coaches):
-        listStudents = students.split()
-        listMentors = mentors.split()
-        listCoaches = coaches.split()
-
-        with self.dbConnect() as dbConnection:
-            self.engine.teams.addTeamMembers(
-                dbConnection, team_id, listStudents, listMentors, listCoaches)
-
-            return self.team(team_id)
+    def certifications(self, team_id):
+        raise cherrypy.HTTPRedirect("/certifications/team?team_id="+team_id)
 
     @cherrypy.expose
-    def teamCertifications(self, team_id):
-        message = 'Certifications for team: ' + \
-            self.engine.teams.team_name_from_id(team_id)
-        team_barcodes = self.engine.teams.get_team_members(team_id)
-        barcodes = [member.barcode for member in team_barcodes]
-        return self.showCertifications(message, barcodes, self.engine.certifications.getAllTools())
-
-    @cherrypy.expose
-    def teamAttendance(self, team_id, date, startTime, endTime):
+    def attendance(self, team_id, date, startTime, endTime):
         with self.dbConnect() as dbConnection:
             firstDate = self.engine.reports.getEarliestDate(
                 dbConnection).isoformat()
@@ -64,15 +48,51 @@ class WebTeams(WebBase):  # pragma: no cover
         if not team_id:
             raise cherrypy.HTTPRedirect("/admin/teams")
         with self.dbConnect() as dbConnection:
-            firstDate = self.engine.reports.getEarliestDate(
-                dbConnection).isoformat()
+            teamInfo = self.engine.teams.fromTeamId(dbConnection, team_id)
+            firstDate = teamInfo.startDate
             todayDate = datetime.date.today().isoformat()
-            team_name = self.engine.teams.teamNameFromId(
-                dbConnection, team_id)
+
             members = self.engine.teams.getTeamMembers(dbConnection, team_id)
+            activeMembers = self.engine.members.getActive(dbConnection)
 
         return self.template('team.mako', firstDate=firstDate, team_id=team_id,
-                             todayDate=todayDate, team_name=team_name, members=members, TeamMemberType=TeamMemberType, error="")
+                             todayDate=todayDate, team_name=teamInfo.name, members=members, activeMembers=activeMembers, TeamMemberType=TeamMemberType, error="")
+
+    @cherrypy.expose
+    def addMember(self, team_id, member, type):
+        with self.dbConnect() as dbConnection:
+            self.engine.teams.addMember(dbConnection, team_id, member, type)
+
+        raise cherrypy.HTTPRedirect("/teams?team_id="+team_id)
+
+    @cherrypy.expose
+    def removeMember(self, team_id, member):
+        with self.dbConnect() as dbConnection:
+            self.engine.teams.removeMember(dbConnection, team_id, member)
+
+        raise cherrypy.HTTPRedirect("/teams?team_id="+team_id)
+
+    @cherrypy.expose
+    def renameTeam(self, team_id, newName):
+        with self.dbConnect() as dbConnection:
+            self.engine.teams.renameTeam(dbConnection, team_id, newName)
+
+        raise cherrypy.HTTPRedirect("/teams?team_id="+team_id)
+
+    @cherrypy.expose
+    def newSeason(self, team_id, **returning):
+        with self.dbConnect() as dbConnection:
+            teamInfo = self.engine.teams.fromTeamId(dbConnection, team_id)
+            self.engine.teams.createTeam(dbConnection,
+                                         teamInfo.programName, teamInfo.programNumber, teamInfo.name)
+        with self.dbConnect() as dbConnection:
+            teamInfo = self.engine.teams.getTeamFromProgramInfo(
+                dbConnection, teamInfo.programName, teamInfo.programNumber)
+
+            for member, value in returning.items():
+                self.engine.teams.addMember(
+                    dbConnection, teamInfo.teamId, member, int(value))
+        raise cherrypy.HTTPRedirect("/teams?team_id="+str(teamInfo.teamId))
 
     @cherrypy.expose
     def update(self, team_id, **params):

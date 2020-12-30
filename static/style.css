@@ -21,6 +21,10 @@ label {
     text-align: right;
     width: 20%;
 }
+label.normal{
+    text-align: left;
+    display: inline;
+}
 
 #member_id {
    text-align: center;

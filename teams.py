@@ -4,6 +4,8 @@ import datetime
 import re
 from enum import IntEnum
 from collections import namedtuple
+
+from passlib.utils import _NULL
 from members import Members
 
 TeamMember = namedtuple('TeamMember', ['name', 'barcode', 'type'])
@@ -88,6 +90,16 @@ class Teams(object):  # pragma: no cover
         except sqlite3.IntegrityError:
             return "Team name already exists"
 
+    def fromTeamId(self, dbConnection, team_id):
+        data = dbConnection.execute('''SELECT team_id, program_name, program_number, team_name, start_date
+                                FROM teams
+                                WHERE (team_id = ?)
+                                ORDER BY program_name, program_number''', (team_id,)).fetchone()
+        if not data:
+            return None
+
+        return TeamInfo(data[0], data[1], data[2], data[3], data[4])
+
     def deleteTeam(self, dbConnection, team_id):
         dbConnection.execute(
             '''DELETE from teams WHERE team_id = ?''', (team_id,))
@@ -151,23 +163,20 @@ class Teams(object):  # pragma: no cover
             return data[0]
         return ''
 
-    def addTeamMembers(self, dbConnection, team_id, listStudents, listMentors, listCoaches):
-        fullList = set()
+    def addMember(self, dbConnection, team_id, barcode, type):
+        try:
+            dbConnection.execute("INSERT INTO team_members VALUES (?, ?, ?)",
+                                 (team_id, barcode, type))
+        except sqlite3.IntegrityError:   # silently let duplicates not be inserted
+            pass
 
-        for student in listStudents:
-            fullList.add((student, TeamMemberType.student))
-        for mentor in listMentors:
-            fullList.add((mentor, TeamMemberType.mentor))
-        for coach in listCoaches:
-            fullList.add((coach, TeamMemberType.coach))
+    def removeMember(self, dbConnection, team_id, barcode):
+        dbConnection.execute("DELETE from team_members where (team_id == ?) AND (barcode == ?)",
+                             (team_id, barcode))
 
-        # Should it check to make sure team_id is valid?
-        for member in fullList:
-            try:
-                dbConnection.execute("INSERT INTO team_members VALUES (?, ?, ?)",
-                                     (team_id, member[0], member[1]))
-            except sqlite3.IntegrityError:   # silently let duplicates not be inserted
-                pass
+    def renameTeam(self, dbConnection, team_id, newName):
+        dbConnection.execute(
+            "UPDATE teams SET team_name = ? where team_id = ?", (newName, team_id))
 
     def getTeamMembers(self, dbConnection, team_id):
         listMembers = []
@@ -176,7 +185,7 @@ class Teams(object):  # pragma: no cover
                             FROM team_members
                             INNER JOIN members ON members.barcode = team_members.barcode
                             WHERE (team_id == ?)
-                            ORDER BY type, displayName''', (team_id,)):
+                            ORDER BY type DESC, displayName ASC''', (team_id,)):
             listMembers.append(TeamMember(
                 row[0], row[2], row[1], row[3] == 'In'))
         return listMembers
@@ -203,7 +212,6 @@ class Teams(object):  # pragma: no cover
         return listCoaches
 
     def getCoachesList(self, dbConnection, teamList):
-        print(teamList)
         coachDict = {}
         for team in teamList:
             coachDict[team.teamId] = self.getCoaches(dbConnection, team.teamId)

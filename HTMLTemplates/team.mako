@@ -8,14 +8,16 @@
 ${self.logo()}
 <br/>
 <H1>${team_name}</H1>
+<H3>Season starting ${firstDate.strftime("%d %b %y")}</H3>
    <form action="update">
   <fieldset>
-    <legend>Update who is in building</legend>
+    <legend>Who is in building?</legend>
     <br/>
     <table class="teamMembers">
-      <tr><th>Name</th><th>In</th><th>Out</th></tr>
+      <tr><th>Name</th><th></th><th>In</th><th>Out</th></tr>
     % for member in members:
       <tr><td>${member.name}</td>
+      <td>${"(Coach)" if member.type == TeamMemberType.coach else "(Mentor)" if member.type == TeamMemberType.mentor else ""}
       % if member.present:
         <td><input type="radio" name="${member.barcode}" checked="checked"value="in"></td>
         <td><input type="radio" name="${member.barcode}" value="out"></td>
@@ -42,11 +44,11 @@ ${self.logo()}
   <br/>
 <form action="attendance">
   <fieldset>
-    <legend>See who was here during a team meeting</legend>
+    <legend>Who was here during a team meeting</legend>
     <br/>
     <input type="hidden" name="team_id" value="${team_id}">
     <input id="date" type="date" name="date" value="${todayDate}"
-                            min="${firstDate}" max="${todayDate}"/>
+                            min="${firstDate.isoformat()}" max="${todayDate}"/>
     <label for="startTime">Start Time:</label>
     <input id="time" type="time" name="startTime" value="18:00"/>
     <label for="endTime">End Time:</label>
@@ -57,19 +59,67 @@ ${self.logo()}
 <br/>
 
 <br/>
-<form action="addMembers">
+<form action="addMember">
    <fieldset>
-     <legend>Add Team Members</legend>
-     <P>This needs to be the barcodes for each member.</P>
+     <legend>Add Team Member</legend>
+    <div>
       <input type="hidden" name="team_id" value="${team_id}">
-      <label for="students" style="vertical-align:top">Students:</label>
-      <textarea rows="4" cols="40" name="students" placeholder="100090 100091"></textarea><br/>
-      <label for="mentors" style="vertical-align:top">Mentors (non-coaches):</label>
-      <textarea rows="2" cols="40" name="mentors" placeholder="100090 100091"></textarea><br/>      
-      <label for="coaches">Coaches:</label>
-      <textarea rows="1" cols="40" name="coaches" placeholder="100090 100091"></textarea><br/>            
-   <br/>
-  <input type="submit" value="Add Team Members"/>
+      <select name="member" id="member">
+	   % for user in activeMembers:
+	       <option value="${user[1]}">${user[0]} - ${user[1]}</option>
+	   % endfor
+		</select>
+    </div>
+    <div>
+      <input type="radio" name="type" id="student" checked="checked" value="${int(TeamMemberType.student)}">
+            <label class="normal" for="student">Student</label>
+      <input type="radio" name="type" id="mentor" value="${int(TeamMemberType.mentor)}">
+            <label class="normal" for="mentor">Mentor</label>
+      <input type="radio" name="type" id="coach" value="${int(TeamMemberType.coach)}">
+            <label class="normal" for="coach">Coach</label>   
+    </div> 
+  <input type="submit" value="Add"/>
 </fieldset>
 </form>
 <br/>
+<form action="removeMember">
+   <fieldset>
+     <legend>Remove Team Member</legend>
+    <div>
+      <input type="hidden" name="team_id" value="${team_id}">
+      <select name="member" id="member">
+	   % for member in members:
+	       <option value="${member.barcode}">${member.name}</option>
+	   % endfor
+		</select>
+    </div>
+  <input type="submit" value="Remove"/>
+</fieldset>
+</form>
+<br/>
+<form action="renameTeam">
+<fieldset>
+    <legend>Change Team Name</legend>
+    <input type="hidden" name="team_id" value="${team_id}">
+    <input name="newName" placeholder="${team_name}">
+    <input type="Submit" value="Rename"/>
+</fieldset>
+</form>
+<br/>
+
+<form action="newSeason">
+<fieldset>
+   <legend>Make new season</legend>
+    <div>
+      <input type="hidden" name="team_id" value="${team_id}">
+      <table>
+      <tr><th>Name</th><th>Returning</th></tr>
+	   % for member in members:
+      <tr><td>${member.name}</td><td><input type="checkbox" value="${member.type}" name="${member.barcode}"></td></tr>
+	   % endfor
+      </table>
+		</select>
+    </div>
+  <input type="submit" value="New Season"/>
+</fieldset>
+</form>
