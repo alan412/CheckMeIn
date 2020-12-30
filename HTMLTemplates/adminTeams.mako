@@ -1,11 +1,12 @@
 <%def name="scripts()">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
-function deleteTeam(teamName, team_id) {
-		if (confirm("OK to delete team " + teamName + "?")) {
-			window.location.href = "deleteTeam?teamId="+team_id;
+function deactivateTeam(teamName, team_id) {
+		if (confirm("OK to deactivate team " + teamName + "?")) {
+			window.location.href = "deactivateTeam?teamId="+team_id;
 		}
 }
+
 </script>			
 </%def>
 <%def name="head()">
@@ -46,6 +47,7 @@ ${self.logo()}
 		</tr>   
 		<tr><td><input type="submit" value="Add"/></td></tr>
 	</table>
+	</form>
 	</fieldset>
 	<br/>
 	<fieldset>
@@ -57,7 +59,7 @@ ${self.logo()}
 				<th align="left">Start Date</th>
 				<th align="left">Coaches</th>
 				
-				<th>Actions</th>
+				<th align="center">Actions</th>
 			</tr>
 			 % for team in activeTeams:
 			 <tr>
@@ -69,10 +71,9 @@ ${self.logo()}
 				    ${coach.display() + " " }
 				% endfor
 				</td>
-				<td>
-					<button name="Change ID">Change ID</button>
-					<button name="Coaches">Change Coaches</button>
-					<button name="Deactivate">Deactivate Team</button>
+				<td align="center">
+					<button name="Edit">Edit Team Info</button>
+					<button name="Deactivate" onclick="deactivateTeam('${team.name}', '${team.teamId}')" style="background-color: #a84232; color: #ffffff">Deactivate</button>
 				</td>
 			 </tr>
    			% endfor

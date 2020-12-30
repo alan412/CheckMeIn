@@ -90,15 +90,6 @@ class WebAdminStation(WebBase):
         return self.teams(error)
 
     @cherrypy.expose
-    def createTeam(self, team_name):
-        self.checkPermissions()
-        # TODO: needs to be fixed
-        error = self.engine.teams.createTeam(
-            self.dbConnect(), "Sample", "", team_name)
-
-        return self.index(error)
-
-    @cherrypy.expose
     def users(self, error=""):
         self.checkPermissions()
         with self.dbConnect() as dbConnection:
@@ -133,6 +124,13 @@ class WebAdminStation(WebBase):
         with self.dbConnect() as dbConnection:
             self.engine.accounts.removeUser(dbConnection, barcode)
         raise cherrypy.HTTPRedirect("/admin/users")
+
+    @cherrypy.expose
+    def deactivateTeam(self, teamId):
+        self.checkPermissions()
+        with self.dbConnect() as dbConnection:
+            self.engine.teams.deactivateTeam(dbConnection, teamId)
+        raise cherrypy.HTTPRedirect("/admin/teams")
 
     @cherrypy.expose
     def changeAccess(self, barcode, admin=False, keyholder=False, certifier=False, coach=False):

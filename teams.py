@@ -55,7 +55,7 @@ class Teams(object):  # pragma: no cover
             dbConnection.execute('''CREATE TABLE team_members
                                  (team_id TEXT, barcode TEXT, type INTEGER default 0)''')
         if db_schema_version < 10:
-            dbConnection.execute('''CREATE TABLE new_teams 
+            dbConnection.execute('''CREATE TABLE new_teams
                                  (team_id INTEGER PRIMARY_KEY,
                                         program_name TEXT,
                                         program_number INTEGER,
@@ -73,7 +73,7 @@ class Teams(object):  # pragma: no cover
             dbConnection.execute(
                 '''ALTER TABLE new_teams RENAME TO teams''')
         if db_schema_version < 12:
-            dbConnection.execute('''CREATE TABLE new_teams 
+            dbConnection.execute('''CREATE TABLE new_teams
                                  (team_id INTEGER NOT NULL PRIMARY KEY,
                                         program_name TEXT,
                                         program_number INTEGER,
@@ -185,12 +185,16 @@ class Teams(object):  # pragma: no cover
             listMembers.append(TeamMember(row[0], row[2], row[1]))
         return listMembers
 
+    def deactivateTeam(self, dbConnection, team_id):
+        dbConnection.execute(
+            '''UPDATE teams SET active = 0 WHERE team_id = ?''', (team_id,))
+
     def getCoaches(self, dbConnection, team_id):
         listCoaches = []
-        for row in dbConnection.execute('''SELECT displayName,type,team_members.barcode
+        for row in dbConnection.execute('''SELECT displayName, type, team_members.barcode
                             FROM team_members
-                            INNER JOIN members ON members.barcode = team_members.barcode
-                            WHERE (team_id == ?) and (type = ?)
+                            INNER JOIN members ON members.barcode=team_members.barcode
+                            WHERE(team_id == ?) and (type= ?)
                             ORDER BY displayName''', (team_id, TeamMemberType.coach)):
             listCoaches.append(TeamMember(row[0], row[2], row[1]))
         return listCoaches
