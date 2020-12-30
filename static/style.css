@@ -208,3 +208,7 @@ table.certifications th{
     color: black;
 }
 
+button.deactivate { 
+  background-color: #a84232; 
+  color: #ffffff;
+}

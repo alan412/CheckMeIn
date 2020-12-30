@@ -6,6 +6,11 @@ function deactivateTeam(teamName, team_id) {
 			window.location.href = "deactivateTeam?teamId="+team_id;
 		}
 }
+function activateTeam(teamName, team_id) {
+		if (confirm("OK to activate team " + teamName + "?")) {
+			window.location.href = "activateTeam?teamId="+team_id;
+		}
+}
 
 </script>			
 </%def>
@@ -73,11 +78,35 @@ ${self.logo()}
 				</td>
 				<td align="center">
 					<button name="Edit">Edit Team Info</button>
-					<button name="Deactivate" onclick="deactivateTeam('${team.name}', '${team.teamId}')" style="background-color: #a84232; color: #ffffff">Deactivate</button>
+					<button name="Deactivate" class="deactivate" onclick="deactivateTeam('${team.name}', '${team.teamId}')">Deactivate</button>
 				</td>
 			 </tr>
    			% endfor
 			</table>
 	</fieldset>
+	<br/>
+	%if len(inactiveTeams):
+	<fieldset>
+	    <legend>Inactive Teams</legend>
+			<table class="teams" width="100%">
+			<tr>
+				<th align="left">Team ID</th>
+				<th align="left">Team Name</th>
+				<th align="left">Start Date</th>
+				<th align="center">Actions</th>
+			</tr>
+			 % for team in inactiveTeams:
+			 <tr>
+				<td>${team.getProgramId()}</td>
+				<td>${team.name}</td>
+				<td>${team.startDate.strftime("%d %b %Y")}</td>
+				<td align="center">
+					<button name="Activate" onclick="activateTeam('${team.name}', '${team.teamId}')">Activate</button>
+				</td>
+			 </tr>
+   			% endfor
+			</table>
+	</fieldset>
+	%endif
 <hr/>
 To add feature requests or report issues, please go to:<A HREF="https://github.com/alan412/CheckMeIn/issues">https://github.com/alan412/CheckMeIn/issues</A>

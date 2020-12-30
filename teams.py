@@ -38,6 +38,9 @@ class TeamInfo(object):
         self.name = name
         self.startDate = startDate
 
+    def __repr__(self):
+        return f"{self.teamId} {self.programName}{self.programNumber} - {self.name}:{self.startDate}"
+
     def getProgramId(self):
         return f'{self.programName}{self.programNumber}' if self.programNumber else self.programName
 
@@ -133,6 +136,15 @@ class Teams(object):  # pragma: no cover
 
         return dictTeams.values()
 
+    def getInactiveTeamList(self, dbConnection):
+        teamList = []
+        for row in dbConnection.execute('''SELECT team_id, program_name, program_number, team_name, start_date
+                                FROM teams
+                                WHERE (active = ?)
+                                ORDER BY program_name, program_number''', (Status.inactive,)):
+            teamList.append(TeamInfo(row[0], row[1], row[2], row[3], row[4]))
+        return teamList
+
     def splitProgramInfo(self, programId):
         program_name = ''
         program_number = 0
@@ -155,9 +167,9 @@ class Teams(object):  # pragma: no cover
 
     def teamNameFromId(self, dbConnection, team_id):
         data = dbConnection.execute(
-            "SELECT * FROM teams WHERE (team_id=?)", (team_id, )).fetchone()
+            "SELECT team_name FROM teams WHERE (team_id=?)", (team_id, )).fetchone()
         if data:
-            return data[3]
+            return data[0]
         return ''
 
     def addTeamMembers(self, dbConnection, team_id, listStudents, listMentors, listCoaches):
@@ -187,7 +199,14 @@ class Teams(object):  # pragma: no cover
 
     def deactivateTeam(self, dbConnection, team_id):
         dbConnection.execute(
-            '''UPDATE teams SET active = 0 WHERE team_id = ?''', (team_id,))
+            '''UPDATE teams SET active = ? WHERE team_id = (
+                SELECT team_id FROM teams WHERE (program_name, program_number) = (
+                    SELECT program_name, program_number FROM teams WHERE team_id = ?
+                ))''', (Status.inactive, team_id))
+
+    def activateTeam(self, dbConnection, team_id):
+        dbConnection.execute(
+            '''UPDATE teams SET active = ? WHERE team_id = ?''', (Status.active, team_id))
 
     def getCoaches(self, dbConnection, team_id):
         listCoaches = []

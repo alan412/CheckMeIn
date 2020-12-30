@@ -65,13 +65,13 @@ class WebAdminStation(WebBase):
         self.checkPermissions()
         with self.dbConnect() as dbConnection:
             activeTeams = self.engine.teams.getActiveTeamList(dbConnection)
+            inactiveTeams = self.engine.teams.getInactiveTeamList(dbConnection)
+
             activeMembers = self.engine.members.getActive(dbConnection)
-            print("BEFORE ********************")
             coaches = self.engine.teams.getCoachesList(
                 dbConnection, activeTeams)
-            print("AFTER ********************")
 
-        return self.template('adminTeams.mako', error=error, username=Cookie('username').get(''), activeTeams=activeTeams, activeMembers=activeMembers, coaches=coaches)
+        return self.template('adminTeams.mako', error=error, username=Cookie('username').get(''), activeTeams=activeTeams, inactiveTeams=inactiveTeams, activeMembers=activeMembers, coaches=coaches)
 
     @cherrypy.expose
     def addTeam(self, programName, programNumber, teamName, coach1, coach2):
@@ -130,6 +130,13 @@ class WebAdminStation(WebBase):
         self.checkPermissions()
         with self.dbConnect() as dbConnection:
             self.engine.teams.deactivateTeam(dbConnection, teamId)
+        raise cherrypy.HTTPRedirect("/admin/teams")
+
+    @cherrypy.expose
+    def activateTeam(self, teamId):
+        self.checkPermissions()
+        with self.dbConnect() as dbConnection:
+            self.engine.teams.activateTeam(dbConnection, teamId)
         raise cherrypy.HTTPRedirect("/admin/teams")
 
     @cherrypy.expose
