@@ -57,24 +57,6 @@ class Teams(object):  # pragma: no cover
                                   active INTEGER default 1)''')
             dbConnection.execute('''CREATE TABLE team_members
                                  (team_id TEXT, barcode TEXT, type INTEGER default 0)''')
-        if db_schema_version < 10:
-            dbConnection.execute('''CREATE TABLE new_teams
-                                 (team_id INTEGER PRIMARY_KEY,
-                                        program_name TEXT,
-                                        program_number INTEGER,
-                                        team_name TEXT,
-                                        start_date TIMESTAMP,
-                                        active INTEGER default 1,
-                                        CONSTRAINT unq UNIQUE (program_name, program_number, start_date))
-            ''')
-            now = datetime.datetime.now()
-            for row in dbConnection.execute("SELECT * FROM teams"):
-                dbConnection.execute('''
-                    INSERT INTO new_teams VALUES (?,?,?,?,?,?)''',
-                                     (row[0], 'LEGACY', row[0], row[1], now, '1'))
-            dbConnection.execute('''DROP TABLE teams''')
-            dbConnection.execute(
-                '''ALTER TABLE new_teams RENAME TO teams''')
         if db_schema_version < 12:
             dbConnection.execute('''CREATE TABLE new_teams
                                  (team_id INTEGER NOT NULL PRIMARY KEY,
@@ -88,27 +70,13 @@ class Teams(object):  # pragma: no cover
             dbConnection.execute('''CREATE TABLE new_team_members
                                  (team_id INTEGER NOT NULL, barcode TEXT, type INTEGER default 0,
                                  CONSTRAINT unq UNIQUE (team_id, barcode))''')
-            for row in dbConnection.execute("SELECT * from team_members"):
-                try:
-                    dbConnection.execute('''
-                        INSERT into new_team_members VALUES (?,?,?)''',
-                                         (row[0], row[1], row[2])
-                                         )
-                except sqlite3.IntegrityError:
-                    pass
+            # So different we are trashing all old information
             dbConnection.execute("DROP TABLE team_members")
             dbConnection.execute(
                 "ALTER TABLE new_team_members RENAME to team_members")
-            for row in dbConnection.execute("SELECT * FROM teams"):
-                dbConnection.execute('''
-                    INSERT into new_teams VALUES (?, ?, ?, ?, ?, ?)''',
-                                     (row[0], row[1], row[2],
-                                      row[3], row[4], row[5])
-                                     )
             dbConnection.execute('''DROP TABLE teams''')
             dbConnection.execute(
                 '''ALTER TABLE new_teams RENAME TO teams''')
-            print("Upgraded table...")
 
     def createTeam(self, dbConnection, program_name, program_number, team_name):
         now = datetime.datetime.now()
@@ -118,6 +86,16 @@ class Teams(object):  # pragma: no cover
             return ""
         except sqlite3.IntegrityError:
             return "Team name already exists"
+
+    def deleteTeam(self, dbConnection, team_id):
+        dbConnection.execute(
+            '''DELETE from teams WHERE team_id = ?''', (team_id,))
+        dbConnection.execute(
+            '''DELETE from team_members WHERE team_id = ?''', (team_id,))
+
+    def editTeam(self, dbConnection, programName, programNumber, team_id):
+        dbConnection.execute(
+            '''UPDATE teams SET program_name = ?, program_number = ? WHERE team_id = ?''', (programName, programNumber, team_id))
 
     def getActiveTeamList(self, dbConnection):
         dictTeams = {}
@@ -184,8 +162,11 @@ class Teams(object):  # pragma: no cover
 
         # Should it check to make sure team_id is valid?
         for member in fullList:
-            dbConnection.execute("INSERT INTO team_members VALUES (?, ?, ?)",
-                                 (team_id, member[0], member[1]))
+            try:
+                dbConnection.execute("INSERT INTO team_members VALUES (?, ?, ?)",
+                                     (team_id, member[0], member[1]))
+            except sqlite3.IntegrityError:   # silently let duplicates not be inserted
+                pass
 
     def getTeamMembers(self, dbConnection, team_id):
         listMembers = []

@@ -76,6 +76,9 @@ class WebAdminStation(WebBase):
     @cherrypy.expose
     def addTeam(self, programName, programNumber, teamName, coach1, coach2):
         self.checkPermissions()
+        if not teamName:
+            teamName = "TBD:" + programName + programNumber
+
         with self.dbConnect() as connection:
             error = self.engine.teams.createTeam(
                 connection, programName, programNumber, teamName)
@@ -137,6 +140,21 @@ class WebAdminStation(WebBase):
         self.checkPermissions()
         with self.dbConnect() as dbConnection:
             self.engine.teams.activateTeam(dbConnection, teamId)
+        raise cherrypy.HTTPRedirect("/admin/teams")
+
+    @cherrypy.expose
+    def deleteTeam(self, teamId):
+        self.checkPermissions()
+        with self.dbConnect() as dbConnection:
+            self.engine.teams.deleteTeam(dbConnection, teamId)
+        raise cherrypy.HTTPRedirect("/admin/teams")
+
+    @cherrypy.expose
+    def editTeam(self, programName, programNumber, teamId):
+        self.checkPermissions()
+        with self.dbConnect() as dbConnection:
+            self.engine.teams.editTeam(
+                dbConnection, programName, programNumber, teamId)
         raise cherrypy.HTTPRedirect("/admin/teams")
 
     @cherrypy.expose
