@@ -1,51 +1,14 @@
 import datetime
+from teams import TeamMemberType
 import cherrypy
 from webBase import WebBase
-
-
-class Team(WebBase):  # pragma: no cover
-    @cherrypy.expose
-    def index(self, programId):
-        (name, number) = self.engine.teams.splitProgramInfo(programId)
-        print(f'name: {name} number: {number}')
-        with self.dbConnect() as dbConnection:
-            team = self.engine.teams.getTeamFromProgramInfo(
-                dbConnection, name, number)
-            if not team:
-                return self.template('newTeam.mako', programName=name.upper(), programNumber=number, error="Team doesn't exist yet")
-
-            firstDate = self.engine.reports.getEarliestDate(
-                dbConnection).isoformat()
-            todayDate = datetime.date.today().isoformat()
-            team_name = team.name
-            members = self.engine.teams.getTeamMembers(
-                dbConnection, team.teamId)
-
-        return self.template('team.mako', firstDate=firstDate, team_id=team.teamId,
-                             todayDate=todayDate, team_name=team_name, members=members, error="")
 
 
 class WebTeams(WebBase):  # pragma: no cover
     def __init__(self, lookup, engine):
         super().__init__(lookup, engine)
-        self.teams = Team(lookup, engine)
-
-    @cherrypy.expose
-    def index(self):
-        with self.dbConnect() as dbConnection:
-            teamList = self.engine.teams.getActiveTeamList(dbConnection)
-            return self.template('teams.mako',
-                                 teamList=teamList)
-
-    def _cp_dispatch(self, vpath):
-        cherrypy.request.params['programId'] = vpath.pop()
-        if len(vpath) == 0:
-            programId = cherrypy.request.params['programId']
-            return self.teams
-
-        return vpath  # pragma: no cover
-
 # Teams
+
     @cherrypy.expose
     def addTeamMembers(self, team_id, students, mentors, coaches):
         listStudents = students.split()
@@ -97,7 +60,9 @@ class WebTeams(WebBase):  # pragma: no cover
                              date=date, startTime=startTime, endTime=endTime)
 
     @cherrypy.expose
-    def team(self, team_id, error=''):
+    def index(self, team_id="", error=''):
+        if not team_id:
+            raise cherrypy.HTTPRedirect("/admin/teams")
         with self.dbConnect() as dbConnection:
             firstDate = self.engine.reports.getEarliestDate(
                 dbConnection).isoformat()
@@ -107,6 +72,40 @@ class WebTeams(WebBase):  # pragma: no cover
             members = self.engine.teams.getTeamMembers(dbConnection, team_id)
 
         return self.template('team.mako', firstDate=firstDate, team_id=team_id,
-                             todayDate=todayDate, team_name=team_name, members=members, error=error)
+                             todayDate=todayDate, team_name=team_name, members=members, TeamMemberType=TeamMemberType, error="")
 
-# TODO: Let coach select who from the team to check in
+    @cherrypy.expose
+    def update(self, team_id, **params):
+        checkIn = []
+        checkOut = []
+        for param, value in params.items():
+            if value == 'in':
+                checkIn.append(param)
+            else:
+                checkOut.append(param)
+
+        currentKeyholderLeaving = False
+        with self.dbConnect() as dbConnection:
+            (current_keyholder_bc, _) = self.engine.accounts.getActiveKeyholder(
+                dbConnection)
+            for barcode in checkIn:
+                error = self.engine.visits.checkInMember(dbConnection, barcode)
+                if not current_keyholder_bc:
+                    self.engine.accounts.setActiveKeyholder(
+                        dbConnection, barcode)
+            for barcode in checkOut:
+                if barcode == current_keyholder_bc:
+                    currentKeyholderLeaving = True
+                else:
+                    error = self.engine.visits.checkOutMember(
+                        dbConnection, barcode)
+        with self.dbConnect() as dbConnection:
+            if currentKeyholderLeaving:
+                whoIsHere = self.engine.reports.whoIsHere(dbConnection)
+                if len(whoIsHere) > 1:
+                    return self.template('keyholderCheckout.mako', barcode=current_keyholder_bc, whoIsHere=self.engine.reports.whoIsHere(dbConnection))
+                self.engine.accounts.removeKeyholder(dbConnection)
+                error = self.engine.visits.checkOutMember(
+                    dbConnection, current_keyholder_bc)
+
+        raise cherrypy.HTTPRedirect("/teams?team_id="+team_id)

@@ -10,10 +10,11 @@ TeamMember = namedtuple('TeamMember', ['name', 'barcode', 'type'])
 
 
 class TeamMember:
-    def __init__(self, name, barcode, type):
+    def __init__(self, name, barcode, type, present="?"):
         self.name = name
         self.barcode = barcode
         self.type = type
+        self.present = present
 
     def display(self):
         return self.name + "(" + self.barcode + ")"
@@ -170,12 +171,14 @@ class Teams(object):  # pragma: no cover
 
     def getTeamMembers(self, dbConnection, team_id):
         listMembers = []
-        for row in dbConnection.execute('''SELECT displayName,type,team_members.barcode
+        for row in dbConnection.execute('''SELECT displayName,type,team_members.barcode, 
+                    (SELECT visits.status from visits where visits.barcode = team_members.barcode ORDER by visits.start DESC) as status
                             FROM team_members
                             INNER JOIN members ON members.barcode = team_members.barcode
                             WHERE (team_id == ?)
                             ORDER BY type, displayName''', (team_id,)):
-            listMembers.append(TeamMember(row[0], row[2], row[1]))
+            listMembers.append(TeamMember(
+                row[0], row[2], row[1], row[3] == 'In'))
         return listMembers
 
     def deactivateTeam(self, dbConnection, team_id):

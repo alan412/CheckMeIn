@@ -212,3 +212,7 @@ button.deactivate {
   background-color: #a84232; 
   color: #ffffff;
 }
+
+table.teamMembers {
+  border-spacing: 10px;
+}

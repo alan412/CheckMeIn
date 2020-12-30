@@ -99,8 +99,8 @@ ${self.logo()}
 			</tr>
 			 % for team in activeTeams:
 			 <tr>
-				<td><A HREF="/teams/${team.getProgramId()}">${team.getProgramId()}</A></td>
-				<td><A HREF="/teams/${team.getProgramId()}">${team.name}</A></td>
+				<td><A HREF="/teams?team_id=${team.teamId}">${team.getProgramId()}</A></td>
+				<td><A HREF="/teams?team_id=${team.teamId}">${team.name}</A></td>
 				<td>${team.startDate.strftime("%d %b %Y")}</td>
 				<td>
 				% for coach in coaches[team.teamId]:

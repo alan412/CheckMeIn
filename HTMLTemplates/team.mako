@@ -8,6 +8,38 @@
 ${self.logo()}
 <br/>
 <H1>${team_name}</H1>
+   <form action="update">
+  <fieldset>
+    <legend>Update who is in building</legend>
+    <br/>
+    <table class="teamMembers">
+      <tr><th>Name</th><th>In</th><th>Out</th></tr>
+    % for member in members:
+      <tr><td>${member.name}</td>
+      % if member.present:
+        <td><input type="radio" name="${member.barcode}" checked="checked"value="in"></td>
+        <td><input type="radio" name="${member.barcode}" value="out"></td>
+      % else:
+        <td><input type="radio" name="${member.barcode}" value="in"></td>
+        <td><input type="radio" name="${member.barcode}" checked="checked" value="out"></td>
+      % endif
+      </tr>
+    % endfor
+    </table>
+    <input type="hidden" name="team_id" value="${team_id}">
+    <input type="submit" value="Update"/>
+  </fieldset>
+    </form>
+<br/>
+   <form action="certifications">
+  <fieldset>
+    <legend>Tool certifications</legend>
+    <br/>
+    <input type="hidden" name="team_id" value="${team_id}">
+    <input type="submit" value="See Tool Certifications"/>
+  </fieldset>
+    </form>
+  <br/>
 <form action="attendance">
   <fieldset>
     <legend>See who was here during a team meeting</legend>
@@ -23,14 +55,7 @@ ${self.logo()}
   </fieldset>
 </form>
 <br/>
-<form action="certifications">
-  <fieldset>
-    <legend>See who has what tool certifications</legend>
-    <br/>
-    <input type="hidden" name="team_id" value="${team_id}">
-    <input type="submit" value="See Tool Certifications"/>
-  </fieldset>
-</form>
+
 <br/>
 <form action="addMembers">
    <fieldset>
@@ -48,26 +73,3 @@ ${self.logo()}
 </fieldset>
 </form>
 <br/>
-<H2>Current Team Members</H2>
-%if members:
-<TABLE>
-<THEAD><TD class="team" WIDTH="60%">Name</TD><TD class="team">Role</TD></THEAD>
-<TBODY>
-%for member in members:
-<TR><TD class="team">${member[0]}</TD><TD class="team">
-%if member[2] == 0:
-   Student
-%elif member[2] == 1: 
-   Mentor
-%elif member[2] == 2:
-   Coach
-%else:
-   ${member[2]}
-%endif
-</TD></TR>
-%endfor
-</TBOdy>
-</TABLE>
-%else:
-None<br/>
-%endif
