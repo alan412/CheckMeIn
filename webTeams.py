@@ -1,13 +1,29 @@
 import datetime
 from teams import TeamMemberType
 import cherrypy
-from webBase import WebBase
+from webBase import WebBase, Cookie
+from accounts import Role
 
 
 class WebTeams(WebBase):  # pragma: no cover
     def __init__(self, lookup, engine):
         super().__init__(lookup, engine)
 # Teams
+
+    def checkPermissions(self, team_id, source):
+        role = self.getRole(source)
+        if role.getValue() & Role.ADMIN:
+            return
+        if not role.getValue() & Role.COACH:
+            Cookie('source').set(source)
+            raise cherrypy.HTTPRedirect("/profile/login")
+        coachTeam = Cookie('coach-' + str(team_id)).get(
+            self.engine.teams.isCoachOfTeam(
+                self.dbConnect(), team_id, self.getBarcode(''))
+        )
+        if not coachTeam:
+            Cookie('source').set(source)
+            raise cherrypy.HTTPRedirect("/profile/login")
 
     @cherrypy.expose
     def certifications(self, team_id):
@@ -45,6 +61,7 @@ class WebTeams(WebBase):  # pragma: no cover
 
     @cherrypy.expose
     def index(self, team_id="", error=''):
+        self.checkPermissions(team_id, "/teams?team_id=" + team_id)
         if not team_id:
             raise cherrypy.HTTPRedirect("/admin/teams")
         with self.dbConnect() as dbConnection:
@@ -54,12 +71,17 @@ class WebTeams(WebBase):  # pragma: no cover
 
             members = self.engine.teams.getTeamMembers(dbConnection, team_id)
             activeMembers = self.engine.members.getActive(dbConnection)
+            seasons = self.engine.teams.getAllSeasons(dbConnection, teamInfo)
 
         return self.template('team.mako', firstDate=firstDate, team_id=team_id,
-                             todayDate=todayDate, team_name=teamInfo.name, members=members, activeMembers=activeMembers, TeamMemberType=TeamMemberType, error="")
+                             seasons=seasons,
+                             todayDate=todayDate, team_name=teamInfo.name,
+                             members=members, activeMembers=activeMembers,
+                             TeamMemberType=TeamMemberType, error="")
 
     @cherrypy.expose
     def addMember(self, team_id, member, type):
+        self.checkPermissions(team_id, "/teams?team_id=" + team_id)
         with self.dbConnect() as dbConnection:
             self.engine.teams.addMember(dbConnection, team_id, member, type)
 
@@ -67,6 +89,7 @@ class WebTeams(WebBase):  # pragma: no cover
 
     @cherrypy.expose
     def removeMember(self, team_id, member):
+        self.checkPermissions(team_id, "/teams?team_id=" + team_id)
         with self.dbConnect() as dbConnection:
             self.engine.teams.removeMember(dbConnection, team_id, member)
 
@@ -74,6 +97,7 @@ class WebTeams(WebBase):  # pragma: no cover
 
     @cherrypy.expose
     def renameTeam(self, team_id, newName):
+        self.checkPermissions(team_id, "/teams?team_id=" + team_id)
         with self.dbConnect() as dbConnection:
             self.engine.teams.renameTeam(dbConnection, team_id, newName)
 
@@ -81,6 +105,7 @@ class WebTeams(WebBase):  # pragma: no cover
 
     @cherrypy.expose
     def newSeason(self, team_id, **returning):
+        self.checkPermissions(team_id, "/teams?team_id=" + team_id)
         with self.dbConnect() as dbConnection:
             teamInfo = self.engine.teams.fromTeamId(dbConnection, team_id)
             self.engine.teams.createTeam(dbConnection,
@@ -96,6 +121,7 @@ class WebTeams(WebBase):  # pragma: no cover
 
     @cherrypy.expose
     def update(self, team_id, **params):
+        self.checkPermissions(team_id, "/teams?team_id=" + team_id)
         checkIn = []
         checkOut = []
         for param, value in params.items():

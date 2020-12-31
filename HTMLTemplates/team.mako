@@ -123,3 +123,13 @@ ${self.logo()}
   <input type="submit" value="New Season"/>
 </fieldset>
 </form>
+<br/>
+<fieldset>
+   <legend>All Seasons</legend>
+   <H3>${seasons[0].getProgramId()}</H3>
+   <UL>
+     % for team in seasons:
+     <LI><A HREF="/teams?team_id=${team.teamId}">${team.startDate.strftime("%d %b %y")} : ${team.name}</LI>
+     % endfor
+   </UL>
+</fieldset>
