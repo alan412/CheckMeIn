@@ -23,3 +23,7 @@ class SimpleCPTest(helper.CPWebCase):
     def test_links_full(self):
         self.getPage("/links?barcode=100091")
         self.assertStatus('200 OK')
+
+    def test_unlock(self):
+        self.getPage("/unlock?location=BFF&barcode=100091")
+        self.assertStatus('303 See Other')

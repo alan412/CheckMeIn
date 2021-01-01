@@ -50,9 +50,9 @@ class SimpleCPTest(helper.CPWebCase):
             self.getPage("/admin/fixed?output=")
             self.assertStatus('200 OK')
 
-    def test_create(self):
+    def test_getKeyholderJSON(self):
         with self.patch_session():
-            self.getPage("/admin/createTeam?team_name=Test")
+            self.getPage("/admin/getKeyholderJSON")
             self.assertStatus('200 OK')
 
     def test_bulkadd(self):
@@ -102,3 +102,38 @@ class SimpleCPTest(helper.CPWebCase):
     def test_deleteUser(self):
         with self.patch_session():
             self.getPage("/admin/deleteUser?barcode=100093")
+
+    def test_adminTeams(self):
+        with self.patch_session():
+            self.getPage("/admin/teams")
+            self.assertStatus("200 OK")
+
+    def test_addTeam(self):
+        with self.patch_session():
+            self.getPage(
+                "/admin/addTeam?programName=TFI&programNumber=123&teamName=&coach1=100091&coach2=100090")
+            self.assertStatus("200 OK")
+
+    def test_activateTeam(self):
+        with self.patch_session():
+            self.getPage(
+                "/admin/activateTeam?teamId=1")
+            self.assertStatus("303 See Other")
+
+    def test_deactivateTeam(self):
+        with self.patch_session():
+            self.getPage(
+                "/admin/deactivateTeam?teamId=1")
+            self.assertStatus("303 See Other")
+
+    def test_deleteTeam(self):
+        with self.patch_session():
+            self.getPage(
+                "/admin/deleteTeam?teamId=100")
+            self.assertStatus("303 See Other")
+
+    def test_editTeam(self):
+        with self.patch_session():
+            self.getPage(
+                "/admin/editTeam?teamId=100&programName=FRC&programNumber=3459")
+            self.assertStatus("303 See Other")

@@ -54,6 +54,18 @@ class WebCertifications(WebBase):
             return self.showCertifications(message, tools, certifications)
 
     @cherrypy.expose
+    def team(self, team_id):
+        message = ''
+        with self.dbConnect() as dbConnection:
+            message = 'Certifications for team: ' + \
+                self.engine.teams.teamNameFromId(dbConnection, team_id)
+            tools = self.engine.certifications.getAllTools(dbConnection)
+            certifications = self.engine.certifications.getTeamUserList(
+                dbConnection, team_id)
+
+            return self.showCertifications(message, tools, certifications)
+
+    @cherrypy.expose
     def monitor(self, tools, start_row=0, show_table_header="True"):
         message = ''
         with self.dbConnect() as dbConnection:

@@ -15,6 +15,7 @@ class Status(IntEnum):
 
 
 class Role:
+    COACH = 0x04
     SHOP_CERTIFIER = 0x08
     KEYHOLDER = 0x10
     ADMIN = 0x20
@@ -33,6 +34,9 @@ class Role:
 
     def isShopCertifier(self):
         return self.isRole(self.SHOP_CERTIFIER)
+    
+    def isCoach(self):
+        return self.isRole(self.COACH)
 
     def setValue(self, check, value):
         if type(check) == str:
@@ -48,6 +52,9 @@ class Role:
     def setShopCertifier(self, admin):
         self.setValue(admin, self.SHOP_CERTIFIER)
 
+    def setCoach(self, coach):
+        self.setValue(coach, self.COACH)
+
     def getValue(self):
         return self.value
 
@@ -59,6 +66,8 @@ class Role:
             roleStr += "Keyholder "
         if self.isShopCertifier():
             roleStr += "Certifier "
+        if self.isCoach():
+            roleStr += "Coach "
         return roleStr
 
     def __repr__(self):
@@ -132,7 +141,6 @@ class Accounts(object):
             server.sendmail(from_email, [emailAddress], msg.as_string())
             server.quit()
         except IOError:
-            print('Failed to send e-mail')
             print('Email would have been:', msg)
         return ''
 
@@ -143,9 +151,7 @@ class Accounts(object):
         if data == None:
             return
         if data[0] != None:
-            print(f'before subtract {data[0]}')
             longAgo = datetime.datetime.now() - data[0]
-            print('after subtract')
             if longAgo.total_seconds() < 60:   # to keep people from spamming others...
                 return
         chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
@@ -169,13 +175,11 @@ class Accounts(object):
         longAgo = datetime.datetime.now() - forgotTime
         if (longAgo.total_seconds() > 60*60*24):   # more than a day ago
             return False
-        print(f'Forgot: {forgot}')
         if pwd_context.verify(forgot, data[0]):
             dbConnection.execute(
                 '''UPDATE accounts SET forgot = ?, password = ? WHERE user = ?''',
                 ('', pwd_context.hash(newPassword), username))
             return True
-        print(f'Did not verify')
         return False
 
     def changeRole(self, dbConnection, barcode, newRole):

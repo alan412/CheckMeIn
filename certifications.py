@@ -155,6 +155,20 @@ class Certifications(object):
                 users[row[0]].addTool(row[1], row[2], row[3])
         return users
 
+    def getTeamUserList(self, dbConnection, team_id):
+        users = {}
+        for row in dbConnection.execute('''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
+                                        INNER JOIN members ON members.barcode=user_id
+                                        INNER JOIN team_members ON members.barcode=team_members.barcode
+                                        WHERE team_members.team_id = ?
+                                        ORDER BY team_members.type DESC, members.displayName ASC''', (team_id,)):
+            try:
+                users[row[0]].addTool(row[1], row[2], row[3])
+            except KeyError:
+                users[row[0]] = ToolUser(row[4], row[0])
+                users[row[0]].addTool(row[1], row[2], row[3])
+        return users
+
     def getAllTools(self, dbConnection):
         tools = []
         for row in dbConnection.execute('SELECT id, name, grouping FROM tools ORDER BY id ASC', ()):

@@ -21,6 +21,10 @@ label {
     text-align: right;
     width: 20%;
 }
+label.normal{
+    text-align: left;
+    display: inline;
+}
 
 #member_id {
    text-align: center;
@@ -208,3 +212,11 @@ table.certifications th{
     color: black;
 }
 
+button.deactivate { 
+  background-color: #a84232; 
+  color: #ffffff;
+}
+
+table.teamMembers {
+  border-spacing: 10px;
+}

@@ -9,9 +9,6 @@ class Member(object):
         self.displayName = displayName
         self.email = email
 
-    def __str__(self):
-        return f"{self.displayName} ({self.barcode})"
-
     def __repr__(self):
         return f"{self.displayName} ({self.barcode})"
 

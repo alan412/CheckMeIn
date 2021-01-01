@@ -72,3 +72,7 @@ class SimpleCPTest(helper.CPWebCase):
         self.getPage(
             "/certifications/all")
         self.assertStatus('200 OK')
+
+    def test_team_certification(self):
+        self.getPage('/certifications/team?team_id=1')
+        self.assertStatus('200 OK')
