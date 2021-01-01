@@ -1,4 +1,4 @@
-
+import datetime
 import cherrypy
 from accounts import Role
 
@@ -59,3 +59,9 @@ class WebBase(object):
             Cookie('source').set(source)
             raise cherrypy.HTTPRedirect("/profile/login")
         return value
+
+    def dateFromString(self, inputStr):
+        return datetime.datetime(int(inputStr[0:4]),
+                                 int(inputStr[5:7]),
+                                 int(inputStr[8:10])).replace(
+            hour=0, minute=0, second=0, microsecond=0)

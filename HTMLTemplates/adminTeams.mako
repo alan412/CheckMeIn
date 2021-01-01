@@ -17,10 +17,11 @@ function deleteTeam(teamName, team_id) {
 		}
 }
 
-function editTeam(programName, programNumber, teamName, team_id){
+function editTeam(programName, programNumber, teamName, startDate, team_id){
 	$('#teamDialogName').html(teamName);
 	$('#dlgProgramName').val(programName);
 	$('#dlgProgramNumber').val(programNumber);
+	$('#dlgStartDate').val(startDate);
 
     var dWidth = $(window).width() * 0.8;
 	$("#editTeamDialog").dialog({
@@ -35,7 +36,8 @@ function editTeam(programName, programNumber, teamName, team_id){
                 $(this).dialog('close');
 				requestStr = 'editTeam?teamId='+team_id+'&programName='+
 				$('#dlgProgramName').val() + "&programNumber=" +
-				$('#dlgProgramNumber').val()
+				$('#dlgProgramNumber').val() + "&startDate="
+				$('#dlgStartDate').val()
 				window.location.href = requestStr;
 			}
 		}
@@ -60,9 +62,9 @@ ${self.logo()}
        <table>
 	   <TR><TD>Program Type</TD><TD><select name="programName" id="programName">
 	      <option value="TFI">Non-FIRST Teams</option>
-		  <option value="FLL-Discovery">FIRST Lego League Discovery</option>
-		  <option value="FLL-Explore">FIRST Lego League Explore</option>
-		  <option value="FLL-Challenge" selected>FIRST Lego League Challenge</option>
+		  <option value="FLL-DISCOVERY">FIRST Lego League Discovery</option>
+		  <option value="FLL-EXPLORE">FIRST Lego League Explore</option>
+		  <option value="FLL-CHALLENGE" selected>FIRST Lego League Challenge</option>
 		  <option value="FTC">FIRST Tech Challenge (FTC)</option>
 		  <option value="FRC">FIRST Robotics Challenge (FRC)</option>
 		</select></td></tr>
@@ -70,6 +72,8 @@ ${self.logo()}
 		<TD><input type="number" id="programNumber" name="programNumber"></td></tr>
 		<TR><TD>Team Name</TD>
 		<TD><input id="teamName" name="teamName" placeholder="To be determined"></td><tr/>
+		<TR><TD>Start Date:</TD>
+		<TD><input id="start_date" type="date" name="startDate" value="${todayDate}" max="${todayDate}"/></TD></TR>
        <TR><TD>Coach 1</TD><td><select name="coach1" id="coach1">
 	   % for user in activeMembers:
 	       <option value="${user[1]}">${user[0]} - ${user[1]}</option>
@@ -108,7 +112,7 @@ ${self.logo()}
 				% endfor
 				</td>
 				<td align="center">
-					<button name="Edit" onclick="editTeam('${team.programName}', '${team.programNumber}', '${team.name}', '${team.teamId}' )">Edit Team Info</button>
+					<button name="Edit" onclick="editTeam('${team.programName}', '${team.programNumber}', '${team.name}', '${team.startDate.date()}', '${team.teamId}' )">Edit Team Info</button>
 					<button name="Deactivate" class="deactivate" onclick="deactivateTeam('${team.name}', '${team.teamId}')">Deactivate</button>
 				</td>
 			 </tr>
@@ -149,13 +153,15 @@ To add feature requests or report issues, please go to:<A HREF="https://github.c
 <TABLE>
 	   <TR><TD>Program Type</TD><TD><select name="programName" id="dlgProgramName">
 	      <option value="TFI">Non-FIRST Teams</option>
-		  <option value="FLL-Discovery">FIRST Lego League Discovery</option>
-		  <option value="FLL-Explore">FIRST Lego League Explore</option>
-		  <option value="FLL-Challenge" selected>FIRST Lego League Challenge</option>
+		  <option value="FLL-DISCOVERY">FIRST Lego League Discovery</option>
+		  <option value="FLL-EXPLORE">FIRST Lego League Explore</option>
+		  <option value="FLL-CHALLENGE" selected>FIRST Lego League Challenge</option>
 		  <option value="FTC">FIRST Tech Challenge (FTC)</option>
 		  <option value="FRC">FIRST Robotics Challenge (FRC)</option>
 		</select></td></tr>
 		<TR><TD>Program Number</TD>
 		<TD><input type="number" id="dlgProgramNumber" name="programNumber"></td></tr>
+		<TR><TD>Start Date:</TD>
+		<TD><input id="dlgStartDate" type="date" name="startDate" value="${todayDate}" max="${todayDate}"/></TD></TR>
 </TABLE>
 </div>

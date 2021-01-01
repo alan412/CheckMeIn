@@ -81,11 +81,10 @@ class Teams(object):
             dbConnection.execute(
                 '''ALTER TABLE new_teams RENAME TO teams''')
 
-    def createTeam(self, dbConnection, program_name, program_number, team_name):
-        now = datetime.datetime.now()
+    def createTeam(self, dbConnection, program_name, program_number, team_name, seasonStart):
         try:
             dbConnection.execute(
-                "INSERT INTO teams VALUES (NULL,?,?,?,?,1)", (program_name.upper(), program_number, team_name, now))
+                "INSERT INTO teams VALUES (NULL,?,?,?,?,1)", (program_name.upper(), program_number, team_name, seasonStart))
             return ""
         except sqlite3.IntegrityError:
             return "Team name already exists"
@@ -106,9 +105,10 @@ class Teams(object):
         dbConnection.execute(
             '''DELETE from team_members WHERE team_id = ?''', (team_id,))
 
-    def editTeam(self, dbConnection, programName, programNumber, team_id):
+    def editTeam(self, dbConnection, programName, programNumber, seasonStart, team_id):
         dbConnection.execute(
-            '''UPDATE teams SET program_name = ?, program_number = ? WHERE team_id = ?''', (programName, programNumber, team_id))
+            '''UPDATE teams SET program_name = ?, program_number = ?, start_date = ? WHERE team_id = ?''',
+            (programName, programNumber, seasonStart, team_id))
 
     def getActiveTeamList(self, dbConnection):
         dictTeams = {}

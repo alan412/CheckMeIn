@@ -72,18 +72,21 @@ class WebAdminStation(WebBase):
             activeMembers = self.engine.members.getActive(dbConnection)
             coaches = self.engine.teams.getCoachesList(
                 dbConnection, activeTeams)
+            todayDate = datetime.date.today().isoformat()
 
-        return self.template('adminTeams.mako', error=error, username=Cookie('username').get(''), activeTeams=activeTeams, inactiveTeams=inactiveTeams, activeMembers=activeMembers, coaches=coaches)
+        return self.template('adminTeams.mako', error=error, todayDate=todayDate, username=Cookie('username').get(''), activeTeams=activeTeams, inactiveTeams=inactiveTeams, activeMembers=activeMembers, coaches=coaches)
 
     @cherrypy.expose
-    def addTeam(self, programName, programNumber, teamName, coach1, coach2):
+    def addTeam(self, programName, programNumber, teamName, startDate, coach1, coach2):
         self.checkPermissions()
         if not teamName:
             teamName = "TBD:" + programName + programNumber
 
+        seasonStart = self.dateFromString(startDate)
+
         with self.dbConnect() as connection:
             error = self.engine.teams.createTeam(
-                connection, programName, programNumber, teamName)
+                connection, programName, programNumber, teamName, seasonStart)
 
         if not error:
             with self.dbConnect() as connection:
@@ -153,11 +156,12 @@ class WebAdminStation(WebBase):
         raise cherrypy.HTTPRedirect("/admin/teams")
 
     @cherrypy.expose
-    def editTeam(self, programName, programNumber, teamId):
+    def editTeam(self, programName, programNumber, startDate, teamId):
         self.checkPermissions()
+        seasonStart = self.dateFromString(startDate)
         with self.dbConnect() as dbConnection:
             self.engine.teams.editTeam(
-                dbConnection, programName, programNumber, teamId)
+                dbConnection, programName, programNumber, seasonStart, teamId)
         raise cherrypy.HTTPRedirect("/admin/teams")
 
     @cherrypy.expose
