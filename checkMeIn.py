@@ -13,6 +13,7 @@ from webTeams import WebTeams
 from webAdminStation import WebAdminStation
 from webReports import WebReports
 from webProfile import WebProfile
+from docs import getDocumentation
 
 DB_STRING = 'data/checkMeIn.db'
 
@@ -39,6 +40,10 @@ class CheckMeIn(WebBase):
                                  now=datetime.datetime.now(),
                                  keyholder=keyholder_name,
                                  whoIsHere=self.engine.reports.whoIsHere(dbConnection))
+
+    @cherrypy.expose
+    def docs(self):
+        return self.template("docs.mako", docs=getDocumentation()),
 
     @cherrypy.expose
     def unlock(self, location, barcode):
