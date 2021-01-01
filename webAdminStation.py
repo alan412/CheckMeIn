@@ -185,7 +185,6 @@ class WebAdminStation(WebBase):
                 for device in devices:
                     keyholder['devices'].append(
                         {'name': device.name, 'mac': device.mac})
-        #    print(keyholders)
             jsonData = json.dumps(keyholders)
         # encrypt now
             with open('data/checkmein.key', 'rb') as key_file:

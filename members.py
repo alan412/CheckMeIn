@@ -30,7 +30,6 @@ class Members(object):
                                           membershipExpires TIMESTAMP)
                 ''')
             for row in dbConnection.execute("SELECT * FROM members"):
-                print(row)
                 dbConnection.execute('''
                 INSERT INTO new_members VALUES (?,?,'','','',?)''',
                                      (row[0], row[1], future if row[2] else past))

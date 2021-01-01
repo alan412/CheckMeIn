@@ -141,7 +141,6 @@ class Accounts(object):
             server.sendmail(from_email, [emailAddress], msg.as_string())
             server.quit()
         except IOError:
-            print('Failed to send e-mail')
             print('Email would have been:', msg)
         return ''
 
@@ -152,9 +151,7 @@ class Accounts(object):
         if data == None:
             return
         if data[0] != None:
-            print(f'before subtract {data[0]}')
             longAgo = datetime.datetime.now() - data[0]
-            print('after subtract')
             if longAgo.total_seconds() < 60:   # to keep people from spamming others...
                 return
         chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
@@ -178,13 +175,11 @@ class Accounts(object):
         longAgo = datetime.datetime.now() - forgotTime
         if (longAgo.total_seconds() > 60*60*24):   # more than a day ago
             return False
-        print(f'Forgot: {forgot}')
         if pwd_context.verify(forgot, data[0]):
             dbConnection.execute(
                 '''UPDATE accounts SET forgot = ?, password = ? WHERE user = ?''',
                 ('', pwd_context.hash(newPassword), username))
             return True
-        print(f'Did not verify')
         return False
 
     def changeRole(self, dbConnection, barcode, newRole):

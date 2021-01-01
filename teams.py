@@ -48,7 +48,7 @@ class TeamInfo(object):
         return f'{self.programName}{self.programNumber}' if self.programNumber else self.programName
 
 
-class Teams(object):  # pragma: no cover
+class Teams(object):
     def __init__(self):
         pass
 
@@ -138,7 +138,7 @@ class Teams(object):  # pragma: no cover
 
     def isCoachOfTeam(self, dbConnection, teamId, coachBarcode):
         data = dbConnection.execute('''SELECT team_id FROM team_members WHERE team_id = ? AND barcode = ? AND type = ?''',
-                                    teamId, coachBarcode, TeamMemberType.coach).fetchone()
+                                    (teamId, coachBarcode, TeamMemberType.coach)).fetchone()
         if not data:
             return False
         return True
@@ -151,18 +151,6 @@ class Teams(object):  # pragma: no cover
                                 ORDER BY program_name, program_number''', (Status.inactive,)):
             teamList.append(TeamInfo(row[0], row[1], row[2], row[3], row[4]))
         return teamList
-
-    def splitProgramInfo(self, programId):
-        program_name = ''
-        program_number = 0
-        x = re.search(r"[1-9][0-9]*$", programId)
-        if not x:
-            program_name = programId
-        else:
-            program_number = int(x.group())
-            (end, _) = x.span()
-            program_name = x.string[:end]
-        return (program_name, program_number)
 
     def getTeamFromProgramInfo(self, dbConnection, name, number):
         for row in dbConnection.execute('''SELECT team_id, program_name, program_number, team_name, start_date
