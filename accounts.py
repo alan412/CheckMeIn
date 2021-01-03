@@ -34,7 +34,7 @@ class Role:
 
     def isShopCertifier(self):
         return self.isRole(self.SHOP_CERTIFIER)
-    
+
     def isCoach(self):
         return self.isRole(self.COACH)
 
@@ -105,6 +105,16 @@ class Accounts(object):
         if not pwd_context.verify(password, data[0]):
             return ('', Role(0))
         return (data[1], Role(data[2]))
+
+    def getMembersWithRole(self, dbConnection, role):
+        listUsers = []
+        for row in dbConnection.execute('''SELECT displayName, accounts.barcode
+            FROM accounts
+            INNER JOIN members ON (members.barcode = accounts.barcode)
+            WHERE (membershipExpires > ?) AND (role & ? != 0)
+            ORDER BY displayName''', (datetime.datetime.now(), role)):
+            listUsers.append([row[0], row[1]])
+        return listUsers
 
     def getRole(self, dbConnection, barcode):
         data = dbConnection.execute(
@@ -239,6 +249,7 @@ class Accounts(object):
             keyholders.append(
                 {'user': row[0], 'barcode': row[1], 'password': row[2]})
         return keyholders
+
 
         # This is temporary - just to give us some fake data to play with
 import sqlite3

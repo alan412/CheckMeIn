@@ -69,12 +69,17 @@ class WebAdminStation(WebBase):
             activeTeams = self.engine.teams.getActiveTeamList(dbConnection)
             inactiveTeams = self.engine.teams.getInactiveTeamList(dbConnection)
 
-            activeMembers = self.engine.members.getActive(dbConnection)
+            activeCoaches = self.engine.accounts.getMembersWithRole(
+                dbConnection, Role.COACH)
             coaches = self.engine.teams.getCoachesList(
                 dbConnection, activeTeams)
             todayDate = datetime.date.today().isoformat()
 
-        return self.template('adminTeams.mako', error=error, todayDate=todayDate, username=Cookie('username').get(''), activeTeams=activeTeams, inactiveTeams=inactiveTeams, activeMembers=activeMembers, coaches=coaches)
+        return self.template('adminTeams.mako', error=error,
+                             todayDate=todayDate, username=Cookie(
+                                 'username').get(''),
+                             activeTeams=activeTeams, inactiveTeams=inactiveTeams,
+                             activeCoaches=activeCoaches, coaches=coaches)
 
     @cherrypy.expose
     def addTeam(self, programName, programNumber, teamName, startDate, coach1, coach2):

@@ -74,13 +74,14 @@ ${self.logo()}
 		<TD><input id="teamName" name="teamName" placeholder="To be determined"></td><tr/>
 		<TR><TD>Start Date:</TD>
 		<TD><input id="start_date" type="date" name="startDate" value="${todayDate}" max="${todayDate}"/></TD></TR>
+	   <tr><TD></TD><TD>If the coach isn't in this list, please <A HREF="/admin/users">add them HERE.</A></TD></TR>
        <TR><TD>Coach 1</TD><td><select name="coach1" id="coach1">
-	   % for user in activeMembers:
+	   % for user in activeCoaches:
 	       <option value="${user[1]}">${user[0]} - ${user[1]}</option>
 	   % endfor
 		</select></td>
        <TD>Coach 2</TD><td><select name="coach2" id="coach2">
-	   % for user in activeMembers:
+	   % for user in activeCoaches:
 	       <option value="${user[1]}">${user[0]} - ${user[1]}</option>
 	   % endfor
 		</select></td>		
