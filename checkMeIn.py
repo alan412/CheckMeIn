@@ -54,17 +54,23 @@ class CheckMeIn(WebBase):
 
     @cherrypy.expose
     def links(self, barcode=None):
+        activeTeamsCoached = None
         with self.dbConnect() as dbConnection:
             role = self.engine.accounts.getRole(dbConnection, barcode)
             if barcode:
                 (_, displayName) = self.engine.members.getName(
                     dbConnection, barcode)
                 activeMembers = {}
+                if role.isCoach():
+                    activeTeamsCoached = self.engine.teams.getActiveTeamsCoached(
+                        dbConnection, barcode)
             else:
                 displayName = ""
                 activeMembers = self.engine.members.getActive(dbConnection)
             inBuilding = self.engine.visits.inBuilding(dbConnection, barcode)
-        return self.template('links.mako', barcode=barcode, role=role, inBuilding=inBuilding, displayName=displayName, activeMembers=activeMembers)
+        return self.template('links.mako', barcode=barcode, role=role,
+                             activeTeamsCoached=activeTeamsCoached, inBuilding=inBuilding,
+                             displayName=displayName, activeMembers=activeMembers)
 
 
 if __name__ == '__main__':  # pragma: no cover

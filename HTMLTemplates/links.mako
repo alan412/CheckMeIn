@@ -33,14 +33,22 @@ ${self.logo()}<br/>
    % endif
    <H3><A HREF="/">See who is here</A></H3>
 
-   % if role.isKeyholder() or role.isAdmin():
+   % if role.isKeyholder() or role.isAdmin() or role.isCoach():
       <H3><A HREF="/profile/">Profile</A></H3>
+   % endif
+
+   % if role.isCoach():
+   <H2>Coach Tasks</H2>
+      % for team in activeTeamsCoached:
+         <H3><A HREF="/teams?team_id=${team.teamId}">${team.getProgramId()} - ${team.name}</A>
+      % endfor
    % endif
 
    % if role.isAdmin():
    <H2>Admin Tasks</H2>
       <H3><A HREF="/admin">Admin Console</A></H3>
       <H3><A HREF="/admin/users">Manage Users</A></H3>
+      <H3><A HREF="/admin/teams">Manage Teams</A></H3>
       <H3><A HREF="/reports">Reports</A></H3>
    % endif
 

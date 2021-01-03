@@ -111,6 +111,7 @@ class Teams(object):
             (programName, programNumber, seasonStart, team_id))
 
     def getActiveTeamList(self, dbConnection):
+        # TODO: Change to use DISTINCT feature of SQLITE to get rid of python
         dictTeams = {}
         for row in dbConnection.execute('''SELECT team_id, program_name, program_number, team_name, start_date
                                 FROM teams
@@ -220,3 +221,12 @@ class Teams(object):
         for team in teamList:
             coachDict[team.teamId] = self.getCoaches(dbConnection, team.teamId)
         return coachDict
+
+    def getActiveTeamsCoached(self, dbConnection, barcode):
+        teamsCoached = []
+        # TODO: Change to use DISTINCT feature of SQLITE and a join to get rid of python
+        teams = self.getActiveTeamList(dbConnection)
+        for team in teams:
+            if self.isCoachOfTeam(dbConnection, team.teamId, barcode):
+                teamsCoached.append(team)
+        return teamsCoached
