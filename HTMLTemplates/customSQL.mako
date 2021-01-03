@@ -17,7 +17,7 @@ ${self.logo()}<br/>
 <FORM action="customSQLReport">
      <fieldset>
         <legend>SQL command</legend>
-     <textarea name="sql" rows="10" cols="80">
+     <textarea name="sql" rows="10" cols="80" onchange="trimInput(this)"">
 ${sql}
      </textarea>
    <br/>

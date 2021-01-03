@@ -16,6 +16,10 @@ function pythonDateToHTML(datetime){
 	return js_datetime.toLocaleString("en-US", options);
 }
 
+function trimInput(control){
+	control.value = $.trim(control.value);
+}
+
 $( document ).ready(function(){
 	$(".date").each(function(){
 		$( this ).text(pythonDatetimeToHTML($(this).text()));
