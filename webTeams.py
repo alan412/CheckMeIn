@@ -11,7 +11,7 @@ class WebTeams(WebBase):
 # Teams
 
     def checkPermissions(self, team_id):
-        source = "/teams?team_id ="+team_id
+        source = "/teams?team_id="+team_id
         role = self.getRole(source)
         if role.getValue() & Role.ADMIN:
             return
