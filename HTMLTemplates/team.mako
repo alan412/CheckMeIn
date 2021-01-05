@@ -5,7 +5,10 @@
 
 <%def name="title()">CheckMeIn Teams</%def>
 <%inherit file="base.mako"/>
+<div>
 ${self.logo()}
+<A style="text-align:right" HREF="/profile/logout">Logout ${username}</A><br/>
+</div>
 <br/>
 <H1>${team_name}</H1>
 <H3>Season starting ${firstDate.strftime("%d %b %y")}</H3>

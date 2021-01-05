@@ -76,6 +76,7 @@ class WebTeams(WebBase):
 
         return self.template('team.mako', firstDate=firstDate, team_id=team_id,
                              seasons=seasons,
+                             username=Cookie('username').get(''),
                              todayDate=todayDate, team_name=teamInfo.name,
                              members=members, activeMembers=activeMembers,
                              TeamMemberType=TeamMemberType, error="")
