@@ -192,8 +192,9 @@ class WebAdminStation(WebBase):
                 devices = self.engine.devices.getList(
                     dbConnection, keyholder['barcode'])
                 for device in devices:
-                    keyholder['devices'].append(
-                        {'name': device.name, 'mac': device.mac})
+                    if device.mac:
+                        keyholder['devices'].append(
+                            {'name': device.name, 'mac': device.mac})
             jsonData = json.dumps(keyholders)
         # encrypt now
             with open('data/checkmein.key', 'rb') as key_file:
