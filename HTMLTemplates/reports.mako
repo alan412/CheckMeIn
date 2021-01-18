@@ -65,7 +65,7 @@ ${self.logo()}<br/>
 <FORM action="customSQLReport">
      <fieldset>
         <legend>For the <em>Real</em> Geek</legend>
-     <textarea name="sql" rows="10" cols="80" onchange="trimInput(this)>
+     <textarea name="sql" rows="10" cols="80" onchange="trimInput(this)">
 SELECT start, leave, displayName
 FROM visits
 INNER JOIN members ON members.barcode = visits.barcode
