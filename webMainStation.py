@@ -71,12 +71,8 @@ class WebMainStation(WebBase):
                         dbConnection, barcode)
         with self.dbConnect() as dbConnection:
             if currentKeyholderLeaving:
-                whoIsHere = self.engine.reports.whoIsHere(dbConnection)
-                if len(whoIsHere) > 1:
-                    return self.template('keyholderCheckout.mako', barcode=current_keyholder_bc, whoIsHere=self.engine.reports.whoIsHere(dbConnection))
+                self.engine.visits.emptyBuilding(dbConnection, current_keyholder_bc)
                 self.engine.accounts.removeKeyholder(dbConnection)
-                error = self.engine.visits.checkOutMember(
-                    dbConnection, current_keyholder_bc)
         raise cherrypy.HTTPRedirect("/station")
 
     @cherrypy.expose
