@@ -115,6 +115,9 @@ class WebAdminStation(WebBase):
     def addUser(self, user, barcode, keyholder=0, admin=0, certifier=0, coach=0):
         error = ""
         self.checkPermissions()
+        if user == "":
+            error = "Username must not be blank"
+            return self.users(error)
         with self.dbConnect() as dbConnection:
             chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
             tempPassword = ''.join(random.SystemRandom().choice(chars)
