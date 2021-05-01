@@ -112,7 +112,7 @@ class WebTeams(WebBase):
             teamInfo = self.engine.teams.fromTeamId(dbConnection, team_id)
             seasonStart = self.dateFromString(startDate)
             self.engine.teams.createTeam(dbConnection,
-                                         teamInfo.programName, teamInfo.programNumber, teamInfo.name, startDate)
+                                         teamInfo.programName, teamInfo.programNumber, teamInfo.name, seasonStart)
         with self.dbConnect() as dbConnection:
             teamInfo = self.engine.teams.getTeamFromProgramInfo(
                 dbConnection, teamInfo.programName, teamInfo.programNumber)
