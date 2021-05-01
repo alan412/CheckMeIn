@@ -116,6 +116,10 @@ ${self.logo()}
     <div>
       <input type="hidden" name="team_id" value="${team_id}">
       <table>
+      		<TR><TD>Start Date:</TD>
+	      	<TD><input id="start_date" type="date" name="startDate" value="${todayDate}" max="${todayDate}"/></TD></TR>
+      </table>
+      <table>
       <tr><th>Name</th><th>Returning</th></tr>
 	   % for member in members:
       <tr><td>${member.name}</td><td><input type="checkbox" value="${member.type}" name="${member.barcode}"></td></tr>

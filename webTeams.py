@@ -106,12 +106,13 @@ class WebTeams(WebBase):
         raise cherrypy.HTTPRedirect("/teams?team_id="+team_id)
 
     @cherrypy.expose
-    def newSeason(self, team_id, **returning):
+    def newSeason(self, team_id, startDate, **returning):
         self.checkPermissions(team_id)
         with self.dbConnect() as dbConnection:
             teamInfo = self.engine.teams.fromTeamId(dbConnection, team_id)
+            seasonStart = self.dateFromString(startDate)
             self.engine.teams.createTeam(dbConnection,
-                                         teamInfo.programName, teamInfo.programNumber, teamInfo.name)
+                                         teamInfo.programName, teamInfo.programNumber, teamInfo.name, startDate)
         with self.dbConnect() as dbConnection:
             teamInfo = self.engine.teams.getTeamFromProgramInfo(
                 dbConnection, teamInfo.programName, teamInfo.programNumber)
