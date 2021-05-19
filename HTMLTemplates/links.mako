@@ -26,7 +26,7 @@ ${self.logo()}<br/>
 <H1>${displayName}</H1>
    % if role.isKeyholder():
       <H3><A HREF="/station/makeKeyholder?barcode=${barcode}">Make ME Keyholder</A>
-      <H3><A HREF="192.168.1.10">Door App (Works ONLY when at BFF)</A>
+      <H3><A HREF="http://192.168.1.10">Door App (Works ONLY when at BFF)</A>
    % endif
    
    % if inBuilding:
