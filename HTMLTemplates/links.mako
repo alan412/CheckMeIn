@@ -20,6 +20,8 @@ ${self.logo()}<br/>
 		</select></td></tr>
         <input type="submit" value="Show Links"/>
 </form>
+<HR/>
+<H3><A HREF="/certifications/all">See list of all certifications</A></H3>
 % else:
 <H1>${displayName}</H1>
    % if role.isKeyholder():
@@ -57,6 +59,7 @@ ${self.logo()}<br/>
    <H2>Shop Certifier Tasks</H2>
      <H3><A HREF="/certifications/certify">Certify those in building</A></H3>
      <H3><A HREF="/certifications/certify?all=True">Certify any member</A></H3>
+     <H3><A HREF="/certifications/all">See list of all certifications</A></H3>
    % endif
 
 
