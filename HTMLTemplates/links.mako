@@ -10,6 +10,8 @@ ${self.logo()}<br/>
 <H3><A HREF="/station">Main Station</A></H3>
 <H3><A HREF="/guests">Guest Station</A></H3>
 <H3><A HREF="/certifications">Certification Monitor</A></H3>
+<H3><A HREF="/links">Links</A></H3>
+
 <!-- TODO: This will allow you to set the certification monitor settings -->
 
 <form action="/links">
