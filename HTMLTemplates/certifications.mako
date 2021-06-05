@@ -27,6 +27,7 @@
    % for tool in tools:
       ${user_tools.getHTMLCellTool(tool[0]) | n}
    % endfor
+   <TD>${user_tools.displayName}</TD>
    </TR>
 % endfor
 </TABLE>
