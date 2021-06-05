@@ -37,13 +37,14 @@ class ToolUser(object):
 
     def getHTMLCellTool(self, tool_id):
         (date, level) = self.getTool(tool_id)
+        dateStr = f'{date.date.month:02}/{date.date.year - 2000}'
         HTMLDetails = {
             CertificationLevels.NONE:  '<TD class="clNone"></TD>',
-            CertificationLevels.BASIC: '<TD class="clBasic">BASIC</TD>',
-            CertificationLevels.CERTIFIED: '<TD class="clCertified">CERTIFIED</TD>',
-            CertificationLevels.DOF: '<TD class="clDOF">DOF</TD>',
-            CertificationLevels.INSTRUCTOR: '<TD class="clInstructor">Instructor</TD>',
-            CertificationLevels.CERTIFIER: '<TD class="clCertifier">Certifier</TD>'
+            CertificationLevels.BASIC: f'<TD class="clBasic">BASIC<br/>{dateStr}</TD>',
+            CertificationLevels.CERTIFIED: f'<TD class="clCertified">CERTIFIED<br/>{dateStr}</TD>',
+            CertificationLevels.DOF: f'<TD class="clDOF">DOF<br/>{dateStr}</TD>',
+            CertificationLevels.INSTRUCTOR: f'<TD class="clInstructor">Instructor<br/>{dateStr}</TD>',
+            CertificationLevels.CERTIFIER: f'<TD class="clCertifier">Certifier<br/>{dateStr}</TD>'
         }
         try:
             return HTMLDetails[level]
