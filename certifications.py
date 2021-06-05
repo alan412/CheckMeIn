@@ -37,6 +37,7 @@ class ToolUser(object):
 
     def getHTMLCellTool(self, tool_id):
         (date, level) = self.getTool(tool_id)
+        date = date[:7]
         HTMLDetails = {
             CertificationLevels.NONE:  '<TD class="clNone"></TD>',
             CertificationLevels.BASIC: f'<TD class="clBasic">BASIC<br/>{date}</TD>',
