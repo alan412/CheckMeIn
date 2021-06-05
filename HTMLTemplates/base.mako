@@ -40,7 +40,7 @@ function escapeHTML(string) {
   });
 }
 </script>
-<html>
+<html lang="en">
 	<head>
 		<link rel="stylesheet" type="text/css" href="/static/style.css"/>
 	    <title>${self.title()}</title>
