@@ -54,6 +54,9 @@ ${self.logo()}<br/>
       <H3><A HREF="/admin/users">Manage Users</A></H3>
       <H3><A HREF="/admin/teams">Manage Teams</A></H3>
       <H3><A HREF="/reports">Reports</A></H3>
+      <hr/>
+      To add feature requests or report issues, please go to:<A HREF="https://github.com/alan412/CheckMeIn/issues">https://github.com/alan412/CheckMeIn/issues</A>
+      <br/>
    % endif
 
    % if role.isShopCertifier():
