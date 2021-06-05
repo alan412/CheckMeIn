@@ -36,7 +36,6 @@ ${self.logo()}<br/>
    % else:
       <H3><A HREF="/station/checkin?barcode=${barcode}">Check in</A></H3>
    % endif
-   <H3><A HREF="/">See who is here</A></H3>
 
    % if role.isKeyholder() or role.isAdmin() or role.isCoach():
       <H3><A HREF="/profile/">Profile</A></H3>
@@ -64,7 +63,7 @@ ${self.logo()}<br/>
      <H3><A HREF="/certifications/all">See list of all certifications</A></H3>
    % endif
    <HR/>
+   <H3><A HREF="/whoishere">See who is here</A></H3>
    <H3><A HREF="/links">Generic Links</A></H3>
-
-
+   <H3><A HREF="/certifications">Certification Monitor</A></H3>
 % endif
