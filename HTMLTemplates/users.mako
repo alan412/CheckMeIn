@@ -66,7 +66,7 @@ function changeAccess(userName, barcode, keyholder, admin, certifier, coach){
 ${self.logo()}
 <A style="text-align:right" HREF="/profile/logout">Logout ${username}</A><br/>
 	<fieldset>
-	<legend>Add Keyholder or Admin</legend>
+	<legend>Add Account</legend>
     <form action="addUser">
        <table>
        <tr><td>Username:</td>
