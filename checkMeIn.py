@@ -37,7 +37,7 @@ class CheckMeIn(WebBase):
         return self.links()
 
     @cherrypy.expose
-    def whoIsHere(self):
+    def whoishere(self):
         with self.dbConnect() as dbConnection:
             (_, keyholder_name) = self.engine.accounts.getActiveKeyholder(dbConnection)
             return self.template('who_is_here.mako',
