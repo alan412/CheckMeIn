@@ -77,7 +77,7 @@ ${self.logo()}
 	       <option value="${barcode}">${nonAccounts[barcode]} - ${barcode}</option>
 	   % endfor
 		</select></td></tr>
-       <tr><td>Access type:</td>
+       <tr><td colspan=2>Access type:</td>
        <td><input type="checkbox" id="keyholder" name="keyholder" value="1" checked/>Keyholder</td>
        <td><input type="checkbox" id="admin" name="admin" value="1"/>Admin</td>
 	   <td><input type="checkbox" id="certifier" name="certifier" value="1"/>Shop Certifier</td>
