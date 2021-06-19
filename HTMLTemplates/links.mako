@@ -11,7 +11,7 @@ ${self.logo()}<br/>
 <H3><A HREF="/guests">Guest Station</A></H3>
 <H3><A HREF="/certifications">Certification Monitor</A></H3>
 <H3><A HREF="/whoishere">Who is at BFF</A></H3>
-<H3><A HREF="/login">Login</A></H3>
+<H3><A HREF="/profile/login">Login</A></H3>
 
 <!-- TODO: This will allow you to set the certification monitor settings -->
 
@@ -70,5 +70,5 @@ ${self.logo()}<br/>
    <H3><A HREF="/whoishere">See who is here</A></H3>
    <H3><A HREF="/links">Generic Links</A></H3>
    <H3><A HREF="/certifications">Certification Monitor</A></H3>
-   <H3><A HREF="/login">Login</A></H3>
+   <H3><A HREF="/profile/login">Login</A></H3>
 % endif
