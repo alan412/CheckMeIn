@@ -55,7 +55,7 @@ class WebProfile(WebBase):
         with self.dbConnect() as dbConnection:
             if self.engine.accounts.verify_forgot(dbConnection, user, token, newPass1):
                 raise cherrypy.HTTPRedirect("/profile/login")
-        return self.forgotPassword(user)
+        return "Token not correct.  Try link again"
 
     @cherrypy.expose
     def changePassword(self, oldPass, newPass1, newPass2):
