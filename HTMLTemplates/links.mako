@@ -70,4 +70,5 @@ ${self.logo()}<br/>
    <H3><A HREF="/whoishere">See who is here</A></H3>
    <H3><A HREF="/links">Generic Links</A></H3>
    <H3><A HREF="/certifications">Certification Monitor</A></H3>
+   <H3><A HREF="/login">Login</A></H3>
 % endif
