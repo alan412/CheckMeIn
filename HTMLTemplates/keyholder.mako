@@ -1,6 +1,6 @@
 <%def name="scripts()">
 <script>
-window.onload = setTimeout(function(){location.href="station"},1000*30*1);  // if still here in 30 seconds
+window.onload = setTimeout(function(){location.href="/station"},1000*30*1);  // if still here in 30 seconds
 </script>
 </%def>
 <%def name="head()">
