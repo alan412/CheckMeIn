@@ -8,6 +8,7 @@ window.onload = setTimeout(function(){location.href="/station"},1000*60);  // ev
 
 <%def name="title()">CheckMeIn Station</%def>
 <%inherit file="base.mako"/>
+<A HREF="/guests">Link to Guest Station</A>
 <TABLE>
 <TR><TD WIDTH="20%">
 ${self.logo()}<br/>

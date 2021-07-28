@@ -7,6 +7,7 @@
 </%def>
 <%def name="title()">CheckMeIn - Guest Station</%def>
 <%inherit file="base.mako"/>
+<A HREF="/station">Link to Main Station</A>
 <table class="header">
 <TR>
   <TD style="text-align:center">${self.logo()}<br/></TD>
