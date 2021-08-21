@@ -23,7 +23,6 @@ ${self.logo()}<br/>
         <input type="submit" value="Show Links"/>
 </form>
 <HR/>
-<H3><A HREF="/certifications/all">See list of all certifications</A></H3>
 % else:
 <H1>${displayName}</H1>
    
