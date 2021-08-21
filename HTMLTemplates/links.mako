@@ -33,7 +33,7 @@ ${self.logo()}<br/>
    % else:
       <H3><A HREF="/station/checkin?barcode=${barcode}">Check into BFF</A></H3>
    % endif
-   <H3><A HREF="/certifications/user?barcode=${barcode}">My Certifications</A></H3>
+   <H3><A HREF="/certifications/user?barcode=${barcode}">My Shop Certifications</A></H3>
 
 
    % if role.isKeyholder() or role.isAdmin() or role.isCoach():
