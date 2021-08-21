@@ -25,6 +25,7 @@ ${self.logo()}<br/>
 <HR/>
 % else:
 <H1>${displayName}</H1>
+<H5>${barcode}</H5>
    
    % if inBuilding:
       <H3><A HREF="/station/checkout?barcode=${barcode}">Check out of BFF</A></H3>
