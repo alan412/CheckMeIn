@@ -66,6 +66,16 @@ class WebCertifications(WebBase):
             return self.showCertifications(message, tools, certifications)
 
     @cherrypy.expose
+    def user(self, barcode):
+        message = ''
+        with self.dbConnect() as dbConnection:
+            message = 'Certifications for Individual'
+            tools = self.engine.certifications.getAllTools(dbConnection)
+            certifications = self.engine.certifications.getUserList(
+                dbConnection, user_id=barcode)
+
+            return self.showCertifications(message, tools, certifications)
+    @cherrypy.expose
     def monitor(self, tools, start_row=0, show_table_header="True"):
         message = ''
         with self.dbConnect() as dbConnection:

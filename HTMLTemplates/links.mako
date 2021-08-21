@@ -66,6 +66,8 @@ ${self.logo()}<br/>
      <H3><A HREF="/certifications/certify?all=True">Certify any member</A></H3>
      <H3><A HREF="/certifications/all">See list of all certifications</A></H3>
    % endif
+
+   <H3><A HREF="/certifications/user?barcode=${barcode}">My Certifications</A></H3>
    <HR/>
    <H3><A HREF="/whoishere">See who is here</A></H3>
    <H3><A HREF="/links">Generic Links</A></H3>
