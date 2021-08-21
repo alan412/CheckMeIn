@@ -32,7 +32,9 @@ ${self.logo()}<br/>
       <H3><A HREF="/station/checkin?barcode=${barcode}">Check into BFF</A></H3>
    % endif
    <H3><A HREF="/certifications/user?barcode=${barcode}">My Shop Certifications</A></H3>
-
+   <H3><A HREF="/whoishere">See who is at BFF</A></H3>
+   <H3><A HREF="/links">BFF Stations</A></H3>
+   
 
    % if role.isKeyholder() or role.isAdmin() or role.isCoach():
       <H3><A HREF="/profile/login">Login</A></H3>
@@ -68,9 +70,7 @@ ${self.logo()}<br/>
      <H3><A HREF="/certifications/all">See list of all certifications</A></H3>
    % endif
    <HR/>
-   <H3><A HREF="/whoishere">See who is at BFF</A></H3>
-   <H3><A HREF="/links">BFF Stations</A></H3>
-   
+ 
    % if role.isAdmin():
    <hr/>
       To add feature requests or report issues, please go to:<A HREF="https://github.com/alan412/CheckMeIn/issues">https://github.com/alan412/CheckMeIn/issues</A>
