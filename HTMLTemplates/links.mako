@@ -29,9 +29,9 @@ ${self.logo()}<br/>
 <H1>${displayName}</H1>
    
    % if inBuilding:
-      <H3><A HREF="/station/checkout?barcode=${barcode}">Check out</A></H3>
+      <H3><A HREF="/station/checkout?barcode=${barcode}">Check out of BFF</A></H3>
    % else:
-      <H3><A HREF="/station/checkin?barcode=${barcode}">Check in</A></H3>
+      <H3><A HREF="/station/checkin?barcode=${barcode}">Check into BFF</A></H3>
    % endif
    <H3><A HREF="/certifications/user?barcode=${barcode}">My Certifications</A></H3>
 
