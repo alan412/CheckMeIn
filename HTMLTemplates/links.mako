@@ -37,7 +37,7 @@ ${self.logo()}<br/>
 
 
    % if role.isKeyholder() or role.isAdmin() or role.isCoach():
-      <H3><A HREF="/profile/">Profile</A></H3>
+      <H3><A HREF="/profile/">Change Password</A></H3>
    % endif
    
    % if role.isKeyholder():
@@ -60,9 +60,6 @@ ${self.logo()}<br/>
       <H3><A HREF="/admin/users">Manage Users</A></H3>
       <H3><A HREF="/admin/teams">Manage Teams</A></H3>
       <H3><A HREF="/reports">Reports</A></H3>
-      <hr/>
-      To add feature requests or report issues, please go to:<A HREF="https://github.com/alan412/CheckMeIn/issues">https://github.com/alan412/CheckMeIn/issues</A>
-      <br/>
    % endif
 
    % if role.isShopCertifier():
@@ -76,4 +73,10 @@ ${self.logo()}<br/>
    <H3><A HREF="/links">Generic Links</A></H3>
    <H3><A HREF="/certifications">Certification Monitor</A></H3>
    <H3><A HREF="/profile/login">Login</A></H3>
+   
+   % if role.isAdmin():
+   <hr/>
+      To add feature requests or report issues, please go to:<A HREF="https://github.com/alan412/CheckMeIn/issues">https://github.com/alan412/CheckMeIn/issues</A>
+   <br/>
+   % endif 
 % endif
