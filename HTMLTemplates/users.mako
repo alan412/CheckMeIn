@@ -65,30 +65,9 @@ function changeAccess(userName, barcode, keyholder, admin, certifier, coach){
 <%inherit file="base.mako"/>
 ${self.logo()}
 <A style="text-align:right" HREF="/profile/logout">Logout ${username}</A><br/>
-	<fieldset>
-	<legend>Add User</legend>
-    <form action="addUser">
-       <table>
-       <tr><td>Username:</td>
-       <td><input name="user" id="username"></td></tr>
-       <tr><td>Barcode:</td>
-       <td><select name="barcode" id="barcode">
-	   % for barcode in nonAccounts:
-	       <option value="${barcode}">${nonAccounts[barcode]} - ${barcode}</option>
-	   % endfor
-		</select></td></tr>
-       <tr><td colspan=2>Access type:</td>
-       <td><input type="checkbox" id="keyholder" name="keyholder" value="1" checked/>Keyholder</td>
-       <td><input type="checkbox" id="admin" name="admin" value="1"/>Admin</td>
-	   <td><input type="checkbox" id="certifier" name="certifier" value="1"/>Shop Certifier</td>
-	   <td><input type="checkbox" id="coach" name="coach" value="1"/>Coach</td>
-      </table>
-      <input type="submit" value="Add"/>
-      </form>
-	  </fieldset>
 	  <br/>
 	  <fieldset>
-	    <legend>Current Users</legend>
+	    <legend>Current Users with Roles</legend>
 		<table class="users" width="100%">
 			<tr>
 				<th align="left">UserName</th>
@@ -113,7 +92,28 @@ ${self.logo()}
 			% endfor
 		</table>
 	</fieldset>
-
+	<fieldset>
+	<legend>Add User with Roles</legend>
+    <form action="addUser">
+       <table>
+       <tr><td>Username:</td>
+       <td><input name="user" id="username"></td></tr>
+       <tr><td>Barcode:</td>
+       <td><select name="barcode" id="barcode">
+	   % for barcode in nonAccounts:
+	       <option value="${barcode}">${nonAccounts[barcode]} - ${barcode}</option>
+	   % endfor
+		</select></td></tr>
+       <tr><td colspan=2>Access type:</td>
+       <td><input type="checkbox" id="keyholder" name="keyholder" value="1" checked/>Keyholder</td>
+       <td><input type="checkbox" id="admin" name="admin" value="1"/>Admin</td>
+	   <td><input type="checkbox" id="certifier" name="certifier" value="1"/>Shop Certifier</td>
+	   <td><input type="checkbox" id="coach" name="coach" value="1"/>Coach</td>
+      </table>
+      <input type="submit" value="Add"/>
+      </form>
+	  </fieldset>
+<br/>
 <div id="changeAccessDialog" title="Change Access" style="display:none;">
 <H2 id="dlgUsername"></H2>
 <label><input type="checkbox" id="dlgAdmin" />Admin</label>
