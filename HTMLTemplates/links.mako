@@ -7,14 +7,13 @@
 <%inherit file="base.mako"/>
 ${self.logo()}<br/>
 % if barcode==None:
+<H2>BFF Stations</H2>
 <H3><A HREF="/station">Main Station</A></H3>
 <H3><A HREF="/guests">Guest Station</A></H3>
 <H3><A HREF="/certifications">Certification Monitor</A></H3>
-<H3><A HREF="/whoishere">Who is at BFF</A></H3>
-<H3><A HREF="/profile/login">Login</A></H3>
 
 <!-- TODO: This will allow you to set the certification monitor settings -->
-
+<H2>Links per member</H2>
 <form action="/links">
        <td><select name="barcode" id="barcode">
 	   % for user in activeMembers:
