@@ -25,14 +25,6 @@ ${self.logo()}<br/>
 </form>
 <br/>
 
-<form action="oops">
-   <fieldset>
-     <legend>Oops</legend>
-   Keyholder accidentally signed out.  Move all FORGOT for today back to in.<br/>
-  <input type="submit" value="Oops!"/>
-</fieldset>
-</form>
-
 <H2>Fix "forgot" data</H2>
 %if len(forgotDates):
   <FORM action="fixData">
