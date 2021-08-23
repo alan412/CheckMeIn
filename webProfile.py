@@ -8,10 +8,11 @@ class WebProfile(WebBase):
 
     @cherrypy.expose
     def logout(self):
+        barcode = Cookie('barcode').get()
         Cookie('username').delete()
         Cookie('barcode').delete()
         Cookie('role').delete()
-        raise cherrypy.HTTPRedirect("/profile/login")
+        raise cherrypy.HTTPRedirect(f"/links?barcode={barcode}")
 
     @cherrypy.expose
     def login(self, error=""):
@@ -27,7 +28,8 @@ class WebProfile(WebBase):
             Cookie('barcode').set(barcode)
             Cookie('username').set(username)
             Cookie('role').set(role.getValue())
-        dest = Cookie('source').get("/profile")
+        dest = Cookie('source').get(f"/links?barcode={barcode}")
+        Cookie('source').delete()
         raise cherrypy.HTTPRedirect(dest)
 
     # Profile

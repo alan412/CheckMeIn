@@ -35,10 +35,15 @@ ${self.logo()}<br/>
    <H3><A HREF="/certifications/user?barcode=${barcode}">My Shop Certifications</A></H3>
    <H3><A HREF="/whoishere">See who is at BFF</A></H3>
    <H3><A HREF="/links">BFF Stations</A></H3>
+   % if role.value != 0:
+      <H3><A HREF="/profile/logout">Logout</A></H3>
+   % else:
+      <H3><A HREF="/profile/login">Login</A></H3>
+   % endif
+
    
 
    % if role.isKeyholder() or role.isAdmin() or role.isCoach():
-      <H3><A HREF="/profile/login">Login</A></H3>
       <H3><A HREF="/profile/">Change Password</A></H3>
    % endif
    

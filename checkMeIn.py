@@ -5,7 +5,7 @@ import cherrypy
 import cherrypy.process.plugins
 
 import engine
-from webBase import WebBase
+from webBase import WebBase, Cookie
 from webMainStation import WebMainStation
 from webGuestStation import WebGuestStation
 from webCertifications import WebCertifications
@@ -14,6 +14,7 @@ from webAdminStation import WebAdminStation
 from webReports import WebReports
 from webProfile import WebProfile
 from docs import getDocumentation
+from accounts import Role
 
 DB_STRING = 'data/checkMeIn.db'
 
@@ -60,7 +61,8 @@ class CheckMeIn(WebBase):
     def links(self, barcode=None):
         activeTeamsCoached = None
         with self.dbConnect() as dbConnection:
-            role = self.engine.accounts.getRole(dbConnection, barcode)
+            role = Role(Cookie('role').get(0))
+
             if barcode:
                 (_, displayName) = self.engine.members.getName(
                     dbConnection, barcode)
@@ -72,7 +74,8 @@ class CheckMeIn(WebBase):
                 displayName = ""
                 activeMembers = self.engine.members.getActive(dbConnection)
             inBuilding = self.engine.visits.inBuilding(dbConnection, barcode)
-        return self.template('links.mako', barcode=barcode, role=role,
+
+        return self.template('links.mako', barcode=barcode, role=role, 
                              activeTeamsCoached=activeTeamsCoached, inBuilding=inBuilding,
                              displayName=displayName, activeMembers=activeMembers)
 
