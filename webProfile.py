@@ -55,8 +55,9 @@ class WebProfile(WebBase):
         if newPass1 != newPass2:
             return self.template('newPassword.mako', error='Passwords must match', user=user, token=token)
         with self.dbConnect() as dbConnection:
-            if self.engine.accounts.verify_forgot(dbConnection, user, token, newPass1):
-                raise cherrypy.HTTPRedirect("/profile/login")
+            worked = self.engine.accounts.verify_forgot(dbConnection, user, token, newPass1)
+        if worked:
+            raise cherrypy.HTTPRedirect("/profile/login")
         return "Token not correct.  Try link again"
 
     @cherrypy.expose
