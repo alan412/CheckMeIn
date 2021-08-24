@@ -62,6 +62,9 @@ class CheckMeIn(WebBase):
         activeTeamsCoached = None
         with self.dbConnect() as dbConnection:
             role = Role(Cookie('role').get(0))
+            loggedInBarcode = Cookie('barcode').get(None)
+            if barcode != loggedInBarcode:
+                role = 0
 
             if barcode:
                 (_, displayName) = self.engine.members.getName(
