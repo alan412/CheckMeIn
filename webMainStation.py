@@ -1,3 +1,4 @@
+from accounts import Accounts, Role
 import cherrypy
 from webBase import WebBase
 
@@ -19,6 +20,7 @@ class WebMainStation(WebBase):
                                  uniqueVisitorsToday=self.engine.reports.uniqueVisitorsToday(
                                      dbConnection),
                                  keyholder_name=keyholder_name,
+                                 stewards=self.engine.accounts.getPresentWithRole(dbConnection, Role.SHOP_STEWARD),
                                  error=error)
 
     @cherrypy.expose

@@ -56,6 +56,14 @@ ${self.logo()}<br/>
     <TH>Keyholder</TH>
     <TD>${keyholder_name}</TD>
   </TR>
+  <TR>
+    <TH>Shop Stewards</TH>
+    <TD>
+  % for steward in stewards:
+     <P>${steward[0]}</P>
+  % endfor    
+    </TD>
+  </TR>
   </table>
 </TD>
 </TR>
