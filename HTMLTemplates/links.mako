@@ -16,7 +16,7 @@ ${self.logo()}<br/>
 <H2>Links per member</H2>
 <form action="/links">
        <td><select name="barcode" id="barcode">
-          <option disabled selected value> -- select an option -- </option>
+          <option disabled selected value> -- select a member -- </option>
 	   % for user in activeMembers:
 	       <option value="${user[1]}">${user[0]} - ${user[1]}</option>
 	   % endfor
