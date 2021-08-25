@@ -22,9 +22,11 @@ class ToolUser(object):
         self.barcode = barcode
 
     def addTool(self, tool_id, date, level):
+        if not date:
+            date = datetime.datetime(2019,1,1)
         if tool_id in self.tools:
-            (nil, currLevel) = self.tools[tool_id]
-            if level > currLevel:
+            (currDate, nil) = self.tools[tool_id]
+            if date > currDate:
                 self.tools[tool_id] = (date, level)
         else:
             self.tools[tool_id] = (date, level)
@@ -130,12 +132,6 @@ class Certifications(object):
                                 SELECT ?, ?, ?, ?, ?
                                 WHERE NOT EXISTS(SELECT 1 FROM certifications WHERE user_id==? AND tool_id==? AND level==?)''',
                              (barcode, tool_id, certifier, date, level, barcode, tool_id, level))
-    def downgradeCertification(self, dbConnection, barcode, tool_id, level, certifier):
-        # TODO: need to verify that the certifier can indeed certify on this tool
-
-        dbConnection.execute('''DELETE FROM certifications
-                                WHERE user_id==? AND tool_id == ?''', (barcode, tool_id))
-        self.addNewCertification(dbConnection, barcode, tool_id, level, certifier)
         
     def getAllUserList(self, dbConnection):
         users = {}
