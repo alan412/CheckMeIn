@@ -82,10 +82,11 @@ class WebTeams(WebBase):
                              TeamMemberType=TeamMemberType, error="")
 
     @cherrypy.expose
-    def addMember(self, team_id, member, type):
-        self.checkPermissions(team_id)
-        with self.dbConnect() as dbConnection:
-            self.engine.teams.addMember(dbConnection, team_id, member, type)
+    def addMember(self, team_id, type, member=None):
+        if member:
+            self.checkPermissions(team_id)
+            with self.dbConnect() as dbConnection:
+                self.engine.teams.addMember(dbConnection, team_id, member, type)
 
         raise cherrypy.HTTPRedirect("/teams?team_id="+team_id)
 

@@ -26,7 +26,10 @@ class WebReports(WebBase):
                              reportList=reportList, activeMembers=activeMembers, error=error)
 
     @cherrypy.expose
-    def tracing(self, barcode, numDays):
+    def tracing(self, numDays, barcode=None):
+        if not barcode:
+            return self.index(error="No member selected")
+
         self.checkPermissions()
 
         with self.dbConnect() as dbConnection:
