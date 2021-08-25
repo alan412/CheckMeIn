@@ -8,4 +8,4 @@
 <H1> ${memberName} is now certified as ${level} on ${tool}!!!</H1> 
 
 <A HREF="/certifications/certify">Certify another</A></br>
-<A HREF="/links?barcode=${certifier_id}>My links</A></br>
+<A HREF="/links?barcode=${certifier_id}">My links</A></br>
