@@ -3,6 +3,7 @@ import sqlite3
 import os
 import csv
 import members
+import smtplib
 import email.utils
 from email.mime.text import MIMEText
 
