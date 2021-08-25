@@ -42,6 +42,22 @@ class WebCertifications(WebBase):
                                  level=self.engine.certifications.getLevelName(
                                      level),
                                  tool=self.engine.certifications.getToolName(dbConnection, tool_id))
+    @cherrypy.expose
+    def downgradeCertification(self, member_id, tool_id, level):
+        certifier_id = self.getBarcode("/certifications/certify")
+        # We don't check here for valid tool since someone is forging HTML to put an invalid one
+        # and we'll catch it with the email out...\
+        with self.dbConnect() as dbConnection:
+            self.engine.certifications.downgradeCertification(dbConnection,
+                                                           member_id, tool_id, level, certifier_id)
+
+            return self.template('congrats.mako', message='',
+                                 certifier_id=certifier_id,
+                                 memberName=self.engine.members.getName(dbConnection, member_id)[
+                                     1],
+                                 level=self.engine.certifications.getLevelName(
+                                     level),
+                                 tool=self.engine.certifications.getToolName(dbConnection, tool_id))                                
 
     @cherrypy.expose
     def index(self):

@@ -56,6 +56,7 @@ class ToolUser(object):
 class Certifications(object):
     def __init__(self):
         self.levels = {
+            CertificationLevels.NONE: 'NONE',
             CertificationLevels.BASIC: 'BASIC',
             CertificationLevels.CERTIFIED: 'CERTIFIED',
             CertificationLevels.DOF: 'DOF',
@@ -129,7 +130,13 @@ class Certifications(object):
                                 SELECT ?, ?, ?, ?, ?
                                 WHERE NOT EXISTS(SELECT 1 FROM certifications WHERE user_id==? AND tool_id==? AND level==?)''',
                              (barcode, tool_id, certifier, date, level, barcode, tool_id, level))
+    def downgradeCertification(self, dbConnection, barcode, tool_id, level, certifier):
+        # TODO: need to verify that the certifier can indeed certify on this tool
 
+        dbConnection.execute('''DELETE FROM certifications
+                                WHERE user_id==? AND tool_id == ?''', (barcode, tool_id))
+        self.addNewCertification(dbConnection, barcode, tool_id, level, certifier)
+        
     def getAllUserList(self, dbConnection):
         users = {}
         for row in dbConnection.execute('''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
