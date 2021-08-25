@@ -31,7 +31,7 @@ class TeamMemberType(IntEnum):
     student = 0
     mentor = 1
     coach = 2
-
+    other = -1 
 
 class TeamInfo(object):
     def __init__(self, teamId, programName, programNumber, name, startDate):
