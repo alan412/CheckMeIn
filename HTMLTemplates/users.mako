@@ -6,12 +6,14 @@ function deleteUser(userName, barcode) {
 			window.location.href = "deleteUser?barcode="+barcode;
 		}
 }
-function changeAccess(userName, barcode, keyholder, admin, certifier, coach){
+function changeAccess(userName, barcode, keyholder, admin, certifier, coach, steward){
 	$('#dlgUsername').html(userName);
 	$('#dlgKeyholder').prop('checked', keyholder);
 	$('#dlgAdmin').prop('checked', admin);
 	$('#dlgCertifier').prop('checked', certifier);
 	$('#dlgCoach').prop('checked', coach);
+	$('#dlgSteward').prop('checked', steward);
+
 
     var dWidth = $(window).width() * 0.8;
 	$("#changeAccessDialog").dialog({
@@ -44,6 +46,12 @@ function changeAccess(userName, barcode, keyholder, admin, certifier, coach){
 				}
 				requestStr += '&coach='
 				if ($('#dlgCoach').is(':checked')) {
+					requestStr += '1'
+				}else{
+					requestStr += '0'
+				}
+				requestStr += '&steward='
+				if ($('#dlgSteward').is(':checked')) {
 					requestStr += '1'
 				}else{
 					requestStr += '0'
@@ -87,6 +95,7 @@ ${self.logo()}
 						${users[user].get('role',0).isAdmin()},
 						${users[user].get('role',0).isShopCertifier()},
 						${users[user].get('role',0).isCoach()},
+						${users[user].get('role',0).isShopSteward()}
 						)">Change Access</button>
 			</TR>
 			% endfor
@@ -109,6 +118,8 @@ ${self.logo()}
        <td><input type="checkbox" id="admin" name="admin" value="1"/>Admin</td>
 	   <td><input type="checkbox" id="certifier" name="certifier" value="1"/>Shop Certifier</td>
 	   <td><input type="checkbox" id="coach" name="coach" value="1"/>Coach</td>
+	   <td><input type="checkbox" id="steward" name="steward" value="1"/>Shop Steward</td>
+
       </table>
       <input type="submit" value="Add"/>
       </form>
@@ -120,6 +131,7 @@ ${self.logo()}
 <label><input type="checkbox" id="dlgKeyholder" />Keyholder</label>
 <label><input type="checkbox" id="dlgCertifier" />Certifier</label>
 <label><input type="checkbox" id="dlgCoach" />Coach</label>
+<label><input type="checkbox" id="dlgSteward" />Steward</label>
 </div>
 <hr/>
 To add feature requests or report issues, please go to:<A HREF="https://github.com/alan412/CheckMeIn/issues">https://github.com/alan412/CheckMeIn/issues</A>

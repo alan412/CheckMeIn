@@ -19,6 +19,7 @@ class Role:
     SHOP_CERTIFIER = 0x08
     KEYHOLDER = 0x10
     ADMIN = 0x20
+    SHOP_STEWARD = 0x40
 
     def __init__(self, value=0):
         self.value = value
@@ -37,6 +38,9 @@ class Role:
 
     def isCoach(self):
         return self.isRole(self.COACH)
+    
+    def isShopSteward(self):
+        return self.isRole(self.SHOP_STEWARD)
 
     def setValue(self, check, value):
         if type(check) == str:
@@ -54,6 +58,9 @@ class Role:
 
     def setCoach(self, coach):
         self.setValue(coach, self.COACH)
+    
+    def setShopSteward(self, steward):
+        self.setValue(steward, self.SHOP_STEWARD)
 
     def getValue(self):
         return self.value
@@ -66,8 +73,11 @@ class Role:
             roleStr += "Keyholder "
         if self.isShopCertifier():
             roleStr += "Certifier "
+        if self.isShopSteward():
+            roleStr += "Steward "
         if self.isCoach():
             roleStr += "Coach "
+
         return roleStr
 
     def __repr__(self):
@@ -115,6 +125,17 @@ class Accounts(object):
             ORDER BY displayName''', (datetime.datetime.now(), role)):
             listUsers.append([row[0], row[1]])
         return listUsers
+
+    def getPresentWithRole(self, dbConnection, role):
+        listUsers = []
+        for row in dbConnection.execute('''SELECT displayName, accounts.barcode
+            FROM accounts
+            INNER JOIN members ON (members.barcode = accounts.barcode)
+            INNER JOIN visits ON (visits.barcode = accounts.barcode)
+            WHERE visits.status = "In" AND (membershipExpires > ?) AND (role & ? != 0)
+            ORDER BY displayName''', (datetime.datetime.now(), role)):
+            listUsers.append([row[0], row[1]])
+        return listUsers       
 
     def getRole(self, dbConnection, barcode):
         data = dbConnection.execute(
