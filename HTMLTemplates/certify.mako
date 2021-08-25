@@ -16,6 +16,7 @@ ${self.logo()}<br/>
     <table>
       <tr><td>Who to certify:</td>
       <td><select name="member_id">
+          <option disabled selected value> -- select an option -- </option>
         % for member in members_in_building:
             <option value="${member[1]}">${member[0]} (${member[1]})</option>
         % endfor

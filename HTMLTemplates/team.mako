@@ -68,6 +68,7 @@ ${self.logo()}
     <div>
       <input type="hidden" name="team_id" value="${team_id}">
       <select name="member" id="member">
+          <option disabled selected value> -- select an option -- </option>
 	   % for user in activeMembers:
 	       <option value="${user[1]}">${user[0]} - ${user[1]}</option>
 	   % endfor

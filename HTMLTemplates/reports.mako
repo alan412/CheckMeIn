@@ -31,6 +31,7 @@ ${self.logo()}<br/>
    <fieldset>
          <legend>Tracing</legend>
          <select name="barcode" id="barcode">
+          <option disabled selected value> -- select an option -- </option>
 	   % for user in activeMembers:
 	       <option value="${user[1]}">${user[0]} - ${user[1]}</option>
 	   % endfor
