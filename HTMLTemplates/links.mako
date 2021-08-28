@@ -75,6 +75,7 @@ ${self.logo()}<br/>
    <H2>Shop Certifier Tasks</H2>
      <H3><A HREF="/certifications/certify">Certify those in building</A></H3>
      <H3><A HREF="/certifications/certify?all=True">Certify any member</A></H3>
+     <H3><A HREF="/certifications">List of certifications for those in building</A></H3>
      <H3><A HREF="/certifications/all">See list of all certifications</A></H3>
    % endif
    <HR/>
