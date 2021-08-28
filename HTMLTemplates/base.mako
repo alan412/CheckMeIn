@@ -42,7 +42,7 @@ function escapeHTML(string) {
 </script>
 <html lang="en">
 	<head>
-		<link rel="stylesheet" type="text/css" href="/static/style.css"/>
+		<link rel="stylesheet" type="text/css" href="/static/style.css?ver=1"/>
 	    <title>${self.title()}</title>
          ${self.head()}
          <meta name="viewport" content="width=device-width, initial-scale=1">

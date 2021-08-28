@@ -11,7 +11,7 @@ h1 { font-size: 34px; line-height: 120%; }
 h2 { font-size: 20px; }
 p  { font-size: 14px; }
 
-span.small { font-size: 12px; }
+span.small { font-size: 12px; color: grey}
 
 legend {
     background-color: #000;
