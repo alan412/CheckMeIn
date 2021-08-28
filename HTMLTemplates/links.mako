@@ -35,6 +35,7 @@ ${self.logo()}<br/>
    % endif
    <H3><A HREF="/certifications/user?barcode=${barcode}">My Shop Certifications</A></H3>
    <H3><A HREF="/whoishere">See who is at BFF</A></H3>
+   <H3><A HREF="https://calendar.google.com/calendar/embed?src=h75eigkfjvngvpff1dq0af74mk%40group.calendar.google.com&ctz=America%2FNew_York">TFI Calendar</A></H3>
    <H3><A HREF="/links">BFF Stations</A></H3>
    % if role.value != 0:
       <H3><A HREF="/profile/logout">Logout</A></H3>
