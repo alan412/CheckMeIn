@@ -25,61 +25,72 @@ ${self.logo()}<br/>
 </form>
 <HR/>
 % else:
-<H1>${displayName}</H1>
-<H5>Button ID: ${barcode}</H5>
-   
+<H1>${displayName} <span class="small">(${barcode})</span></H1>
+   <fieldset><legend>Personal</legend>
+   <UL>
    % if inBuilding:
-      <H3><A HREF="/station/checkout?barcode=${barcode}">Check out of BFF</A></H3>
+      <LI><A HREF="/station/checkout?barcode=${barcode}">Check out of BFF</A>
    % else:
-      <H3><A HREF="/station/checkin?barcode=${barcode}">Check into BFF</A></H3>
+      <LI><A HREF="/station/checkin?barcode=${barcode}">Check into BFF</A>
    % endif
-   <H3><A HREF="/certifications/user?barcode=${barcode}">My Shop Certifications</A></H3>
-   <H3><A HREF="/whoishere">See who is at BFF</A></H3>
-   <H3><A HREF="https://calendar.google.com/calendar/embed?src=h75eigkfjvngvpff1dq0af74mk%40group.calendar.google.com&ctz=America%2FNew_York">TFI Calendar</A></H3>
-   <H3><A HREF="/links">BFF Stations</A></H3>
+   <LI><A HREF="/certifications/user?barcode=${barcode}">My Shop Certifications</A>
    % if role.value != 0:
-      <H3><A HREF="/profile/logout">Logout</A></H3>
+      <LI><A HREF="/profile/">Change Password</A>
+      <LI><A HREF="/profile/logout">Logout</A>
    % else:
-      <H3><A HREF="/profile/login">Login</A></H3>
+      <LI><A HREF="/profile/login">Login</A>
    % endif
-   <H3><A HREF="https://app.theforgeinitiative.org/">TFI Forms and Documents</A></H3>
+   </fieldset><br/>
+   <fieldset><legend>General</legend>
+   <UL>
+      <LI><A HREF="/whoishere">See who is at BFF</A>
+      <LI><A HREF="/links">BFF Stations</A>
+      <LI><A HREF="https://app.theforgeinitiative.org/">TFI Forms and Documents</A>
+      <LI><A HREF="https://calendar.google.com/calendar/embed?src=h75eigkfjvngvpff1dq0af74mk%40group.calendar.google.com&ctz=America%2FNew_York">TFI Calendar</A>
+   </UL>
+   </fieldset><br/>
 
-   
-
-   % if role.isKeyholder() or role.isAdmin() or role.isCoach():
-      <H3><A HREF="/profile/">Change Password</A></H3>
-   % endif
-   
    % if role.isKeyholder():
-   <H2>Keyholder Tasks</H2>
-      <H3><A HREF="/station/makeKeyholder?barcode=${barcode}">Make ME Keyholder</A>
-      <H3><A HREF="http://192.168.1.10">Door App (Works ONLY when at BFF)</A>
-      <H3><A HREF="/admin/oops">Oops (Didn't meant to close building)</A></H3>
+   <fieldset>
+   <legend>Keyholder</legend>
+   <UL>
+      <LI><A HREF="http://192.168.1.10">Door App (Works ONLY when at BFF)</A></LI>
+      <LI><A HREF="/station/makeKeyholder?barcode=${barcode}">Make ME Keyholder</A></LI>
+      <LI><A HREF="/admin/oops">Oops (Didn't meant to close building)</A></LI>
+   </fieldset><br/>
    % endif
 
    % if role.isCoach():
-   <H2>Coach Tasks</H2>
+   <fieldset><legend>Coach</legend>
+      <UL>
       % for team in activeTeamsCoached:
-         <H3><A HREF="/teams?team_id=${team.teamId}">${team.getProgramId()} - ${team.name}</A>
+         <LI><A HREF="/teams?team_id=${team.teamId}">${team.getProgramId()} - ${team.name}</A>
       % endfor
+      </UL>
+   </fieldset><br/>
    % endif
+
+ % if role.isShopCertifier():
+ <fieldset><legend>Shop Certifier</legend>
+   <UL>
+     <LI><A HREF="/certifications/certify">Certify those in building</A>
+     <LI><A HREF="/certifications/certify?all=True">Certify any member</A>
+     <LI><A HREF="/certifications">List of certifications for those in building</A>
+     <LI><A HREF="/certifications/all">See list of all certifications</A>
+   </UL>
+   % endif
+   </fieldset><br/>
 
    % if role.isAdmin():
-   <H2>Admin Tasks</H2>
-      <H3><A HREF="/admin">Admin Console</A></H3>
-      <H3><A HREF="/admin/users">Manage Users</A></H3>
-      <H3><A HREF="/admin/teams">Manage Teams</A></H3>
-      <H3><A HREF="/reports">Reports</A></H3>
+   <fieldset><legend>Admin</legend>
+   <UL>
+      <LI><A HREF="/admin">Admin Console</A>
+      <LI><A HREF="/admin/users">Manage Users</A>
+      <LI><A HREF="/admin/teams">Manage Teams</A>
+      <LI><A HREF="/reports">Reports</A>
+   </UL>
+   </fieldset><br/>
    % endif
-
-   % if role.isShopCertifier():
-   <H2>Shop Certifier Tasks</H2>
-     <H3><A HREF="/certifications/certify">Certify those in building</A></H3>
-     <H3><A HREF="/certifications/certify?all=True">Certify any member</A></H3>
-     <H3><A HREF="/certifications">List of certifications for those in building</A></H3>
-     <H3><A HREF="/certifications/all">See list of all certifications</A></H3>
-   % endif
-   <HR/>
  
    % if role.isAdmin():
    <hr/>
