@@ -43,6 +43,7 @@ function escapeHTML(string) {
 <html lang="en">
 	<head>
 		<link rel="stylesheet" type="text/css" href="/static/style.css?ver=1"/>
+		<link rel="apple-touch-icon" href="/static/apple-touch-icon.png"/>
 	    <title>${self.title()}</title>
          ${self.head()}
          <meta name="viewport" content="width=device-width, initial-scale=1">
