@@ -41,7 +41,7 @@ class WebCertifications(WebBase):
 
             self.engine.certifications.emailCertifiers(memberName, tool, level, certifierName)
 
-            return self.template('congrats.mako', message='',
+        return self.template('congrats.mako', message='',
                                  certifier_id=certifier_id,
                                  memberName=memberName,
                                  level=level,
