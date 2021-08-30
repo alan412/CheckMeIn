@@ -34,6 +34,7 @@ class WebCertifications(WebBase):
         with self.dbConnect() as dbConnection:
             self.engine.certifications.addNewCertification(dbConnection,
                                                            member_id, tool_id, level, certifier_id)
+        with self.dbConnect() as dbConnection:  #separate out committing from getting
             memberName = self.engine.members.getName(dbConnection, member_id)[1]
             certifierName = self.engine.members.getName(dbConnection, certifier_id)[1]
             level = self.engine.certifications.getLevelName(level)
