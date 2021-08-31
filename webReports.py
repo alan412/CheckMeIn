@@ -21,9 +21,10 @@ class WebReports(WebBase):
             reportList = self.engine.customReports.get_report_list(
                 dbConnection)
             activeMembers = self.engine.members.getActive(dbConnection)
+            guests = self.engine.guests.getGuests(dbConnection, numDays=30)
         return self.template('reports.mako',
                              firstDate=firstDate, todayDate=todayDate,
-                             reportList=reportList, activeMembers=activeMembers, error=error)
+                             reportList=reportList, activeMembers=activeMembers, guests=guests, error=error)
 
     @cherrypy.expose
     def tracing(self, numDays, barcode=None):
@@ -36,6 +37,8 @@ class WebReports(WebBase):
             dictVisits = Tracing().getDictVisits(dbConnection, barcode, numDays)
             (_, displayName) = self.engine.members.getName(
                 dbConnection, barcode)
+            if not displayName:
+                    (_, displayName) = self.engine.guests.getName(dbConnection,barcode)
 
         return self.template('tracing.mako',
                              displayName=displayName,

@@ -69,3 +69,12 @@ class Guests(object):
                                         (Status.inactive,)):
             guestList.append(Guest(row[0], row[1]))
         return guestList
+
+    def getGuests(self, dbConnection, numDays):
+        guestList = []
+        for row in dbConnection.execute('''SELECT DISTINCT guest_id, displayName FROM guests
+             INNER JOIN visits ON guest_id = visits.barcode
+             WHERE start > ? 
+             ORDER BY displayName''', (datetime.datetime.now()- datetime.timedelta(numDays),)):
+             guestList.append(Guest(row[0], row[1]))
+        return guestList
