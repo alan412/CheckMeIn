@@ -20,7 +20,12 @@ class Tracing(object):
            FROM visits
            INNER JOIN members ON members.barcode = visits.barcode
            WHERE (visits.start <= ?) AND (visits.leave >= ?) AND (visits.barcode != ?)
-           ORDER BY displayName ASC''', (endTime, startTime, barcode)):
+           UNION
+           SELECT visits.barcode, displayName, email
+           FROM visits
+           INNER JOIN guests ON guests.guest_id = visits.barcode
+           WHERE (visits.start <= ?) AND (visits.leave >= ?) AND (visits.barcode != ?)
+           ORDER BY displayName ASC''', (endTime, startTime, barcode, endTime, startTime, barcode)):
             listPresent.append(Member(row[0], row[1], row[2]))
         return listPresent
 
