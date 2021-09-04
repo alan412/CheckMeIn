@@ -161,7 +161,7 @@ class Reports(object):
         self.engine = engine
 
     def whoIsHere(self, dbConnection):
-        keyholders = self.engine.accounts.getKeyholders(dbConnection)
+        keyholders = self.engine.accounts.getKeyholderBarcodes(dbConnection)
         listPresent = []
         for row in dbConnection.execute('''SELECT displayName, start, visits.barcode
            FROM visits
@@ -205,7 +205,7 @@ class Reports(object):
         return numPeople
 
     def transactions(self, dbConnection, startDate, endDate):
-        keyholders = self.engine.accounts.getKeyholders(dbConnection)
+        keyholders = self.engine.accounts.getKeyholderBarcodes(dbConnection)
 
         listTransactions = []
         for row in dbConnection.execute('''SELECT displayName, start, leave, visits.status, visits.barcode
