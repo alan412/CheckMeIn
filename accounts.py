@@ -270,6 +270,15 @@ class Accounts(object):
             keyholders.append(
                 {'user': row[0], 'barcode': row[1], 'password': row[2]})
         return keyholders
+    
+    def getKeyholderBarcodes(self, dbConnection):
+        keyholders = []
+        for row in dbConnection.execute('''SELECT barcode
+            FROM accounts
+            WHERE (role & ? != 0)''', (Role.KEYHOLDER, )):
+            keyholders.append(row[0])
+   
+        return keyholders      
 
 
         # This is temporary - just to give us some fake data to play with

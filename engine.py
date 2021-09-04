@@ -22,7 +22,7 @@ class Engine(object):
         self.database = dbString
         self.visits = Visits()
         self.guests = Guests()
-        self.reports = Reports()
+        self.reports = Reports(self)
         self.teams = Teams()
         self.accounts = Accounts()
         self.devices = Devices()

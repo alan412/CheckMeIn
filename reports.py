@@ -157,24 +157,23 @@ class Statistics(object):
 
 
 class Reports(object):
-    def __init__(self):
-        pass
+    def __init__(self, engine):
+        self.engine = engine
 
     def whoIsHere(self, dbConnection):
+        keyholders = self.engine.accounts.getKeyholders(dbConnection)
         listPresent = []
-        for row in dbConnection.execute('''SELECT displayName, start, active
+        for row in dbConnection.execute('''SELECT displayName, start, visits.barcode
            FROM visits
-           LEFT JOIN keyholders ON visits.barcode = keyholders.barcode
            INNER JOIN members ON members.barcode = visits.barcode
            WHERE visits.status=='In'
            UNION
-           SELECT displayName, start, active
+           SELECT displayName, start, visits.barcode
            FROM visits
-           LEFT JOIN keyholders ON visits.barcode = keyholders.barcode
            INNER JOIN guests ON guests.guest_id = visits.barcode
            WHERE visits.status=='In' ORDER BY displayName'''):
             displayName = row[0]
-            if(row[2] != None):
+            if(row[2] in keyholders):
                 displayName = displayName + "(Keyholder)"
             listPresent.append(
                 displayName + ' - ( ' + row[1].strftime("%I:%M %p") + ' )')
@@ -206,21 +205,21 @@ class Reports(object):
         return numPeople
 
     def transactions(self, dbConnection, startDate, endDate):
+        keyholders = self.engine.accounts.getKeyholders(dbConnection)
+
         listTransactions = []
-        for row in dbConnection.execute('''SELECT displayName, start, leave, visits.status, active
+        for row in dbConnection.execute('''SELECT displayName, start, leave, visits.status, visits.barcode
            FROM visits
-           LEFT JOIN keyholders ON visits.barcode = keyholders.barcode
            INNER JOIN members ON members.barcode = visits.barcode
            WHERE (start BETWEEN ? and ?)
            UNION
-           SELECT displayName, start, leave, visits.status, active
+           SELECT displayName, start, leave, visits.status, visits.barcode
            FROM visits
-           LEFT JOIN keyholders ON visits.barcode = keyholders.barcode
            INNER JOIN guests ON guests.guest_id = visits.barcode
            WHERE (start BETWEEN ? and ?)
            ORDER BY start''', (startDate, endDate, startDate, endDate)):
             displayName = row[0]
-            if(row[4] != None):
+            if(row[4] in keyholders):
                 displayName = displayName + "(Keyholder)"
 
             listTransactions.append(Transaction(displayName, row[1], 'In'))
