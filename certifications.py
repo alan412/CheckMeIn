@@ -133,9 +133,8 @@ class Certifications(object):
         # TODO: need to verify that the certifier can indeed certify on this tool
 
         dbConnection.execute('''INSERT INTO certifications(user_id, tool_id, certifier_id, date, level)
-                                SELECT ?, ?, ?, ?, ?
-                                WHERE NOT EXISTS(SELECT 1 FROM certifications WHERE user_id==? AND tool_id==? AND level==?)''',
-                             (barcode, tool_id, certifier, date, level, barcode, tool_id, level))
+                                SELECT ?, ?, ?, ?, ?''',
+                             (barcode, tool_id, certifier, date, level))
         
     def getAllUserList(self, dbConnection):
         users = {}
