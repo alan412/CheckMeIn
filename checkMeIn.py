@@ -16,11 +16,13 @@ from webProfile import WebProfile
 from docs import getDocumentation
 from accounts import Role
 
+
 class CheckMeIn(WebBase):
     def __init__(self):
         self.lookup = TemplateLookup(
             directories=['HTMLTemplates'], default_filters=['h'])
-        self.engine = engine.Engine(cherrypy.config["database.path"], cherrypy.config["database.name"])
+        self.engine = engine.Engine(
+            cherrypy.config["database.path"], cherrypy.config["database.name"])
         super().__init__(self.lookup, self.engine)
         self.station = WebMainStation(self.lookup, self.engine)
         self.guests = WebGuestStation(self.lookup, self.engine)
@@ -57,13 +59,13 @@ class CheckMeIn(WebBase):
     @cherrypy.expose
     def links(self, barcode=None):
         activeTeamsCoached = None
+        role = Role(0)
         with self.dbConnect() as dbConnection:
-            role = Role(Cookie('role').get(0))
-            loggedInBarcode = Cookie('barcode').get(None)
-            if barcode != loggedInBarcode:
-                role = Role(0)
-
             if barcode:
+                loggedInBarcode = Cookie('barcode').get(None)
+                if barcode == loggedInBarcode:
+                    role = Role(Cookie('role').get(0))
+
                 (_, displayName) = self.engine.members.getName(
                     dbConnection, barcode)
                 activeMembers = {}
@@ -75,7 +77,7 @@ class CheckMeIn(WebBase):
                 activeMembers = self.engine.members.getActive(dbConnection)
             inBuilding = self.engine.visits.inBuilding(dbConnection, barcode)
 
-        return self.template('links.mako', barcode=barcode, role=role, 
+        return self.template('links.mako', barcode=barcode, role=role,
                              activeTeamsCoached=activeTeamsCoached, inBuilding=inBuilding,
                              displayName=displayName, activeMembers=activeMembers)
 
@@ -87,7 +89,7 @@ if __name__ == '__main__':  # pragma: no cover
     args = parser.parse_args()
 
     cherrypy.config.update(args.conf)  # So I can access in __init__
-    
+
     # wd = cherrypy.process.plugins.BackgroundTask(15, func)
     # wd.start()
 

@@ -1,9 +1,14 @@
 import CPtest
 
 
-class WhoIsHereTest(CPtest.CPTest):
-    def test_index(self):
+class MiscTest(CPtest.CPTest):
+    def test_whoishere(self):
         self.getPage("/whoishere")
+        self.assertStatus('200 OK')
+
+    def test_index(self):
+        with self.patch_session():
+            self.getPage("/")
         self.assertStatus('200 OK')
 
     def test_links(self):

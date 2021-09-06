@@ -6,7 +6,7 @@ class CustomReports:
     def __init__(self, database):
         self.database = database
 
-    def migrate(self, dbConnection, db_schema_version):  #pragma: no cover
+    def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
         if db_schema_version < 7:
             dbConnection.execute('''CREATE TABLE reports
                                  (report_id INTEGER PRIMARY KEY,
@@ -18,7 +18,7 @@ class CustomReports:
     def injectData(self, dbConnection, data):
         for datum in data:
             dbConnection.execute(
-                "INSERT INTO reports VALUES (?,?,'',1)",
+                "INSERT INTO reports VALUES (?,?,?,'',1)",
                 (datum["report_id"], datum["name"], datum["sql_text"]))
 
     def readOnlyConnect(self):
