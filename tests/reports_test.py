@@ -1,25 +1,7 @@
-
-from unittest.mock import patch
-
-import cherrypy
-from cherrypy.test import helper
-from cherrypy.lib.sessions import RamSession
-
-from checkMeIn import CheckMeIn
+import CPtest
 
 
-class SimpleCPTest(helper.CPWebCase):
-    @staticmethod
-    def setup_server():
-        cherrypy.tree.mount(CheckMeIn(), '/', {})
-
-    def patch_session(self):
-        sess_mock = RamSession()
-        sess_mock['username'] = 'alan'
-        sess_mock['barcode'] = '100091'
-        sess_mock['role'] = 0x30  # give me permission to EVERYTHING!!!
-        return patch('cherrypy.session', sess_mock, create=True)
-
+class ReportsTest(CPtest.CPTest):
     def test_report_page(self):
         with self.patch_session():
             self.getPage("/reports/")
@@ -34,19 +16,22 @@ class SimpleCPTest(helper.CPWebCase):
     def test_sql(self):
         with self.patch_session():
             self.getPage(
-                "/reports/customSQLReport?sql=SELECT+*+FROM+members%3B%0D%0A+++++")
+                "/reports/customSQLReport?sql=SELECT+*+FROM+members%3B%0D%0A+++++"
+            )
         self.assertStatus('200 OK')
 
     def test_bad_sql(self):
         with self.patch_session():
             self.getPage(
-                "/reports/customSQLReport?sql=SELECT+FROM+members%3B%0D%0A+++++")
+                "/reports/customSQLReport?sql=SELECT+FROM+members%3B%0D%0A+++++"
+            )
         self.assertStatus('200 OK')
 
     def tests_savereport(self):
         with self.patch_session():
             self.getPage(
-                "/reports/saveCustom?sql=SELECT+*+FROM+members%3B%0D%0A+++++&report_name=Fred")
+                "/reports/saveCustom?sql=SELECT+*+FROM+members%3B%0D%0A+++++&report_name=Fred"
+            )
         self.assertStatus('200 OK')
 
     def test_customReportGood(self):

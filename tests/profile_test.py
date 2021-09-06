@@ -1,34 +1,15 @@
+import CPtest
 
-from unittest.mock import patch
-
-import cherrypy
-from cherrypy.test import helper
-from cherrypy.lib.sessions import RamSession
-
-from checkMeIn import CheckMeIn
-
-
-class SimpleCPTest(helper.CPWebCase):
-    @staticmethod
-    def setup_server():
-        cherrypy.tree.mount(CheckMeIn(), '/', {})
-
-    def patch_session(self):
-        sess_mock = RamSession()
-        sess_mock['username'] = 'alan'
-        sess_mock['barcode'] = '10091'
-        sess_mock['role'] = 0x30  # give me permission to EVERYTHING!!!
-        return patch('cherrypy.session', sess_mock, create=True)
-
+class ProfileTest(CPtest.CPTest):
     def test_login(self):
         self.getPage("/profile/login")
         self.assertStatus('200 OK')
 
-    def test_loginAttemptGood(self):
-        with self.patch_session():
-            self.getPage(
-                "/profile/loginAttempt?username=alan&password=password")
-            self.assertStatus('303 See Other')
+    # def test_loginAttemptGood(self):
+    #     with self.patch_session():
+    #         self.getPage(
+    #             "/profile/loginAttempt?username=alan&password=password")
+    #         self.assertStatus('303 See Other')
 
     def test_loginAttemptBad(self):
         self.getPage("/profile/loginAttempt?username=alan&password=wrong")
@@ -66,22 +47,27 @@ class SimpleCPTest(helper.CPWebCase):
     def test_changePassword(self):
         with self.patch_session():
             self.getPage(
-                "/profile/changePassword?oldPass=password&newPass1=password&newPass2=password")
+                "/profile/changePassword?oldPass=password&newPass1=password&newPass2=password"
+            )
 
     def test_changePasswordWrong(self):
         with self.patch_session():
             self.getPage(
-                "/profile/changePassword?oldPass=wrong&newPass1=password&newPass2=password")
+                "/profile/changePassword?oldPass=wrong&newPass1=password&newPass2=password"
+            )
 
     def test_changePasswordMimatch(self):
         with self.patch_session():
             self.getPage(
-                "/profile/changePassword?oldPass=password&newPass1=pass&newPass2=password")
+                "/profile/changePassword?oldPass=password&newPass1=pass&newPass2=password"
+            )
 
     def test_newPassword(self):
         self.getPage(
-            "/profile/newPassword?user=alan&token=123456&newPass1=password&newPass2=password")
+            "/profile/newPassword?user=alan&token=123456&newPass1=password&newPass2=password"
+        )
 
     def test_newPasswordMismatch(self):
         self.getPage(
-            "/profile/newPassword?user=alan&token=123456&newPass1=password&newPass2=pass")
+            "/profile/newPassword?user=alan&token=123456&newPass1=password&newPass2=pass"
+        )

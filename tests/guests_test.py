@@ -1,31 +1,26 @@
-import cherrypy
-from cherrypy.test import helper
+import CPtest
 
-from checkMeIn import CheckMeIn
-
-
-class SimpleCPTest(helper.CPWebCase):
-    @staticmethod
-    def setup_server():
-        cherrypy.tree.mount(CheckMeIn(), '/', {})
-
+class GuestTest(CPtest.CPTest):
     def test_guests(self):
         self.getPage("/guests/")
         self.assertStatus('200 OK')
 
     def test_addGuest(self):
         self.getPage(
-            "/guests/addGuest?first=Fred&last=Guest&email=&reason=Tour&other_reason=&newsletter=1")
+            "/guests/addGuest?first=Fred&last=Guest&email=&reason=Tour&other_reason=&newsletter=1"
+        )
         self.assertStatus('200 OK')
 
     def test_addGuest_blankName(self):
         self.getPage(
-            "/guests/addGuest?first=&last=Guest&email=&reason=Tour&other_reason=&newsletter=1")
+            "/guests/addGuest?first=&last=Guest&email=&reason=Tour&other_reason=&newsletter=1"
+        )
         self.assertStatus('200 OK')
 
     def test_addGuest_otherReason(self):
         self.getPage(
-            "/guests/addGuest?first=First&last=Guest&email=&reason=&other_reason=Random&newsletter=1")
+            "/guests/addGuest?first=First&last=Guest&email=&reason=&other_reason=Random&newsletter=1"
+        )
         self.assertStatus('200 OK')
 
     def test_returnGuest(self):

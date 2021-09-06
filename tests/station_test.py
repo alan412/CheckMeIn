@@ -1,17 +1,7 @@
-from unittest.mock import patch
-
-import cherrypy
-from cherrypy.test import helper
-from cherrypy.lib.sessions import RamSession
-
-from checkMeIn import CheckMeIn
+import CPtest
 
 
-class SimpleCPTest(helper.CPWebCase):
-    @staticmethod
-    def setup_server():
-        cherrypy.tree.mount(CheckMeIn(), '/', {})
-
+class StationTest(CPtest.CPTest):
     def test_station(self):
         self.getPage("/station/")
         self.assertStatus('200 OK')
