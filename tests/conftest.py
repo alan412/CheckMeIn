@@ -13,9 +13,13 @@ def my_own_session_run_at_beginning(request):
             'database.name': 'test.db'
         }
     }
-    # Make sure we are starting with a clean database
-    os.remove(testConfig['global']['database.path'] +
-              testConfig['global']['database.name'])
+    try:
+        # Make sure we are starting with a clean database
+        os.remove(testConfig['global']['database.path'] +
+                  testConfig['global']['database.name'])
+    except FileNotFoundError:
+        pass
+
     cherrypy.config.update(testConfig)
     cmi = CheckMeIn().engine.injectData(sampleData.testData())
 

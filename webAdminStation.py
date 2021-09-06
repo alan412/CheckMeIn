@@ -24,7 +24,16 @@ class WebAdminStation(WebBase):
             for date in self.engine.reports.getForgottenDates(dbConnection):
                 forgotDates.append(date.isoformat())
             teamList = self.engine.teams.getActiveTeamList(dbConnection)
+            lastBulkUpdateName = None
+            (lastBulkUpdateDate, barcode) = self.engine.logEvents.getLastEvent(dbConnection,
+                                                                               "Bulk Add")
+            if barcode:
+                (_, lastBulkUpdateName) = self.engine.members.getName(
+                    dbConnection, barcode)
+
         return self.template('admin.mako', forgotDates=forgotDates,
+                             lastBulkUpdateDate=lastBulkUpdateDate,
+                             lastBulkUpdateName=lastBulkUpdateName,
                              teamList=teamList, error=error, username=Cookie('username').get(''))
 
     @cherrypy.expose
@@ -39,6 +48,9 @@ class WebAdminStation(WebBase):
         self.checkPermissions()
         with self.dbConnect() as dbConnection:
             error = self.engine.members.bulkAdd(dbConnection, csvfile)
+            self.engine.logEvents.addEvent(
+                dbConnection, "Bulk Add", self.getBarcode("/admin"))
+
         return self.index(error)
 
     @cherrypy.expose
@@ -112,7 +124,7 @@ class WebAdminStation(WebBase):
         return self.template('users.mako', error=error, username=Cookie('username').get(''), users=users, nonAccounts=nonUsers)
 
     @cherrypy.expose
-    def addUser(self, user, barcode, keyholder=0, admin=0, certifier=0, coach=0,steward=0):
+    def addUser(self, user, barcode, keyholder=0, admin=0, certifier=0, coach=0, steward=0):
         error = ""
         self.checkPermissions()
         if user == "":
@@ -174,7 +186,7 @@ class WebAdminStation(WebBase):
         raise cherrypy.HTTPRedirect("/admin/teams")
 
     @cherrypy.expose
-    def changeAccess(self, barcode, admin=False, keyholder=False, certifier=False, coach=False,steward=False):
+    def changeAccess(self, barcode, admin=False, keyholder=False, certifier=False, coach=False, steward=False):
         self.checkPermissions()
         newRole = Role()
         newRole.setAdmin(admin)

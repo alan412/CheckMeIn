@@ -65,5 +65,10 @@ def testData():
             "report_id": 1,
             "name": "fred",
             "sql_text": "SELECT+*+FROM+members % 3B"}
-        ]
+        ],
+        "logEvents": [{
+            "what": "Bulk Add",
+            "barcode": "100091",
+            "date": datetime.datetime.now()
+        }]
     }

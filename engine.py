@@ -11,8 +11,9 @@ from visits import Visits
 from accounts import Accounts
 from devices import Devices
 from unlocks import Unlocks
+from logEvents import LogEvents
 
-SCHEMA_VERSION = 12
+SCHEMA_VERSION = 13
 
 # This is the engine for all of the backend
 
@@ -31,6 +32,7 @@ class Engine(object):
         self.customReports = CustomReports(self.database)
         self.certifications = Certifications()
         self.members = Members()
+        self.logEvents = LogEvents()
 
         if not os.path.exists(self.database):  # pragma: no cover
             if not os.path.exists(dbPath):
@@ -58,6 +60,7 @@ class Engine(object):
             self.accounts.migrate(dbConnection, db_schema_version)
             self.devices.migrate(dbConnection, db_schema_version)
             self.unlocks.migrate(dbConnection, db_schema_version)
+            self.logEvents.migrate(dbConnection, db_schema_version)
             dbConnection.execute('PRAGMA schema_version = ' +
                                  str(SCHEMA_VERSION))
         elif db_schema_version != SCHEMA_VERSION:
@@ -74,7 +77,8 @@ class Engine(object):
             "certifications": self.certifications,
             "accounts": self.accounts,
             "devices": self.devices,
-            "unlocks": self.unlocks
+            "unlocks": self.unlocks,
+            "logEvents": self.logEvents
         }
 
         for (key, member) in areas.items():

@@ -18,6 +18,9 @@ ${self.logo()}<br/>
 <form action="bulkAddMembers" method="post" enctype="multipart/form-data">
 <fieldset>
     <legend>Bulk add members</legend>
+    %if lastBulkUpdateDate: 
+       <P>Last Update: ${lastBulkUpdateDate.strftime("%Y-%m-%d at %I:%M %p")} by ${lastBulkUpdateName}</P>
+    %endif 
           <input type="file" ID="csvFile" name="csvfile" accept=".csv"/>
     <br/>
     <input type="submit" value="Add Members"/>
