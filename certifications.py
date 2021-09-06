@@ -27,7 +27,7 @@ class ToolUser(object):
 
     def addTool(self, tool_id, date, level):
         if not date:
-            date = datetime.datetime(2019,1,1)
+            date = datetime.datetime(2019, 1, 1)
         if tool_id in self.tools:
             (currDate, nil) = self.tools[tool_id]
             if date > currDate:
@@ -46,12 +46,18 @@ class ToolUser(object):
         date = str(dateObj)[:7]
 
         HTMLDetails = {
-            CertificationLevels.NONE:  '<TD class="clNone"></TD>',
-            CertificationLevels.BASIC: f'<TD class="clBasic">BASIC<br/>{date}</TD>',
-            CertificationLevels.CERTIFIED: f'<TD class="clCertified">CERTIFIED<br/>{date}</TD>',
-            CertificationLevels.DOF: f'<TD class="clDOF">DOF<br/>{date}</TD>',
-            CertificationLevels.INSTRUCTOR: f'<TD class="clInstructor">Instructor<br/>{date}</TD>',
-            CertificationLevels.CERTIFIER: f'<TD class="clCertifier">Certifier<br/>{date}</TD>'
+            CertificationLevels.NONE:
+            '<TD class="clNone"></TD>',
+            CertificationLevels.BASIC:
+            f'<TD class="clBasic">BASIC<br/>{date}</TD>',
+            CertificationLevels.CERTIFIED:
+            f'<TD class="clCertified">CERTIFIED<br/>{date}</TD>',
+            CertificationLevels.DOF:
+            f'<TD class="clDOF">DOF<br/>{date}</TD>',
+            CertificationLevels.INSTRUCTOR:
+            f'<TD class="clInstructor">Instructor<br/>{date}</TD>',
+            CertificationLevels.CERTIFIER:
+            f'<TD class="clCertifier">Certifier<br/>{date}</TD>'
         }
         try:
             return HTMLDetails[level]
@@ -70,35 +76,29 @@ class Certifications(object):
             CertificationLevels.CERTIFIER: 'CERTIFIER'
         }
 
-    def addTool(self, dbConnection, tool_id, grouping, name, restriction=0, comments=''):  # pragma: no cover
+    def addTool(self,
+                dbConnection,
+                tool_id,
+                grouping,
+                name,
+                restriction=0,
+                comments=''):  # pragma: no cover
         dbConnection.execute('INSERT INTO tools VALUES(?,?,?,?,?)',
                              (tool_id, grouping, name, restriction, comments))
 
     def addTools(self, dbConnection):  # pragma: no cover
-        tools = [[1, 1, "Sheet Metal Brake"],
-                 [2, 1, "Blind Rivet Gun"],
-                 [3, 1, "Stretcher Shrinker"],
-                 [4, 1, "3D printers"],
-
-                 [5, 2, "Power Hand Drill"],
-                 [6, 2, "Solder Iron"],
-                 [7, 2, "Dremel"],
-
-                 [8, 3, "Horizontal Band Saw"],
-                 [9, 3, "Drill Press"],
-                 [10, 3, "Grinder / Sander"],
-
-                 [11, 4, "Scroll Saw"],
-                 [12, 4, "Table Mounted Jig Saw"],
-                 [13, 4, "Vertical Band Saw"],
-                 [14, 4, "Jig Saw"],
-
-                 [15, 5, "CNC router"],
-                 [16, 5, "Metal Lathe"],
-                 [17, 5, "Table Saw"],
-                 [18, 5, "Power Miter Saw"]]
+        tools = [[1, 1, "Sheet Metal Brake"], [2, 1, "Blind Rivet Gun"],
+                 [3, 1, "Stretcher Shrinker"], [4, 1, "3D printers"],
+                 [5, 2, "Power Hand Drill"], [6, 2, "Solder Iron"],
+                 [7, 2, "Dremel"], [8, 3, "Horizontal Band Saw"],
+                 [9, 3, "Drill Press"], [10, 3, "Grinder / Sander"],
+                 [11, 4, "Scroll Saw"], [12, 4, "Table Mounted Jig Saw"],
+                 [13, 4, "Vertical Band Saw"], [14, 4, "Jig Saw"],
+                 [15, 5, "CNC router"], [16, 5, "Metal Lathe"],
+                 [17, 5, "Table Saw"], [18, 5, "Power Miter Saw"]]
         for tool in tools:
-            if tool[2] == "Power Miter Saw" or tool[2] == "Table Saw":  # Over 18 only tools
+            if tool[2] == "Power Miter Saw" or tool[
+                    2] == "Table Saw":  # Over 18 only tools
                 self.addTool(dbConnection, tool[0], tool[1], tool[2], 1)
             else:
                 self.addTool(dbConnection, tool[0], tool[1], tool[2])
@@ -128,24 +128,32 @@ class Certifications(object):
 
     def injectData(self, dbConnection, data):
         for datum in data:
-            self.addCertification(dbConnection, datum["barcode"], datum["tool_id"], datum["level"], datum["date"], datum["certifier"])
+            self.addCertification(dbConnection, datum["barcode"],
+                                  datum["tool_id"], datum["level"],
+                                  datum["date"], datum["certifier"])
 
-    def addNewCertification(self, dbConnection, member_id, tool_id, level, certifier):
-        return self.addCertification(dbConnection, member_id, tool_id, level, datetime.datetime.now(), certifier)
+    def addNewCertification(self, dbConnection, member_id, tool_id, level,
+                            certifier):
+        return self.addCertification(dbConnection, member_id, tool_id, level,
+                                     datetime.datetime.now(), certifier)
 
-    def addCertification(self, dbConnection, barcode, tool_id, level, date, certifier):
+    def addCertification(self, dbConnection, barcode, tool_id, level, date,
+                         certifier):
         # TODO: need to verify that the certifier can indeed certify on this tool
 
-        dbConnection.execute('''INSERT INTO certifications(user_id, tool_id, certifier_id, date, level)
+        dbConnection.execute(
+            '''INSERT INTO certifications(user_id, tool_id, certifier_id, date, level)
                                 SELECT ?, ?, ?, ?, ?''',
-                             (barcode, tool_id, certifier, date, level))
+            (barcode, tool_id, certifier, date, level))
 
     def getAllUserList(self, dbConnection):
         users = {}
-        for row in dbConnection.execute('''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
+        for row in dbConnection.execute(
+                '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
                                         INNER JOIN members ON members.barcode=user_id
                                         WHERE membershipExpires > ?
-                                        ORDER BY members.displayName''', (datetime.datetime.now(),)):
+                                        ORDER BY members.displayName''',
+            (datetime.datetime.now(), )):
             try:
                 users[row[0]].addTool(row[1], row[2], row[3])
             except KeyError:
@@ -155,7 +163,8 @@ class Certifications(object):
 
     def getInBuildingUserList(self, dbConnection):
         users = {}
-        for row in dbConnection.execute('''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
+        for row in dbConnection.execute(
+                '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
                                         INNER JOIN members ON members.barcode=user_id
                                         INNER JOIN visits ON visits.barcode=user_id
                                         WHERE visits.status="In"
@@ -169,33 +178,40 @@ class Certifications(object):
 
     def getTeamUserList(self, dbConnection, team_id):
         users = {}
-        for row in dbConnection.execute('''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
+        for row in dbConnection.execute(
+                '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
                                         INNER JOIN members ON members.barcode=user_id
                                         INNER JOIN team_members ON members.barcode=team_members.barcode
                                         WHERE team_members.team_id = ?
-                                        ORDER BY team_members.type DESC, members.displayName ASC''', (team_id,)):
+                                        ORDER BY team_members.type DESC, members.displayName ASC''',
+            (team_id, )):
             try:
                 users[row[0]].addTool(row[1], row[2], row[3])
             except KeyError:
                 users[row[0]] = ToolUser(row[4], row[0])
                 users[row[0]].addTool(row[1], row[2], row[3])
         return users
+
     def getUserList(self, dbConnection, user_id):
         users = {}
-        for row in dbConnection.execute('''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
+        for row in dbConnection.execute(
+                '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
                                         INNER JOIN members ON members.barcode=user_id
                                         INNER JOIN team_members ON members.barcode=team_members.barcode
                                         WHERE user_id = ?
-                                        ORDER BY team_members.type DESC, members.displayName ASC''', (user_id,)):
+                                        ORDER BY team_members.type DESC, members.displayName ASC''',
+            (user_id, )):
             try:
                 users[row[0]].addTool(row[1], row[2], row[3])
             except KeyError:
                 users[row[0]] = ToolUser(row[4], row[0])
                 users[row[0]].addTool(row[1], row[2], row[3])
         return users
+
     def getAllTools(self, dbConnection):
         tools = []
-        for row in dbConnection.execute('SELECT id, name, grouping FROM tools ORDER BY id ASC', ()):
+        for row in dbConnection.execute(
+                'SELECT id, name, grouping FROM tools ORDER BY id ASC', ()):
             tools.append([row[0], row[1], row[2]])
         return tools
 
@@ -207,20 +223,21 @@ class Certifications(object):
         for tool in tools:
             if str(tool[0]) in inputTools:
                 newToolList.append(tool)
-            else:
-                print("Not Found:", tool)
         return newToolList
 
     def getListCertifyTools(self, dbConnection, user_id):
         tools = []
-        for row in dbConnection.execute('''SELECT id, name FROM tools
+        for row in dbConnection.execute(
+                '''SELECT id, name FROM tools
                  INNER JOIN certifications ON certifications.tool_id = id
-                 WHERE user_id = ? AND level >= ? ORDER BY name ASC''', (user_id, CertificationLevels.CERTIFIER)):
+                 WHERE user_id = ? AND level >= ? ORDER BY name ASC''',
+            (user_id, CertificationLevels.CERTIFIER)):
             tools.append([row[0], row[1]])
         return tools
 
     def getToolName(self, dbConnection, tool_id):
-        for row in dbConnection.execute('SELECT name FROM tools WHERE id == ?', (tool_id, )):
+        for row in dbConnection.execute('SELECT name FROM tools WHERE id == ?',
+                                        (tool_id, )):
             return row[0]
         return ''
 
@@ -229,7 +246,9 @@ class Certifications(object):
 
     def emailCertifiers(self, name, toolName, levelDescription, certifierName):
         emailAddress = "shopcertifiers@theforgeinitiative.org"
-        msg = MIMEText(f"{name} was just certified as {levelDescription} on {toolName} by {certifierName}!!")
+        msg = MIMEText(
+            f"{name} was just certified as {levelDescription} on {toolName} by {certifierName}!!"
+        )
 
         from_email = 'tfi@ev3hub.com'
         msg['To'] = email.utils.formataddr(("Shop Certifiers", emailAddress))

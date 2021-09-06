@@ -1,7 +1,7 @@
 import datetime
 
 
-def sampleData():
+def testData():
     return {
         "visits": [
             {

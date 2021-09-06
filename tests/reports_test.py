@@ -2,11 +2,6 @@ import CPtest
 
 
 class ReportsTest(CPtest.CPTest):
-    @staticmethod
-    def setup_server():
-        cmi = super(ReportsTest, ReportsTest).setup_server()
-        cmi.engine.injectData({})
-
     def test_report_page(self):
         with self.patch_session():
             self.getPage("/reports/")

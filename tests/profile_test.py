@@ -1,11 +1,6 @@
 import CPtest
 
 class ProfileTest(CPtest.CPTest):
-    @staticmethod
-    def setup_server():
-        cmi = super(ProfileTest, ProfileTest).setup_server()
-        cmi.engine.injectData({})
-
     def test_login(self):
         self.getPage("/profile/login")
         self.assertStatus('200 OK')

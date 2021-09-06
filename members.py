@@ -39,7 +39,7 @@ class Members(object):
 
     def injectData(self, dbConnection, data):
         for datum in data:
-            dbConnection.execute("INSERT INTO members VALUES (?,?,?,?,?)",
+            dbConnection.execute("INSERT INTO members VALUES (?,?,?,?,?,?)",
                                  (datum["barcode"], datum["displayName"],
                                   datum["firstName"], datum["lastName"],
                                   datum["email"], datum["membershipExpires"]))

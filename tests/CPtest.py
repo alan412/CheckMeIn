@@ -19,12 +19,8 @@ class CPTest(helper.CPWebCase):
 
         cherrypy.config.update(testConfig)
         cmi = CheckMeIn()
-        print("setup cmi")
         cherrypy.tree.mount(cmi, '/', testConfig)
         return cmi
-
-    def ingest_data(self, data):
-        cmi.engine.ingest_data(data)
 
     def patch_session_none(self):
         sess_mock = RamSession()
