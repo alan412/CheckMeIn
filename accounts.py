@@ -1,3 +1,4 @@
+import sqlite3
 from passlib.apps import custom_app_context as pwd_context
 from enum import IntEnum
 import time
@@ -102,7 +103,7 @@ class Accounts(object):
     def injectData(self, dbConnection, data):
         for datum in data:
             self.addUser(dbConnection, datum["user"], datum["password"],
-                         datum["barcode"], datum["role"])
+                         datum["barcode"], Role(datum["role"]))
 
     def addHashedUser(self, dbConnection, user, hashedPassword, barcode, role):
         dbConnection.execute(
@@ -311,8 +312,6 @@ class Accounts(object):
 
         # This is temporary - just to give us some fake data to play with
 
-
-import sqlite3
 
 if __name__ == '__main__':  # pragma: no cover
     with sqlite3.connect('data/checkMeIn.db',
