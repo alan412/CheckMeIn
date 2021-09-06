@@ -1,15 +1,16 @@
 import CPtest
 
+
 class ProfileTest(CPtest.CPTest):
     def test_login(self):
         self.getPage("/profile/login")
         self.assertStatus('200 OK')
 
-    # def test_loginAttemptGood(self):
-    #     with self.patch_session():
-    #         self.getPage(
-    #             "/profile/loginAttempt?username=alan&password=password")
-    #         self.assertStatus('303 See Other')
+    def test_loginAttemptGood(self):
+        with self.patch_session():
+            self.getPage(
+                "/profile/loginAttempt?username=admin&password=password")
+            self.assertStatus('303 See Other')
 
     def test_loginAttemptBad(self):
         self.getPage("/profile/loginAttempt?username=alan&password=wrong")

@@ -87,12 +87,12 @@ class AdminTest(CPtest.CPTest):
             self.getPage("/admin/teams")
             self.assertStatus("200 OK")
 
-    # def test_addTeam(self):
-    #     with self.patch_session():
-    #         self.getPage(
-    #             "/admin/addTeam?programName=TFI&programNumber=123&teamName=&coach1=100091&coach2=100090"
-    #         )
-    #         self.assertStatus("200 OK")
+    def test_addTeam(self):
+        with self.patch_session():
+            self.getPage(
+                "/admin/addTeam?programName=TFI&startDate=2021-07-31&programNumber=123&teamName=&coach1=100091&coach2=100090"
+            )
+            self.assertStatus("200 OK")
 
     def test_activateTeam(self):
         with self.patch_session():
@@ -109,9 +109,9 @@ class AdminTest(CPtest.CPTest):
             self.getPage("/admin/deleteTeam?teamId=100")
             self.assertStatus("303 See Other")
 
-    # def test_editTeam(self):
-    #     with self.patch_session():
-    #         self.getPage(
-    #             "/admin/editTeam?teamId=100&programName=FRC&programNumber=3459"
-    #         )
-    #         self.assertStatus("303 See Other")
+    def test_editTeam(self):
+        with self.patch_session():
+            self.getPage(
+                "/admin/editTeam?teamId=100&programName=FRC&programNumber=3459&startDate=2021-07-31"
+            )
+            self.assertStatus("303 See Other")
