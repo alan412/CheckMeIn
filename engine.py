@@ -18,8 +18,8 @@ SCHEMA_VERSION = 12
 
 
 class Engine(object):
-    def __init__(self, dbString):
-        self.database = dbString
+    def __init__(self, dbPath, dbName):
+        self.database = dbPath + dbName
         self.visits = Visits()
         self.guests = Guests()
         self.reports = Reports(self)
@@ -33,6 +33,8 @@ class Engine(object):
         self.members = Members()
 
         if not os.path.exists(self.database):  # pragma: no cover
+            if not os.path.exists(dbPath):
+                os.mkdir(dbPath)
             with self.dbConnect() as c:
                 self.migrate(c, 0)
         else:
