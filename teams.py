@@ -31,7 +31,8 @@ class TeamMemberType(IntEnum):
     student = 0
     mentor = 1
     coach = 2
-    other = -1 
+    other = -1
+
 
 class TeamInfo(object):
     def __init__(self, teamId, programName, programNumber, name, startDate):
@@ -59,7 +60,8 @@ class Teams(object):
                                  name TEXT UNIQUE,
                                   active INTEGER default 1)''')
             dbConnection.execute('''CREATE TABLE team_members
-                                 (team_id TEXT, barcode TEXT, type INTEGER default 0)''')
+                                 (team_id TEXT, barcode TEXT, type INTEGER default 0)'''
+                                 )
         if db_schema_version < 12:
             dbConnection.execute('''CREATE TABLE new_teams
                                  (team_id INTEGER NOT NULL PRIMARY KEY,
@@ -78,34 +80,51 @@ class Teams(object):
             dbConnection.execute(
                 "ALTER TABLE new_team_members RENAME to team_members")
             dbConnection.execute('''DROP TABLE teams''')
-            dbConnection.execute(
-                '''ALTER TABLE new_teams RENAME TO teams''')
+            dbConnection.execute('''ALTER TABLE new_teams RENAME TO teams''')
 
-    def createTeam(self, dbConnection, program_name, program_number, team_name, seasonStart):
+    def injectData(self, dbConnection, data):
+        for datum in data:
+            dbConnection.execute("INSERT INTO teams VALUES (?,?,?,?,?,?)",
+                                 (datum["team_id"], datum["program_name"],
+                                  datum["program_number"], datum["team_name"],
+                                  datum["start_date"], datum["active"]))
+            if "members" in datum:
+                team_id = datum["team_id"]
+                for datum in datum["members"]:
+                    dbConnection.execute(
+                        "INSERT INTO team_members VALUES (?,?,?)",
+                        (team_id, datum["barcode"], datum["type"]))
+
+    def createTeam(self, dbConnection, program_name, program_number, team_name,
+                   seasonStart):
         try:
             dbConnection.execute(
-                "INSERT INTO teams VALUES (NULL,?,?,?,?,1)", (program_name.upper(), program_number, team_name, seasonStart))
+                "INSERT INTO teams VALUES (NULL,?,?,?,?,1)",
+                (program_name.upper(), program_number, team_name, seasonStart))
             return ""
         except sqlite3.IntegrityError:
             return "Team name already exists"
 
     def fromTeamId(self, dbConnection, team_id):
-        data = dbConnection.execute('''SELECT team_id, program_name, program_number, team_name, start_date
+        data = dbConnection.execute(
+            '''SELECT team_id, program_name, program_number, team_name, start_date
                                 FROM teams
                                 WHERE (team_id = ?)
-                                ORDER BY program_name, program_number''', (team_id,)).fetchone()
+                                ORDER BY program_name, program_number''',
+            (team_id, )).fetchone()
         if not data:
             return None
 
         return TeamInfo(data[0], data[1], data[2], data[3], data[4])
 
     def deleteTeam(self, dbConnection, team_id):
-        dbConnection.execute(
-            '''DELETE from teams WHERE team_id = ?''', (team_id,))
-        dbConnection.execute(
-            '''DELETE from team_members WHERE team_id = ?''', (team_id,))
+        dbConnection.execute('''DELETE from teams WHERE team_id = ?''',
+                             (team_id, ))
+        dbConnection.execute('''DELETE from team_members WHERE team_id = ?''',
+                             (team_id, ))
 
-    def editTeam(self, dbConnection, programName, programNumber, seasonStart, team_id):
+    def editTeam(self, dbConnection, programName, programNumber, seasonStart,
+                 team_id):
         dbConnection.execute(
             '''UPDATE teams SET program_name = ?, program_number = ?, start_date = ? WHERE team_id = ?''',
             (programName, programNumber, seasonStart, team_id))
@@ -113,10 +132,12 @@ class Teams(object):
     def getActiveTeamList(self, dbConnection):
         # TODO: Change to use DISTINCT feature of SQLITE to get rid of python
         dictTeams = {}
-        for row in dbConnection.execute('''SELECT team_id, program_name, program_number, team_name, start_date
+        for row in dbConnection.execute(
+                '''SELECT team_id, program_name, program_number, team_name, start_date
                                 FROM teams
                                 WHERE (active = ?)
-                                ORDER BY program_name, program_number''', (Status.active,)):
+                                ORDER BY program_name, program_number''',
+            (Status.active, )):
 
             newTeam = TeamInfo(row[0], row[1], row[2], row[3], row[4])
             programId = newTeam.getProgramId()
@@ -130,40 +151,48 @@ class Teams(object):
 
     def getAllSeasons(self, dbConnection, teamInfo):
         teamList = []
-        for row in dbConnection.execute('''SELECT team_id, program_name, program_number, team_name, start_date
+        for row in dbConnection.execute(
+                '''SELECT team_id, program_name, program_number, team_name, start_date
                                 FROM teams
                                 WHERE program_name = ? AND program_number = ?
-                                ORDER BY start_date DESC''', (teamInfo.programName, teamInfo.programNumber)):
+                                ORDER BY start_date DESC''',
+            (teamInfo.programName, teamInfo.programNumber)):
             teamList.append(TeamInfo(row[0], row[1], row[2], row[3], row[4]))
         return teamList
 
     def isCoachOfTeam(self, dbConnection, teamId, coachBarcode):
-        data = dbConnection.execute('''SELECT team_id FROM team_members WHERE team_id = ? AND barcode = ? AND type = ?''',
-                                    (teamId, coachBarcode, TeamMemberType.coach)).fetchone()
+        data = dbConnection.execute(
+            '''SELECT team_id FROM team_members WHERE team_id = ? AND barcode = ? AND type = ?''',
+            (teamId, coachBarcode, TeamMemberType.coach)).fetchone()
         if not data:
             return False
         return True
 
     def getInactiveTeamList(self, dbConnection):
         teamList = []
-        for row in dbConnection.execute('''SELECT team_id, program_name, program_number, team_name, start_date
+        for row in dbConnection.execute(
+                '''SELECT team_id, program_name, program_number, team_name, start_date
                                 FROM teams
                                 WHERE(active= ?)
-                                ORDER BY program_name, program_number''', (Status.inactive,)):
+                                ORDER BY program_name, program_number''',
+            (Status.inactive, )):
             teamList.append(TeamInfo(row[0], row[1], row[2], row[3], row[4]))
         return teamList
 
     def getTeamFromProgramInfo(self, dbConnection, name, number):
-        for row in dbConnection.execute('''SELECT team_id, program_name, program_number, team_name, start_date
+        for row in dbConnection.execute(
+                '''SELECT team_id, program_name, program_number, team_name, start_date
                                 FROM teams
                                 WHERE(active= ? AND program_name= ? AND program_number= ?)
-                                ORDER BY start_date DESC LIMIT 1''', (Status.active, name.upper(), number)):
+                                ORDER BY start_date DESC LIMIT 1''',
+            (Status.active, name.upper(), number)):
             return TeamInfo(row[0], row[1], row[2], row[3], row[4])
         return None
 
     def teamNameFromId(self, dbConnection, team_id):
         data = dbConnection.execute(
-            "SELECT team_name FROM teams WHERE (team_id=?)", (team_id, )).fetchone()
+            "SELECT team_name FROM teams WHERE (team_id=?)",
+            (team_id, )).fetchone()
         if data:
             return data[0]
         return ''
@@ -172,27 +201,31 @@ class Teams(object):
         try:
             dbConnection.execute("INSERT INTO team_members VALUES (?, ?, ?)",
                                  (team_id, barcode, type))
-        except sqlite3.IntegrityError:   # silently let duplicates not be inserted
+        except sqlite3.IntegrityError:  # silently let duplicates not be inserted
             pass
 
     def removeMember(self, dbConnection, team_id, barcode):
-        dbConnection.execute("DELETE from team_members where (team_id == ?) AND (barcode == ?)",
-                             (team_id, barcode))
+        dbConnection.execute(
+            "DELETE from team_members where (team_id == ?) AND (barcode == ?)",
+            (team_id, barcode))
 
     def renameTeam(self, dbConnection, team_id, newName):
         dbConnection.execute(
-            "UPDATE teams SET team_name = ? where team_id = ?", (newName, team_id))
+            "UPDATE teams SET team_name = ? where team_id = ?",
+            (newName, team_id))
 
     def getTeamMembers(self, dbConnection, team_id):
         listMembers = []
-        for row in dbConnection.execute('''SELECT displayName, type, team_members.barcode,
+        for row in dbConnection.execute(
+                '''SELECT displayName, type, team_members.barcode,
                     (SELECT visits.status from visits where visits.barcode=team_members.barcode ORDER by visits.start DESC) as status
                             FROM team_members
                             INNER JOIN members ON members.barcode=team_members.barcode
                             WHERE(team_id == ?)
-                            ORDER BY type DESC, displayName ASC''', (team_id,)):
-            listMembers.append(TeamMember(
-                row[0], row[2], row[1], row[3] == 'In'))
+                            ORDER BY type DESC, displayName ASC''',
+            (team_id, )):
+            listMembers.append(
+                TeamMember(row[0], row[2], row[1], row[3] == 'In'))
         return listMembers
 
     def deactivateTeam(self, dbConnection, team_id):
@@ -203,16 +236,18 @@ class Teams(object):
                 ))''', (Status.inactive, team_id))
 
     def activateTeam(self, dbConnection, team_id):
-        dbConnection.execute(
-            '''UPDATE teams SET active= ? WHERE team_id= ?''', (Status.active, team_id))
+        dbConnection.execute('''UPDATE teams SET active= ? WHERE team_id= ?''',
+                             (Status.active, team_id))
 
     def getCoaches(self, dbConnection, team_id):
         listCoaches = []
-        for row in dbConnection.execute('''SELECT displayName, type, team_members.barcode
+        for row in dbConnection.execute(
+                '''SELECT displayName, type, team_members.barcode
                             FROM team_members
                             INNER JOIN members ON members.barcode=team_members.barcode
                             WHERE(team_id == ?) and (type= ?)
-                            ORDER BY displayName''', (team_id, TeamMemberType.coach)):
+                            ORDER BY displayName''',
+            (team_id, TeamMemberType.coach)):
             listCoaches.append(TeamMember(row[0], row[2], row[1]))
         return listCoaches
 

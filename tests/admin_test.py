@@ -2,6 +2,11 @@ import CPtest
 
 
 class AdminTest(CPtest.CPTest):
+    @staticmethod
+    def setup_server():
+        cmi = super(AdminTest, AdminTest).setup_server()
+        cmi.engine.injectData({})
+
     def test_admin(self):
         with self.patch_session():
             self.getPage("/admin/")

@@ -126,6 +126,10 @@ class Certifications(object):
                                   level         INTEGER default 0)''')
             self.addTools(dbConnection)
 
+    def injectData(self, dbConnection, data):
+        for datum in data:
+            self.addCertification(dbConnection, datum["barcode"], datum["tool_id"], datum["level"], datum["date"], datum["certifier"])
+
     def addNewCertification(self, dbConnection, member_id, tool_id, level, certifier):
         return self.addCertification(dbConnection, member_id, tool_id, level, datetime.datetime.now(), certifier)
 
@@ -135,7 +139,7 @@ class Certifications(object):
         dbConnection.execute('''INSERT INTO certifications(user_id, tool_id, certifier_id, date, level)
                                 SELECT ?, ?, ?, ?, ?''',
                              (barcode, tool_id, certifier, date, level))
-        
+
     def getAllUserList(self, dbConnection):
         users = {}
         for row in dbConnection.execute('''SELECT user_id, tool_id, date, level, members.displayName FROM certifications

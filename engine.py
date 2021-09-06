@@ -44,7 +44,8 @@ class Engine(object):
                     self.migrate(c, data[0])
 
     def dbConnect(self):
-        return sqlite3.connect(self.database, detect_types=sqlite3.PARSE_DECLTYPES)
+        return sqlite3.connect(self.database,
+                               detect_types=sqlite3.PARSE_DECLTYPES)
 
     def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
         if db_schema_version < SCHEMA_VERSION:
@@ -57,11 +58,29 @@ class Engine(object):
             self.accounts.migrate(dbConnection, db_schema_version)
             self.devices.migrate(dbConnection, db_schema_version)
             self.unlocks.migrate(dbConnection, db_schema_version)
-            dbConnection.execute(
-                'PRAGMA schema_version = ' + str(SCHEMA_VERSION))
+            dbConnection.execute('PRAGMA schema_version = ' +
+                                 str(SCHEMA_VERSION))
         elif db_schema_version != SCHEMA_VERSION:
             raise Exception("Unknown DB schema version" +
                             str(db_schema_version) + ": " + self.database)
+
+    def injectData(self, dictValues):
+        areas = {
+            "visits": self.visits,
+            "members": self.members,
+            "guests": self.guests,
+            "teams": self.teams,
+            "customReports": self.customReports,
+            "certifications": self.certifications,
+            "accounts": self.accounts,
+            "devices": self.devices,
+            "unlocks": self.unlocks
+        }
+
+        for (key, member) in areas.items():
+            if key in dictValues:
+                with self.dbConnect() as dbConnection:
+                    member.injectData(dbConnection, dictValues[key])
 
     def getGuestLists(self, dbConnection):
         all_guests = self.guests.getList(dbConnection)
@@ -69,6 +88,7 @@ class Engine(object):
         building_guests = self.reports.guestsInBuilding(dbConnection)
 
         guests_not_here = [
-            guest for guest in all_guests if guest not in building_guests]
+            guest for guest in all_guests if guest not in building_guests
+        ]
 
         return (building_guests, guests_not_here)

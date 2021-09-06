@@ -14,12 +14,24 @@ class Visits(object):
     def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
         if db_schema_version == 0:
             dbConnection.execute('''CREATE TABLE visits
-                     (start timestamp, leave timestamp, barcode text, status text)''')
+                     (start timestamp, leave timestamp, barcode text, status text)'''
+                                 )
+
+    def injectData(self, dbConnection, data):
+        for datum in data:
+            if "leave" in datum:
+                dbConnection.execute("INSERT INTO visits VALUES (?,?,?,?)",
+                                     (datum["start"], datum["leave"],
+                                      datum["barcode"], datum["status"]))
+            else:
+                dbConnection.execute("INSERT INTO visits VALUES (?,?,?,?)",
+                                     (datum["start"], datum["start"],
+                                      datum["barcode"], datum["status"]))
 
     def inBuilding(self, dbConnection, barcode):
         data = dbConnection.execute(
             "SELECT * FROM visits WHERE (barcode==?) and (status=='In')",
-            (barcode,)).fetchone()
+            (barcode, )).fetchone()
         return data != None
 
     def enterGuest(self, dbConnection, guest_id):
@@ -47,25 +59,27 @@ class Visits(object):
 
         # See if it is a valid input
         data = dbConnection.execute(
-            "SELECT displayName FROM members WHERE barcode==?", (barcode,)).fetchone()
+            "SELECT displayName FROM members WHERE barcode==?",
+            (barcode, )).fetchone()
         if data is None:
             return 'Invalid barcode: ' + barcode
         data = dbConnection.execute(
-            "SELECT * FROM visits WHERE (barcode==?) and (status=='In')", (barcode,)).fetchone()
+            "SELECT * FROM visits WHERE (barcode==?) and (status=='In')",
+            (barcode, )).fetchone()
         if data is None:
             dbConnection.execute("INSERT INTO visits VALUES (?,?,?,'In')",
                                  (now, now, barcode))
         else:
             dbConnection.execute(
                 "UPDATE visits SET leave = ?, status = 'Out' WHERE " +
-                "(barcode==?) AND (status=='In')",
-                (now, barcode))
+                "(barcode==?) AND (status=='In')", (now, barcode))
         return ''
 
     def emptyBuilding(self, dbConnection, keyholder_barcode):
         now = datetime.datetime.now()
         dbConnection.execute(
-            "UPDATE visits SET leave = ?, status = 'Forgot' WHERE status=='In'", (now,))
+            "UPDATE visits SET leave = ?, status = 'Forgot' WHERE status=='In'",
+            (now, ))
         if keyholder_barcode:
             dbConnection.execute(
                 "UPDATE visits SET status = 'Out' WHERE barcode==? AND leave==?",
@@ -76,7 +90,7 @@ class Visits(object):
         startDate = now.replace(hour=0, minute=0, second=0, microsecond=0)
         dbConnection.execute(
             "UPDATE visits SET status = 'In' WHERE status=='Forgot' AND leave > ?",
-            (startDate,))
+            (startDate, ))
 
     def getMembersInBuilding(self, dbConnection):
         listPresent = []
@@ -102,5 +116,7 @@ class Visits(object):
                 if newLeave < newStart:
                     newLeave += datetime.timedelta(days=1)
 
-                dbConnection.execute('''UPDATE visits SET start = ?, leave = ?, status = 'Out'
-                        WHERE (visits.rowid==?)''', (newStart, newLeave, rowID))
+                dbConnection.execute(
+                    '''UPDATE visits SET start = ?, leave = ?, status = 'Out'
+                        WHERE (visits.rowid==?)''',
+                    (newStart, newLeave, rowID))

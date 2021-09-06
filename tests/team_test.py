@@ -2,6 +2,11 @@ import CPtest
 
 
 class TeamTest(CPtest.CPTest):
+    @staticmethod
+    def setup_server():
+        cmi = super(TeamTest, TeamTest).setup_server()
+        cmi.engine.injectData({})
+
     def patch_session_coach_alan(self):
         self.patch_session('alan', '100091', 0x04)
 

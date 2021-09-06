@@ -1,6 +1,12 @@
 import CPtest
 
+
 class GuestTest(CPtest.CPTest):
+    @staticmethod
+    def setup_server():
+        cmi = super(GuestTest, GuestTest).setup_server()
+        cmi.engine.injectData({})
+
     def test_guests(self):
         self.getPage("/guests/")
         self.assertStatus('200 OK')

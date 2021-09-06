@@ -2,6 +2,11 @@ import CPtest
 
 
 class CertificationsTest(CPtest.CPTest):
+    @staticmethod
+    def setup_server():
+        cmi = super(CertificationsTest, CertificationsTest).setup_server()
+        cmi.engine.injectData({})
+
     def test_certify(self):
         with self.patch_session():
             self.getPage("/certifications/certify")
