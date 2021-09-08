@@ -214,7 +214,7 @@ class WebAdminStation(WebBase):
                             {'name': device.name, 'mac': device.mac})
             jsonData = json.dumps(keyholders)
         # encrypt now
-            with open('data/checkmein.key', 'rb') as key_file:
+            with open(self.engine.dataPath + 'checkmein.key', 'rb') as key_file:
                 key = key_file.read()
             f = Fernet(key)
             return f.encrypt(jsonData.encode('utf-8'))

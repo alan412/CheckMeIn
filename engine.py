@@ -21,6 +21,7 @@ SCHEMA_VERSION = 13
 class Engine(object):
     def __init__(self, dbPath, dbName):
         self.database = dbPath + dbName
+        self.dataPath = dbPath
         self.visits = Visits()
         self.guests = Guests()
         self.reports = Reports(self)
