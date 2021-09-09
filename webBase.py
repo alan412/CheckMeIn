@@ -9,13 +9,11 @@ class Cookie(object):
 
     def get(self, default=''):
         result = default
-        try:
-            result = cherrypy.session.get(self.name)
-            if not result:
-                self.set(default)
-                result = default
-        except:
+        result = cherrypy.session.get(self.name)
+        if not result:
             self.set(default)
+            result = default
+
         return result
 
     def set(self, value):
