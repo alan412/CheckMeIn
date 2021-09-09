@@ -35,10 +35,10 @@ class Guests(object):
     def injectData(self, dbConnection, data):
         for datum in data:
             dbConnection.execute(
-                "INSERT INTO guests VALUES (?,?,?,?,?,?,?)",
+                "INSERT INTO guests VALUES (?,?,?,?,?,?,?,?)",
                 (datum["guest_id"], datum["displayName"], datum["email"],
                  datum["firstName"], datum["lastName"], datum["whereFound"],
-                 datum["status"]))
+                 datum["status"], datum["newsletter"]))
 
     def add(self, dbConnection, displayName, first, last, email, whereFound,
             newsletter):
@@ -76,18 +76,18 @@ class Guests(object):
         guestList = []
 
         for row in dbConnection.execute(
-                "SELECT * FROM guests WHERE status is NOT ? ORDER BY displayName",
-            (Status.inactive, )):
+            "SELECT * FROM guests WHERE status is NOT ? ORDER BY displayName",
+                (Status.inactive, )):
             guestList.append(Guest(row[0], row[1]))
         return guestList
 
     def getGuests(self, dbConnection, numDays):
         guestList = []
         for row in dbConnection.execute(
-                '''SELECT DISTINCT guest_id, displayName FROM guests
-             INNER JOIN visits ON guest_id = visits.barcode
-             WHERE start > ? 
-             ORDER BY displayName''',
-            (datetime.datetime.now() - datetime.timedelta(numDays), )):
+            '''SELECT DISTINCT guest_id, displayName FROM guests
+                 INNER JOIN visits ON guest_id = visits.barcode
+                 WHERE start > ? 
+                 ORDER BY displayName''',
+                (datetime.datetime.now() - datetime.timedelta(numDays), )):
             guestList.append(Guest(row[0], row[1]))
         return guestList
