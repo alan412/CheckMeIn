@@ -41,7 +41,7 @@ class StationTest(CPtest.CPTest):
         self.assertStatus('303 See Other')
 
     def test_scanned_bogus(self):
-        self.getPage("/station/scanned?barcode=000090")
+        self.getPage("/station/scanned?barcode=0090")
         self.assertStatus('303 See Other')
 
     def test_scanned_keyholder_from_station(self):

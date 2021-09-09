@@ -10,6 +10,12 @@ class ReportsTest(CPtest.CPTest):
     def test_reports(self):
         with self.patch_session():
             self.getPage(
+                "/reports/standard?startDate=2018-09-03&endDate=2023-09-03")
+        self.assertStatus('200 OK')
+
+    def test_reports_nodata(self):
+        with self.patch_session():
+            self.getPage(
                 "/reports/standard?startDate=2018-09-03&endDate=2018-09-03")
         self.assertStatus('200 OK')
 
@@ -30,7 +36,14 @@ class ReportsTest(CPtest.CPTest):
     def tests_savereport(self):
         with self.patch_session():
             self.getPage(
-                "/reports/saveCustom?sql=SELECT+*+FROM+members%3B%0D%0A+++++&report_name=Fred"
+                "/reports/saveCustom?sql=SELECT+*+FROM+members%3B%0D%0A+++++&report_name=all_members"
+            )
+        self.assertStatus('200 OK')
+
+    def tests_savereport_duplicate(self):
+        with self.patch_session():
+            self.getPage(
+                "/reports/saveCustom?sql=SELECT+*+FROM+members%3B%0D%0A+++++&report_name=all_members"
             )
         self.assertStatus('200 OK')
 
@@ -47,7 +60,7 @@ class ReportsTest(CPtest.CPTest):
     def test_buildingGraph(self):
         with self.patch_session():
             self.getPage(
-                "/reports/graph?startDate=2019-12-01&endDate=2019-12-30")
+                "/reports/graph?startDate=2019-12-01&endDate=2022-12-30")
         self.assertStatus('200 OK')
 
     def test_tracing(self):

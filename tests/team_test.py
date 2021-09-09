@@ -9,7 +9,7 @@ class TeamTest(CPtest.CPTest):
         return self.patch_session('abigail', '100090', 0x04)
 
     def patch_session_noncoach(self):
-        return self.patch_session('abigail', '100090', 0x00)
+        return self.patch_session('john', '100089', 0x01)
 
     def test_blank_index(self):
         with self.patch_session():
@@ -38,7 +38,7 @@ class TeamTest(CPtest.CPTest):
 
     def test_index_bad(self):
         with self.patch_session_none():
-            self.getPage("/teams/?team_id=1")
+            self.getPage("/teams/?team_id=35")
             self.assertStatus('303 See Other')
 
     def test_attendance(self):

@@ -26,7 +26,7 @@ class CPTest(helper.CPWebCase):
         sess_mock = RamSession()
         return patch('cherrypy.session', sess_mock, create=True)
 
-    def patch_session(self, username='alan', barcode='100091', role=0xFF):
+    def patch_session(self, username='admin', barcode='100091', role=0xFF):
         sess_mock = RamSession()
         sess_mock['username'] = username
         sess_mock['barcode'] = barcode

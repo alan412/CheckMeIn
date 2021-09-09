@@ -51,3 +51,6 @@ class CertificationsTest(CPtest.CPTest):
     def test_team_certification(self):
         self.getPage('/certifications/team?team_id=1')
         self.assertStatus('200 OK')
+
+    def test_user_certification(self):
+        self.getPage('/certifications/user?barcode=100091')

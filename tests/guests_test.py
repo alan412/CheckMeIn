@@ -12,6 +12,12 @@ class GuestTest(CPtest.CPTest):
         )
         self.assertStatus('200 OK')
 
+    def test_addGuestSecond(self):
+        self.getPage(
+            "/guests/addGuest?first=Anne&last=Guest&email=&reason=Tour&other_reason=&newsletter=1"
+        )
+        self.assertStatus('200 OK')
+
     def test_addGuest_blankName(self):
         self.getPage(
             "/guests/addGuest?first=&last=Guest&email=&reason=Tour&other_reason=&newsletter=1"

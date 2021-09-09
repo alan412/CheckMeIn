@@ -38,6 +38,7 @@ class AdminTest(CPtest.CPTest):
         filecontents = '''"First Name","Last Name","TFI Barcode for Button","TFI Barcode AUTO","TFI Barcode AUTONUM","TFI Display Name for Button","Membership End Date"\n
 "Sasha","Mellendorf","101337","","101337","Sasha M","6/30/2020"\n
 "Linda","Whipker","100063","","101387","","6/30/2020"\n
+"Random","Joe","100032","","101387","","6/30/2020"\n
 "Test","User","","","101387","",""\n
 '''
         filesize = len(filecontents)
@@ -88,6 +89,13 @@ class AdminTest(CPtest.CPTest):
             self.assertStatus("200 OK")
 
     def test_addTeam(self):
+        with self.patch_session():
+            self.getPage(
+                "/admin/addTeam?programName=TFI&startDate=2021-07-31&programNumber=123&teamName=&coach1=100091&coach2=100090"
+            )
+            self.assertStatus("200 OK")
+
+    def test_addTeamDuplicate(self):
         with self.patch_session():
             self.getPage(
                 "/admin/addTeam?programName=TFI&startDate=2021-07-31&programNumber=123&teamName=&coach1=100091&coach2=100090"

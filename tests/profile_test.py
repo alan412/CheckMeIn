@@ -39,10 +39,16 @@ class ProfileTest(CPtest.CPTest):
             self.assertStatus("303 See Other")
 
     def test_forgotPassword(self):
-        self.getPage("/profile/forgotPassword?user=alan")
+        self.getPage("/profile/forgotPassword?user=admin")
+
+    def test_forgotPassword_repeat(self):
+        self.getPage("/profile/forgotPassword?user=admin")
+
+    def test_forgotPassword_noaccount(self):
+        self.getPage("/profile/forgotPassword?user=noaccount")
 
     def test_resetPasswordToken(self):
-        self.getPage("/profile/resetPasswordToken?user=alan&token=123456")
+        self.getPage("/profile/resetPasswordToken?user=admin&token=123456")
         self.assertStatus("200 OK")
 
     def test_changePassword(self):
@@ -65,10 +71,10 @@ class ProfileTest(CPtest.CPTest):
 
     def test_newPassword(self):
         self.getPage(
-            "/profile/newPassword?user=alan&token=123456&newPass1=password&newPass2=password"
+            "/profile/newPassword?user=admin&token=123456&newPass1=password&newPass2=password"
         )
 
     def test_newPasswordMismatch(self):
         self.getPage(
-            "/profile/newPassword?user=alan&token=123456&newPass1=password&newPass2=pass"
+            "/profile/newPassword?user=admin&token=123456&newPass1=password&newPass2=pass"
         )

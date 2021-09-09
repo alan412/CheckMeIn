@@ -21,6 +21,7 @@ Each area (if present) contains a list of data to inject
   * lastName
   * whereFound  (free flow text)
   * status (1 - Active, 0 - Inactive))
+  * newsletter (0 - no, 1 - yes)
 * teams
   * team_id
   * program_name
