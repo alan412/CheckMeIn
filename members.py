@@ -9,7 +9,7 @@ class Members(object):
     def __init__(self):
         pass
 
-    def migrate(self, dbConnection, db_schema_version):  
+    def migrate(self, dbConnection, db_schema_version):
         if db_schema_version == 0:
             dbConnection.execute('''
                 CREATE TABLE members (barcode TEXT UNIQUE,
@@ -28,7 +28,7 @@ class Members(object):
                                           email TEXT,
                                           membershipExpires TIMESTAMP)
                 ''')
-            for row in dbConnection.execute("SELECT * FROM members"):
+            for row in dbConnection.execute("SELECT * FROM members"):  # pragma: no cover
                 dbConnection.execute(
                     '''
                 INSERT INTO new_members VALUES (?,?,'','','',?)''',
@@ -113,6 +113,7 @@ class Members(object):
 
 
 # TODO: should this check for inactive?
+
 
     def getName(self, dbConnection, barcode):
         data = dbConnection.execute(
