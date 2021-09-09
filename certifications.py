@@ -103,7 +103,7 @@ class Certifications(object):
             else:
                 self.addTool(dbConnection, tool[0], tool[1], tool[2])
 
-    def migrate(self, dbConnection, db_schema_version):  
+    def migrate(self, dbConnection, db_schema_version):
         if db_schema_version < 8:
             dbConnection.execute('''CREATE TABLE restrictions
                                     (id        INTEGER PRIMARY KEY,
@@ -149,11 +149,11 @@ class Certifications(object):
     def getAllUserList(self, dbConnection):
         users = {}
         for row in dbConnection.execute(
-                '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
-                                        INNER JOIN members ON members.barcode=user_id
-                                        WHERE membershipExpires > ?
-                                        ORDER BY members.displayName''',
-            (datetime.datetime.now(), )):
+            '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
+                                            INNER JOIN members ON members.barcode=user_id
+                                            WHERE membershipExpires > ?
+                                            ORDER BY members.displayName''',
+                (datetime.datetime.now(), )):
             try:
                 users[row[0]].addTool(row[1], row[2], row[3])
             except KeyError:
@@ -179,12 +179,12 @@ class Certifications(object):
     def getTeamUserList(self, dbConnection, team_id):
         users = {}
         for row in dbConnection.execute(
-                '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
-                                        INNER JOIN members ON members.barcode=user_id
-                                        INNER JOIN team_members ON members.barcode=team_members.barcode
-                                        WHERE team_members.team_id = ?
-                                        ORDER BY team_members.type DESC, members.displayName ASC''',
-            (team_id, )):
+            '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
+                                            INNER JOIN members ON members.barcode=user_id
+                                            INNER JOIN team_members ON members.barcode=team_members.barcode
+                                            WHERE team_members.team_id = ?
+                                            ORDER BY team_members.type DESC, members.displayName ASC''',
+                (team_id, )):
             try:
                 users[row[0]].addTool(row[1], row[2], row[3])
             except KeyError:
@@ -195,12 +195,12 @@ class Certifications(object):
     def getUserList(self, dbConnection, user_id):
         users = {}
         for row in dbConnection.execute(
-                '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
-                                        INNER JOIN members ON members.barcode=user_id
-                                        INNER JOIN team_members ON members.barcode=team_members.barcode
-                                        WHERE user_id = ?
-                                        ORDER BY team_members.type DESC, members.displayName ASC''',
-            (user_id, )):
+            '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
+                                            INNER JOIN members ON members.barcode=user_id
+                                            INNER JOIN team_members ON members.barcode=team_members.barcode
+                                            WHERE user_id = ?
+                                            ORDER BY team_members.type DESC, members.displayName ASC''',
+                (user_id, )):
             try:
                 users[row[0]].addTool(row[1], row[2], row[3])
             except KeyError:
@@ -228,18 +228,17 @@ class Certifications(object):
     def getListCertifyTools(self, dbConnection, user_id):
         tools = []
         for row in dbConnection.execute(
-                '''SELECT id, name FROM tools
-                 INNER JOIN certifications ON certifications.tool_id = id
-                 WHERE user_id = ? AND level >= ? ORDER BY name ASC''',
-            (user_id, CertificationLevels.CERTIFIER)):
+            '''SELECT id, name FROM tools
+                     INNER JOIN certifications ON certifications.tool_id = id
+                     WHERE user_id = ? AND level >= ? ORDER BY name ASC''',
+                (user_id, CertificationLevels.CERTIFIER)):
             tools.append([row[0], row[1]])
         return tools
 
     def getToolName(self, dbConnection, tool_id):
-        for row in dbConnection.execute('SELECT name FROM tools WHERE id == ?',
-                                        (tool_id, )):
-            return row[0]
-        return ''
+        data = dbConnection.execute('SELECT name FROM tools WHERE id == ?',
+                                    (tool_id, )).fetchone()
+        return data[0]
 
     def getLevelName(self, level):
         return self.levels[CertificationLevels(int(level))]
