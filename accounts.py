@@ -89,7 +89,7 @@ class Accounts(object):
     def __init__(self):
         pass
 
-    def migrate(self, dbConnection, db_schema_version):  
+    def migrate(self, dbConnection, db_schema_version):
         if db_schema_version < 11:
             dbConnection.execute('''CREATE TABLE accounts
                                  (user TEXT PRIMARY KEY collate nocase,
@@ -301,19 +301,3 @@ class Accounts(object):
             keyholders.append(row[0])
 
         return keyholders
-
-        # This is temporary - just to give us some fake data to play with
-
-
-if __name__ == '__main__':  # pragma: no cover
-    with sqlite3.connect('data/checkMeIn.db',
-                         detect_types=sqlite3.PARSE_DECLTYPES) as dbConnection:
-        accounts = Accounts()
-
-        accounts.addUser(
-            dbConnection, 'alan', 'password', '100091',
-            Role(Role.ADMIN | Role.KEYHOLDER | Role.SHOP_CERTIFIER))
-        accounts.addUser(dbConnection, 'abigail', 'password', '100090',
-                         Role(Role.ADMIN))
-        accounts.addUser(dbConnection, 'gsmith', 'password', '100032',
-                         Role(Role.KEYHOLDER))
