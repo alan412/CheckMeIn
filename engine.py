@@ -35,7 +35,7 @@ class Engine(object):
         self.members = Members()
         self.logEvents = LogEvents()
 
-        if not os.path.exists(self.database):  # pragma: no cover
+        if not os.path.exists(self.database):
             if not os.path.exists(dbPath):
                 os.mkdir(dbPath)
             with self.dbConnect() as c:
@@ -43,7 +43,7 @@ class Engine(object):
         else:
             with self.dbConnect() as c:
                 data = c.execute('PRAGMA schema_version').fetchone()
-                if data[0] != SCHEMA_VERSION:  # pragma: no cover
+                if data[0] != SCHEMA_VERSION:
                     self.migrate(c, data[0])
 
     def dbConnect(self):

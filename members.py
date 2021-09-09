@@ -28,11 +28,11 @@ class Members(object):
                                           email TEXT,
                                           membershipExpires TIMESTAMP)
                 ''')
-            for row in dbConnection.execute("SELECT * FROM members"):  # pragma: no cover
+            for row in dbConnection.execute("SELECT * FROM members"):
                 dbConnection.execute(
                     '''
                 INSERT INTO new_members VALUES (?,?,'','','',?)''',
-                    (row[0], row[1], future if row[2] else past))
+                    (row[0], row[1], future if row[2] else past))  # pragma: no cover
             dbConnection.execute('''DROP TABLE members''')
             dbConnection.execute(
                 '''ALTER TABLE new_members RENAME TO members''')
@@ -114,13 +114,12 @@ class Members(object):
 
 # TODO: should this check for inactive?
 
-
     def getName(self, dbConnection, barcode):
         data = dbConnection.execute(
             "SELECT displayName FROM members WHERE barcode==?",
             (barcode, )).fetchone()
         if data is None:
-            return ('Invalid: ' + barcode, None)
+            return ('Invalid: ' + barcode, None)   # pragma: no cover
         else:
             # Add code here for inactive
             return ('', data[0])
