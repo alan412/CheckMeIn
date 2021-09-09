@@ -63,6 +63,12 @@ def testData():
             "password": "password",
             "barcode": "100091",
             "role": 0xFF
+        },
+            {
+            "user": "joe",
+            "password": "password",
+            "barcode": "100032",
+            "role": 0x40
         }],
         "teams": [{
             "team_id": 1,

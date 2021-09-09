@@ -52,6 +52,11 @@ class TeamTest(CPtest.CPTest):
             self.getPage("/teams/addMember?team_id=1&member=100090&type=1")
             self.assertStatus('303 See Other')
 
+    def test_addmember_duplicate(self):
+        with self.patch_session():
+            self.getPage("/teams/addMember?team_id=1&member=100090&type=1")
+            self.assertStatus('303 See Other')
+
     def test_removeMember(self):
         with self.patch_session():
             self.getPage("/teams/removeMember?team_id=1&member=100090")
@@ -71,6 +76,11 @@ class TeamTest(CPtest.CPTest):
     def test_update(self):
         with self.patch_session():
             self.getPage("/teams/update?team_id=1&100091=in&100090=out")
+            self.assertStatus('303 See Other')
+
+    def test_update_keyholderLeaving(self):
+        with self.patch_session():
+            self.getPage("/teams/update?team_id=1&100091=out")
             self.assertStatus('303 See Other')
 
     def test_certification(self):

@@ -15,7 +15,7 @@ class StationTest(CPtest.CPTest):
         self.assertStatus('303 See Other')
 
     def test_checkin(self):
-        self.getPage("/station/checkin?barcode=100090")
+        self.getPage("/station/checkin?barcode=100091")
         self.assertStatus('303 See Other')
 
     def test_checkout(self):
