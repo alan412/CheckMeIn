@@ -147,14 +147,6 @@ class Accounts(object):
             listUsers.append([row[0], row[1]])
         return listUsers
 
-    def getRole(self, dbConnection, barcode):
-        data = dbConnection.execute(
-            '''SELECT role FROM accounts WHERE barcode = (?)''',
-            (barcode, )).fetchone()
-        if data is None:
-            return Role(0)
-        return Role(data[0])
-
     def changePassword(self, dbConnection, user, oldPassword, newPassword):
         dbConnection.execute(
             '''UPDATE accounts SET password = ? WHERE (user = ?)''',
