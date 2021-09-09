@@ -11,7 +11,7 @@ from certifications import Certifications
 
 
 class Visits(object):
-    def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
+    def migrate(self, dbConnection, db_schema_version):
         if db_schema_version == 0:
             dbConnection.execute('''CREATE TABLE visits
                      (start timestamp, leave timestamp, barcode text, status text)'''

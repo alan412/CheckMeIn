@@ -103,7 +103,7 @@ class Certifications(object):
             else:
                 self.addTool(dbConnection, tool[0], tool[1], tool[2])
 
-    def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
+    def migrate(self, dbConnection, db_schema_version):  
         if db_schema_version < 8:
             dbConnection.execute('''CREATE TABLE restrictions
                                     (id        INTEGER PRIMARY KEY,

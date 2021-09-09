@@ -17,7 +17,7 @@ class Guests(object):
         self.date = 0
         self.num = 1
 
-    def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
+    def migrate(self, dbConnection, db_schema_version):  
         if db_schema_version <= 2:
             dbConnection.execute('''CREATE TABLE guests
                                 (guest_id TEXT UNIQUE,

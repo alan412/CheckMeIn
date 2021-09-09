@@ -53,7 +53,7 @@ class Teams(object):
     def __init__(self):
         pass
 
-    def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
+    def migrate(self, dbConnection, db_schema_version): 
         if db_schema_version < 5:
             dbConnection.execute('''CREATE TABLE teams
                                  (team_id INTEGER PRIMARY KEY,

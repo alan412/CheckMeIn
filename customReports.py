@@ -6,7 +6,7 @@ class CustomReports:
     def __init__(self, database):
         self.database = database
 
-    def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
+    def migrate(self, dbConnection, db_schema_version):  
         if db_schema_version < 7:
             dbConnection.execute('''CREATE TABLE reports
                                  (report_id INTEGER PRIMARY KEY,

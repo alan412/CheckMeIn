@@ -5,7 +5,7 @@ class Unlocks(object):
     def __init__(self):
         pass
 
-    def migrate(self, dbConnection, db_schema_version):  # pragma: no cover
+    def migrate(self, dbConnection, db_schema_version):  
         if db_schema_version < 11:
             dbConnection.execute('''CREATE TABLE unlocks
                                  (time TIMESTAMP,
