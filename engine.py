@@ -64,7 +64,7 @@ class Engine(object):
             self.logEvents.migrate(dbConnection, db_schema_version)
             dbConnection.execute('PRAGMA schema_version = ' +
                                  str(SCHEMA_VERSION))
-        elif db_schema_version != SCHEMA_VERSION:
+        elif db_schema_version != SCHEMA_VERSION:  # pragma: no cover
             raise Exception("Unknown DB schema version" +
                             str(db_schema_version) + ": " + self.database)
 
