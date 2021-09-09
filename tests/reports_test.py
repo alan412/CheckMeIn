@@ -66,3 +66,7 @@ class ReportsTest(CPtest.CPTest):
     def test_tracing(self):
         with self.patch_session():
             self.getPage("/reports/tracing?barcode=100091&numDays=14")
+
+    def test_tracing_nobarcode(self):
+        with self.patch_session():
+            self.getPage("/reports/tracing?barcode=&numDays=14")

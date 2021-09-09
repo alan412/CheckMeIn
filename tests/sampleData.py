@@ -21,6 +21,12 @@ def testData():
                 "status": "Out"
             },
             {
+                "start": timeAgo(days=7, hours=2),
+                "leave": timeAgo(days=7, hours=0.5),
+                "barcode": "202107310001",
+                "status": "Out"
+            },
+            {
                 "start": timeAgo(hours=1),
                 "barcode": "100091",
                 "status": "In"

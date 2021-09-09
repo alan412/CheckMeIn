@@ -79,6 +79,14 @@ class AdminTest(CPtest.CPTest):
         with self.patch_session():
             self.getPage("/admin/addUser?user=Fred&barcode=100093")
 
+    def test_addUserDuplicate(self):
+        with self.patch_session():
+            self.getPage("/admin/addUser?user=Fred&barcode=100093")
+
+    def test_addUserNoName(self):
+        with self.patch_session():
+            self.getPage("/admin/addUser?user=&barcode=100042")
+
     def test_deleteUser(self):
         with self.patch_session():
             self.getPage("/admin/deleteUser?barcode=100093")
