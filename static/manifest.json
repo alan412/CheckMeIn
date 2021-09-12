@@ -1,0 +1,12 @@
+{
+    "name": "CheckMeIn",
+    "short_name": "CheckMeIn",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "static/apple-touch-icon.png",
+            "sizes": "200x200",
+            "type": "image/png"
+        }
+    ],
+}
