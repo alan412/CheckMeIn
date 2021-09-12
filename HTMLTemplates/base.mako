@@ -44,6 +44,10 @@ function escapeHTML(string) {
 	<head>
 		<link rel="stylesheet" type="text/css" href="/static/style.css?ver=1"/>
 		<link rel="apple-touch-icon" href="/static/apple-touch-icon.png"/>
+		<meta name="apple-mobile-web-app-title" content="CheckMeIn">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
 	    <title>${self.title()}</title>
          ${self.head()}
          <meta name="viewport" content="width=device-width, initial-scale=1">
