@@ -18,7 +18,10 @@ class LogEvents(object):
             self.addEvent(
                 dbConnection, datum["what"], datum["barcode"], datum["date"])
 
-    def addEvent(self, dbConnection, what, barcode, date=datetime.datetime.now()):
+    def addEvent(self, dbConnection, what, barcode, date=None):
+        if not date:
+            date = datetime.datetime.now()
+
         dbConnection.execute("INSERT INTO logEvents VALUES (?,?,?)",
                              (what, date, barcode))
 
