@@ -1,6 +1,6 @@
 <%def name="scripts()">
 <script>
-  window.onload = setTimeout(function () { location.href = "guests" }, 1000 * 60 * 10);  // if still here in 10 minutes 
+  window.onload = setTimeout(function () { location.href = "/guests" }, 1000 * 60 * 1);  // if still here in a minute 
 </script>
 </%def>
 <%def name="head()">
