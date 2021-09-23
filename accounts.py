@@ -4,10 +4,8 @@ from enum import IntEnum
 import time
 import random
 import datetime
-import smtplib
 import urllib
-import email.utils
-from email.mime.text import MIMEText
+import utils
 
 
 class Status(IntEnum):
@@ -105,14 +103,13 @@ class Accounts(object):
             self.addUser(dbConnection, datum["user"], datum["password"],
                          datum["barcode"], Role(datum["role"]))
 
-    def addHashedUser(self, dbConnection, user, hashedPassword, barcode, role):
+    def addUser(self, dbConnection, user, password, barcode, role):
+        hashedPassword = pwd_context.hash(password)
         dbConnection.execute(
             '''INSERT INTO accounts(user, password, barcode, role) VALUES(?,?,?,?)''',
             (user, hashedPassword, barcode, role.getValue()))
-
-    def addUser(self, dbConnection, user, password, barcode, role):
-        return self.addHashedUser(dbConnection, user,
-                                  pwd_context.hash(password), barcode, role)
+        utils.sendEmail('TFI Ops', 'tfiops@googlegroups.com', 'New User',
+                        f'User {user} added with roles : {role}')
 
     def getBarcode(self, dbConnection, user, password):
         data = dbConnection.execute(
@@ -160,25 +157,13 @@ class Accounts(object):
         emailAddress = data[0]
 
         safe_username = urllib.parse.quote_plus(username)
-        msg = MIMEText(
-            "Please go to http://tfi.ev3hub.com/profile/resetPasswordToken?user="
-            + safe_username + "&token=" + token +
-            " to reset your password.  If you" +
-            " did not request that you had forgotten " +
-            "your password, then you can safely ignore this e-mail." +
-            " This expires in 24 hours.\n\nThank you,\nTFI")
+        msg = "Please go to http://tfi.ev3hub.com/profile/resetPasswordToken?user="
+        + safe_username + "&token=" + token + " to reset your password.  If you"
+        +" did not request that you had forgotten "
+        +"your password, then you can safely ignore this e-mail."
+        +" This expires in 24 hours.\n\nThank you,\nTFI"
 
-        from_email = 'tfi@ev3hub.com'
-        msg['To'] = email.utils.formataddr((username, emailAddress))
-        msg['From'] = email.utils.formataddr(('TFI CheckMeIn', from_email))
-        msg['Subject'] = 'Forgotten Password'
-
-        try:  # pragma: no cover
-            server = smtplib.SMTP('localhost')
-            server.sendmail(from_email, [emailAddress], msg.as_string())
-            server.quit()
-        except IOError:
-            print('Email would have been:', msg)
+        utils.sendEmail(username, emailAddress, 'Forgotten Password', msg)
         return ''
 
     def forgotPassword(self, dbConnection, username):
@@ -226,6 +211,12 @@ class Accounts(object):
         dbConnection.execute(
             '''UPDATE accounts SET role = ? WHERE (barcode = ?)''',
             (newRole.getValue(), barcode))
+        data = dbConnection.execute(
+            '''SELECT user FROM accounts WHERE barcode = ?''',
+            (barcode, )).fetchone()
+        if data:
+            utils.sendEmail('TFI Ops', 'tfiops@googlegroups.com', 'Role change for user',
+                            f'User {data[0]} roles changed to : {newRole}')
 
     def removeUser(self, dbConnection, barcode):
         dbConnection.execute('''DELETE from accounts WHERE barcode= ?''',

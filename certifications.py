@@ -3,9 +3,7 @@ import sqlite3
 import os
 import csv
 import members
-import smtplib
-import email.utils
-from email.mime.text import MIMEText
+import utils
 
 from enum import IntEnum
 
@@ -245,19 +243,8 @@ class Certifications(object):
 
     def emailCertifiers(self, name, toolName, levelDescription, certifierName):
         emailAddress = "shopcertifiers@theforgeinitiative.org"
-        msg = MIMEText(
-            f"{name} was just certified as {levelDescription} on {toolName} by {certifierName}!!"
-        )
+        msg = f"{name} was just certified as {levelDescription} on {toolName} by {certifierName}!!"
 
-        from_email = 'tfi@ev3hub.com'
-        msg['To'] = email.utils.formataddr(("Shop Certifiers", emailAddress))
-        msg['From'] = email.utils.formataddr(('TFI CheckMeIn', from_email))
-        msg['Subject'] = 'New Certification'
-
-        try:  # pragma: no cover
-            server = smtplib.SMTP('localhost')
-            server.sendmail(from_email, [emailAddress], msg.as_string())
-            server.quit()
-        except IOError:
-            print('Email would have been:', msg)
+        utils.sendEmail("Shop Certifiers", emailAddress,
+                        "New Certification", msg)
         return ''

@@ -63,7 +63,7 @@ class AdminTest(CPtest.CPTest):
     def test_changeAccess(self):
         with self.patch_session():
             self.getPage(
-                "/admin/changeAccess?barcode=10091&admin=1&keyholder=1")
+                "/admin/changeAccess?barcode=100091&admin=1&keyholder=1")
             self.assertStatus('303 See Other')
 
     def test_notloggedIn(self):
