@@ -108,7 +108,7 @@ class Accounts(object):
         dbConnection.execute(
             '''INSERT INTO accounts(user, password, barcode, role) VALUES(?,?,?,?)''',
             (user, hashedPassword, barcode, role.getValue()))
-        utils.sendEmail('TFI Ops', 'tfiops@googlegroups.com', 'New User',
+        utils.sendEmail('TFI Ops', 'tfi-ops@googlegroups.com', 'New User',
                         f'User {user} added with roles : {role}')
 
     def getBarcode(self, dbConnection, user, password):
@@ -215,7 +215,7 @@ class Accounts(object):
             '''SELECT user FROM accounts WHERE barcode = ?''',
             (barcode, )).fetchone()
         if data:
-            utils.sendEmail('TFI Ops', 'tfiops@googlegroups.com', 'Role change for user',
+            utils.sendEmail('TFI Ops', 'tfi-ops@googlegroups.com', 'Role change for user',
                             f'User {data[0]} roles changed to : {newRole}')
 
     def removeUser(self, dbConnection, barcode):
