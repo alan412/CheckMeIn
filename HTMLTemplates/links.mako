@@ -45,8 +45,8 @@ ${self.logo()}<br/>
    <UL>
       <LI><A HREF="/whoishere">See who is at BFF</A>
       <LI><A HREF="/links">BFF Stations</A>
-      <LI><A HREF="https://app.theforgeinitiative.org/">TFI Forms and Documents</A>
       <LI><A HREF="https://calendar.google.com/calendar/embed?src=h75eigkfjvngvpff1dq0af74mk%40group.calendar.google.com&ctz=America%2FNew_York">TFI Calendar</A>
+      <LI><A HREF="https://app.theforgeinitiative.org/">Forge Member App</A>
    </UL>
    </fieldset><br/>
 
