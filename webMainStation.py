@@ -20,7 +20,8 @@ class WebMainStation(WebBase):
                                  uniqueVisitorsToday=self.engine.reports.uniqueVisitorsToday(
                                      dbConnection),
                                  keyholder_name=keyholder_name,
-                                 stewards=self.engine.accounts.getPresentWithRole(dbConnection, Role.SHOP_STEWARD),
+                                 stewards=self.engine.accounts.getPresentWithRole(
+                                     dbConnection, Role.SHOP_STEWARD),
                                  error=error)
 
     @cherrypy.expose
@@ -34,6 +35,9 @@ class WebMainStation(WebBase):
                 dbConnection)
             for bc in barcodes:
                 if (bc == KEYHOLDER_BARCODE) or (bc == current_keyholder_bc):
+                    whoIsHere = self.engine.reports.whoIsHere(dbConnection)
+                    if (bc == current_keyholder_bc) and len(whoIsHere) == 1:
+                        self.checkout(bc)
                     return self.template('keyholder.mako', whoIsHere=self.engine.reports.whoIsHere(dbConnection))
                 else:
                     error = self.engine.visits.scannedMember(dbConnection, bc)
@@ -73,7 +77,8 @@ class WebMainStation(WebBase):
                         dbConnection, barcode)
         with self.dbConnect() as dbConnection:
             if currentKeyholderLeaving:
-                self.engine.visits.emptyBuilding(dbConnection, current_keyholder_bc)
+                self.engine.visits.emptyBuilding(
+                    dbConnection, current_keyholder_bc)
                 self.engine.accounts.removeKeyholder(dbConnection)
         raise cherrypy.HTTPRedirect("/station")
 
