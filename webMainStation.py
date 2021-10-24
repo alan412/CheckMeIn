@@ -64,11 +64,16 @@ class WebMainStation(WebBase):
         with self.dbConnect() as dbConnection:
             (current_keyholder_bc, _) = self.engine.accounts.getActiveKeyholder(
                 dbConnection)
+            if not current_keyholder_bc:
+                keyholders = self.engine.accounts.getKeyholderBarcodes(
+                    dbConnection)
             for barcode in inBarcodeList:
                 error = self.engine.visits.checkInMember(dbConnection, barcode)
                 if not current_keyholder_bc:
-                    self.engine.accounts.setActiveKeyholder(
-                        dbConnection, barcode)
+                    if barcode in keyholders:
+                        self.engine.accounts.setActiveKeyholder(
+                            dbConnection, barcode)
+                        current_keyholder_bc = barcode
             for barcode in outBarcodeList:
                 if barcode == current_keyholder_bc:
                     currentKeyholderLeaving = True
