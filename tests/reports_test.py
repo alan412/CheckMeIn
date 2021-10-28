@@ -70,3 +70,7 @@ class ReportsTest(CPtest.CPTest):
     def test_tracing_nobarcode(self):
         with self.patch_session():
             self.getPage("/reports/tracing?barcode=&numDays=14")
+
+    def test_teamlist(self):
+        with self.patch_session():
+            self.getPage("/reports/teamList")
