@@ -20,7 +20,7 @@ ${self.logo()}
       <tr><th>Name</th><th></th><th>In</th><th>Out</th></tr>
     % for member in members:
       <tr><td>${member.name}</td>
-      <td>${memer.typeString()}</td> 
+      <td>${member.typeString()}</td> 
       % if member.present:
         <td><input type="radio" name="${member.barcode}" checked="checked"value="in"></td>
         <td><input type="radio" name="${member.barcode}" value="out"></td>
