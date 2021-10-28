@@ -8,7 +8,14 @@ from collections import namedtuple
 from passlib.utils import _NULL
 from members import Members
 
-TeamMember = namedtuple('TeamMember', ['name', 'barcode', 'type'])
+# TeamMember = namedtuple('TeamMember', ['name', 'barcode', 'type'])
+
+
+class TeamMemberType(IntEnum):
+    student = 0
+    mentor = 1
+    coach = 2
+    other = -1
 
 
 class TeamMember:
@@ -18,6 +25,15 @@ class TeamMember:
         self.type = type
         self.present = present
 
+    def typeString(self):
+        if self.type == TeamMemberType.coach:
+            return "(Coach)"
+        elif self.type == TeamMemberType.mentor:
+            return "(Mentor)"
+        elif self.type == TeamMemberType.other:
+            return "(Other)"
+        return ""
+
     def display(self):
         return self.name + "(" + self.barcode + ")"
 
@@ -25,13 +41,6 @@ class TeamMember:
 class Status(IntEnum):
     inactive = 0
     active = 1
-
-
-class TeamMemberType(IntEnum):
-    student = 0
-    mentor = 1
-    coach = 2
-    other = -1
 
 
 class TeamInfo(object):
@@ -53,7 +62,7 @@ class Teams(object):
     def __init__(self):
         pass
 
-    def migrate(self, dbConnection, db_schema_version): 
+    def migrate(self, dbConnection, db_schema_version):
         if db_schema_version < 5:
             dbConnection.execute('''CREATE TABLE teams
                                  (team_id INTEGER PRIMARY KEY,
@@ -133,11 +142,11 @@ class Teams(object):
         # TODO: Change to use DISTINCT feature of SQLITE to get rid of python
         dictTeams = {}
         for row in dbConnection.execute(
-                '''SELECT team_id, program_name, program_number, team_name, start_date
-                                FROM teams
-                                WHERE (active = ?)
-                                ORDER BY program_name, program_number''',
-            (Status.active, )):
+            '''SELECT team_id, program_name, program_number, team_name, start_date
+                                    FROM teams
+                                    WHERE (active = ?)
+                                    ORDER BY program_name, program_number''',
+                (Status.active, )):
 
             newTeam = TeamInfo(row[0], row[1], row[2], row[3], row[4])
             programId = newTeam.getProgramId()
@@ -152,11 +161,11 @@ class Teams(object):
     def getAllSeasons(self, dbConnection, teamInfo):
         teamList = []
         for row in dbConnection.execute(
-                '''SELECT team_id, program_name, program_number, team_name, start_date
-                                FROM teams
-                                WHERE program_name = ? AND program_number = ?
-                                ORDER BY start_date DESC''',
-            (teamInfo.programName, teamInfo.programNumber)):
+            '''SELECT team_id, program_name, program_number, team_name, start_date
+                                    FROM teams
+                                    WHERE program_name = ? AND program_number = ?
+                                    ORDER BY start_date DESC''',
+                (teamInfo.programName, teamInfo.programNumber)):
             teamList.append(TeamInfo(row[0], row[1], row[2], row[3], row[4]))
         return teamList
 
@@ -171,21 +180,21 @@ class Teams(object):
     def getInactiveTeamList(self, dbConnection):
         teamList = []
         for row in dbConnection.execute(
-                '''SELECT team_id, program_name, program_number, team_name, start_date
-                                FROM teams
-                                WHERE(active= ?)
-                                ORDER BY program_name, program_number''',
-            (Status.inactive, )):
+            '''SELECT team_id, program_name, program_number, team_name, start_date
+                                    FROM teams
+                                    WHERE(active= ?)
+                                    ORDER BY program_name, program_number''',
+                (Status.inactive, )):
             teamList.append(TeamInfo(row[0], row[1], row[2], row[3], row[4]))
         return teamList
 
     def getTeamFromProgramInfo(self, dbConnection, name, number):
         for row in dbConnection.execute(
-                '''SELECT team_id, program_name, program_number, team_name, start_date
-                                FROM teams
-                                WHERE(active= ? AND program_name= ? AND program_number= ?)
-                                ORDER BY start_date DESC LIMIT 1''',
-            (Status.active, name.upper(), number)):
+            '''SELECT team_id, program_name, program_number, team_name, start_date
+                                    FROM teams
+                                    WHERE(active= ? AND program_name= ? AND program_number= ?)
+                                    ORDER BY start_date DESC LIMIT 1''',
+                (Status.active, name.upper(), number)):
             return TeamInfo(row[0], row[1], row[2], row[3], row[4])
         return None
 
@@ -217,13 +226,13 @@ class Teams(object):
     def getTeamMembers(self, dbConnection, team_id):
         listMembers = []
         for row in dbConnection.execute(
-                '''SELECT displayName, type, team_members.barcode,
-                    (SELECT visits.status from visits where visits.barcode=team_members.barcode ORDER by visits.start DESC) as status
-                            FROM team_members
-                            INNER JOIN members ON members.barcode=team_members.barcode
-                            WHERE(team_id == ?)
-                            ORDER BY type DESC, displayName ASC''',
-            (team_id, )):
+            '''SELECT displayName, type, team_members.barcode,
+                        (SELECT visits.status from visits where visits.barcode=team_members.barcode ORDER by visits.start DESC) as status
+                                FROM team_members
+                                INNER JOIN members ON members.barcode=team_members.barcode
+                                WHERE(team_id == ?)
+                                ORDER BY type DESC, displayName ASC''',
+                (team_id, )):
             listMembers.append(
                 TeamMember(row[0], row[2], row[1], row[3] == 'In'))
         return listMembers
@@ -242,12 +251,12 @@ class Teams(object):
     def getCoaches(self, dbConnection, team_id):
         listCoaches = []
         for row in dbConnection.execute(
-                '''SELECT displayName, type, team_members.barcode
-                            FROM team_members
-                            INNER JOIN members ON members.barcode=team_members.barcode
-                            WHERE(team_id == ?) and (type= ?)
-                            ORDER BY displayName''',
-            (team_id, TeamMemberType.coach)):
+            '''SELECT displayName, type, team_members.barcode
+                                FROM team_members
+                                INNER JOIN members ON members.barcode=team_members.barcode
+                                WHERE(team_id == ?) and (type= ?)
+                                ORDER BY displayName''',
+                (team_id, TeamMemberType.coach)):
             listCoaches.append(TeamMember(row[0], row[2], row[1]))
         return listCoaches
 

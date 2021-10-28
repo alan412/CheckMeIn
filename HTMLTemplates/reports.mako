@@ -79,7 +79,13 @@ ${self.logo()}<br/>
     <input type="submit" value="Get Report"/>
    </fieldset>
 </form>
-
+<br/>
+<FORM action="teamList">
+<fieldset>
+        <legend>Teams and Programs</legend>
+   <input type="submit" value="Get List of Active Teams"/>
+</fieldset>
+</form>
 <br/>
 <FORM action="customSQLReport">
      <fieldset>

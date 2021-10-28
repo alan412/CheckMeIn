@@ -38,7 +38,8 @@ class WebReports(WebBase):
             (_, displayName) = self.engine.members.getName(
                 dbConnection, barcode)
             if not displayName:
-                    (_, displayName) = self.engine.guests.getName(dbConnection,barcode)
+                (_, displayName) = self.engine.guests.getName(
+                    dbConnection, barcode)
 
         return self.template('tracing.mako',
                              displayName=displayName,
@@ -87,3 +88,13 @@ class WebReports(WebBase):
             data = repr(e)
 
         return self.template('customSQL.mako', sql=sql, data=data)
+
+    @cherrypy.expose
+    def teamList(self):
+        self.checkPermissions()
+        with self.dbConnect() as dbConnection:
+            teams = self.engine.teams.getActiveTeamList(dbConnection)
+            for team in teams:
+                team.members = self.engine.teams.getTeamMembers(
+                    dbConnection, team.teamId)
+        return self.template('teamReport.mako', teams=teams)

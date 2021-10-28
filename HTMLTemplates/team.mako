@@ -20,7 +20,7 @@ ${self.logo()}
       <tr><th>Name</th><th></th><th>In</th><th>Out</th></tr>
     % for member in members:
       <tr><td>${member.name}</td>
-      <td>${"(Coach)" if member.type == TeamMemberType.coach else "(Mentor)" if member.type == TeamMemberType.mentor else "(Other)" if member.type == TeamMemberType.other else ""}
+      <td>${memer.typeString()}</td> 
       % if member.present:
         <td><input type="radio" name="${member.barcode}" checked="checked"value="in"></td>
         <td><input type="radio" name="${member.barcode}" value="out"></td>
@@ -126,7 +126,7 @@ ${self.logo()}
       <tr><th>Name</th><th>Returning</th></tr>
 	   % for member in members:
       <tr><td>${member.name}</td>
-      <td>${"(Coach)" if member.type == TeamMemberType.coach else "(Mentor)" if member.type == TeamMemberType.mentor else "(Other)" if member.type == TeamMemberType.other else ""}</td>
+      <td>${member.typeString()}</td>
       <td><input type="checkbox" value="${member.type}" name="${member.barcode}"></td></tr>
 	   % endfor
       </table>
