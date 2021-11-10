@@ -108,8 +108,10 @@ class Accounts(object):
         dbConnection.execute(
             '''INSERT INTO accounts(user, password, barcode, role) VALUES(?,?,?,?)''',
             (user, hashedPassword, barcode, role.getValue()))
+        emailAddress = self.getEmail(dbConnection, user)
+
         utils.sendEmail('TFI Ops', 'tfi-ops@googlegroups.com', 'New User',
-                        f'User {user} added with roles : {role}')
+                        f'User {user} <{emailAddress}> added with roles : {role}')
 
     def getBarcode(self, dbConnection, user, password):
         data = dbConnection.execute(
@@ -150,11 +152,14 @@ class Accounts(object):
             (pwd_context.hash(newPassword), user))
         return True
 
-    def emailToken(self, dbConnection, username, token):
+    def getEmail(self, dbConnection, username):
         data = dbConnection.execute(
             '''SELECT email from accounts INNER JOIN members ON accounts.barcode = members.barcode WHERE user = ?''',
             (username, )).fetchone()
-        emailAddress = data[0]
+        return data[0]
+
+    def emailToken(self, dbConnection, username, token):
+        emailAddress = self.getEmail(dbConnection, username)
 
         safe_username = urllib.parse.quote_plus(username)
         print(safe_username, token)
@@ -217,8 +222,9 @@ class Accounts(object):
             '''SELECT user FROM accounts WHERE barcode = ?''',
             (barcode, )).fetchone()
         if data:
+            emailAddress = self.getEmail(dbConnection, data[0])
             utils.sendEmail('TFI Ops', 'tfi-ops@googlegroups.com', 'Role change for user',
-                            f'User {data[0]} roles changed to : {newRole}')
+                            f'User {data[0]} <{emailAddress}> roles changed to : {newRole}')
 
     def removeUser(self, dbConnection, barcode):
         dbConnection.execute('''DELETE from accounts WHERE barcode= ?''',
