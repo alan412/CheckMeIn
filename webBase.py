@@ -58,6 +58,9 @@ class WebBase(object):
             raise cherrypy.HTTPRedirect("/profile/login")
         return value
 
+    def getBarcodeNoLogin(self):
+        return Cookie('barcode').get(None)
+
     def dateFromString(self, inputStr):
         return datetime.datetime(int(inputStr[0:4]),
                                  int(inputStr[5:7]),

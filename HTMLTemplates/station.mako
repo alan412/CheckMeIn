@@ -11,7 +11,7 @@ window.onload = setTimeout(function(){location.href="/station"},1000*60);  // ev
 <A HREF="/guests">Link to Guest Station</A>
 <TABLE>
 <TR><TD WIDTH="20%">
-${self.logo()}<br/>
+<A HREF="${logoLink}">${self.logo()}<A/><br/>
 <div id="member_id">
 <form action="/station/scanned">
      <input id="member_id" type="text" name="barcode" size="8" autofocus placeholder="Member ID"/><br/>
