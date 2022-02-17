@@ -8,7 +8,7 @@
 ${self.logo()}<br/>
 <H1>${team_name}</H1>
 
-<form action="teamAttendance">
+<form action="attendance">
   <fieldset>
     <legend>See who was here during a team meeting</legend>
     <br/>
