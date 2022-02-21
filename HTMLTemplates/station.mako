@@ -22,26 +22,6 @@ window.onload = setTimeout(function(){location.href="/station"},1000*60);  // ev
      <CENTER><H1>Welcome to TFI Headquarters</H1>
      <H2><div id="clockbox"></div></H2>
 </TD>
-    <TD class="who_is_here" valign=center><CENTER><P>To see who is here:</P>
-<A HREF="http://tfi.ev3hub.com/"><IMG ALT="qr-code" WIDTH="100" SRC="/static/qrcode-who_is_here.png"/></A>
-<br/>
-<A HREF="http://tfi.ev3hub.com">http://tfi.ev3hub.com</A>
-<center/>
-</TD>
-
-</TR></TABLE>
-
-<table class="recent" style="width:100%">
-<TR>
-<TD style="width:70%" valign="top">
-  <H2>Recent Activity (today)</H2>
-  <TABLE style="width:80%">
-    <TR><TH>Time</TH><TH>Name</TH><TH>Description</TH></TR>
-  % for trans in todaysTransactions:
-    <TR class="${trans.description}"><TD>${trans.time.strftime("%I:%M %p")}</TD><TD>${trans.name}</TD><TD>${trans.description}</TD></TR>
-  % endfor
-  </TABLE>
-</TD>
 <TD style="width:30%" valign="top">
 <table class="side">
   <TR>
@@ -66,8 +46,16 @@ window.onload = setTimeout(function(){location.href="/station"},1000*60);  // ev
   </TR>
   </table>
 </TD>
-</TR>
-</table>
+
+</TR></TABLE>
+
+  <H2>Recent Activity (today)</H2>
+  <TABLE style="width:80%">
+    <TR><TH>Time</TH><TH>Name</TH><TH>Description</TH></TR>
+  % for trans in todaysTransactions:
+    <TR class="${trans.description}"><TD>${trans.time.strftime("%I:%M %p")}</TD><TD>${trans.name}</TD><TD>${trans.description}</TD></TR>
+  % endfor
+  </TABLE>
 
 <script type="text/javascript">
 tday=new Array("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday");

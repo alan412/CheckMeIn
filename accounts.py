@@ -164,7 +164,7 @@ class Accounts(object):
         safe_username = urllib.parse.quote_plus(username)
         print(safe_username, token)
 
-        msg = "Please go to http://tfi.ev3hub.com/profile/resetPasswordToken?user=" + \
+        msg = "Please go to http://tfi.checkmein.site/profile/resetPasswordToken?user=" + \
             safe_username + "&token=" + token + " to reset your password.  If you" + \
             " did not request that you had forgotten " + \
             "your password, then you can safely ignore this e-mail." + \
