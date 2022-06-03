@@ -1,4 +1,5 @@
-<%def name="logo()"><IMG ALT="TFI Logo" SRC="/static/TFI-logo-smaller.png" WIDTH="250"/>
+<%def name="logo()">
+<A HREF="${logoLink}"><IMG ALT="TFI Logo" SRC="/static/TFI-logo-smaller.png" WIDTH="250"/></A>
 </%def>
 ## base.mako
 <!DOCTYPE html>

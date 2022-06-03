@@ -30,7 +30,10 @@ class WebBase(object):
         self.engine = engine
 
     def template(self, name, **kwargs):
-        return self.lookup.get_template(name).render(**kwargs)
+        barcode = self.getBarcodeNoLogin()
+        logoLink = f'/links/?barcode={barcode}' if barcode else f'/links/'
+
+        return self.lookup.get_template(name).render(logoLink=logoLink, **kwargs)
 
     def dbConnect(self):
         return self.engine.dbConnect()

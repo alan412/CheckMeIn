@@ -28,7 +28,8 @@ class StationTest(CPtest.CPTest):
             self.assertStatus('303 See Other')
 
     def test_docs(self):
-        self.getPage("/docs")
+        with self.patch_session():
+            self.getPage("/docs")
         self.assertStatus('200 OK')
 
     def test_bulkUpdate(self):

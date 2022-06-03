@@ -3,7 +3,8 @@ import CPtest
 
 class ProfileTest(CPtest.CPTest):
     def test_login(self):
-        self.getPage("/profile/login")
+        with self.patch_session():
+            self.getPage("/profile/login")
         self.assertStatus('200 OK')
 
     def test_loginAttemptGood(self):
@@ -13,7 +14,8 @@ class ProfileTest(CPtest.CPTest):
             self.assertStatus('303 See Other')
 
     def test_loginAttemptBad(self):
-        self.getPage("/profile/loginAttempt?username=alan&password=wrong")
+        with self.patch_session():
+            self.getPage("/profile/loginAttempt?username=alan&password=wrong")
         self.assertStatus('200 OK')
 
     def test_profile(self):
@@ -39,16 +41,20 @@ class ProfileTest(CPtest.CPTest):
             self.assertStatus("303 See Other")
 
     def test_forgotPassword(self):
-        self.getPage("/profile/forgotPassword?user=admin")
+        with self.patch_session():
+            self.getPage("/profile/forgotPassword?user=admin")
 
     def test_forgotPassword_repeat(self):
-        self.getPage("/profile/forgotPassword?user=admin")
+        with self.patch_session():
+            self.getPage("/profile/forgotPassword?user=admin")
 
     def test_forgotPassword_noaccount(self):
-        self.getPage("/profile/forgotPassword?user=noaccount")
+        with self.patch_session():
+            self.getPage("/profile/forgotPassword?user=noaccount")
 
     def test_resetPasswordToken(self):
-        self.getPage("/profile/resetPasswordToken?user=admin&token=123456")
+        with self.patch_session():
+            self.getPage("/profile/resetPasswordToken?user=admin&token=123456")
         self.assertStatus("200 OK")
 
     def test_changePassword(self):
@@ -70,11 +76,13 @@ class ProfileTest(CPtest.CPTest):
             )
 
     def test_newPassword(self):
-        self.getPage(
-            "/profile/newPassword?user=admin&token=123456&newPass1=password&newPass2=password"
-        )
+        with self.patch_session():
+            self.getPage(
+                "/profile/newPassword?user=admin&token=123456&newPass1=password&newPass2=password"
+            )
 
     def test_newPasswordMismatch(self):
-        self.getPage(
-            "/profile/newPassword?user=admin&token=123456&newPass1=password&newPass2=pass"
-        )
+        with self.patch_session():
+            self.getPage(
+                "/profile/newPassword?user=admin&token=123456&newPass1=password&newPass2=pass"
+            )

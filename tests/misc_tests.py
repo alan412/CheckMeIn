@@ -3,7 +3,8 @@ import CPtest
 
 class MiscTest(CPtest.CPTest):
     def test_whoishere(self):
-        self.getPage("/whoishere")
+        with self.patch_session():
+            self.getPage("/whoishere")
         self.assertStatus('200 OK')
 
     def test_index(self):
@@ -22,5 +23,6 @@ class MiscTest(CPtest.CPTest):
             self.assertStatus('200 OK')
 
     def test_unlock(self):
-        self.getPage("/unlock?location=BFF&barcode=100091")
+        with self.patch_session():
+            self.getPage("/unlock?location=BFF&barcode=100091")
         self.assertStatus('303 See Other')

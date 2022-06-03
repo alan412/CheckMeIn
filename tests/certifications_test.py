@@ -25,36 +25,44 @@ class CertificationsTest(CPtest.CPTest):
         self.assertStatus('200 OK')
 
     def test_certification_list(self):
-        self.getPage("/certifications/")
+        with self.patch_session():
+            self.getPage("/certifications/")
         self.assertStatus('200 OK')
 
     def test_monitor_normal(self):
-        self.getPage("/certifications/monitor?tools=1_2_3")
+        with self.patch_session():
+            self.getPage("/certifications/monitor?tools=1_2_3")
         self.assertStatus('200 OK')
 
     def test_monitor_noheader(self):
-        self.getPage(
-            "/certifications/monitor?tools=1_2_3&start_row=0&show_table_header=0"
-        )
+        with self.patch_session():
+            self.getPage(
+                "/certifications/monitor?tools=1_2_3&start_row=0&show_table_header=0"
+            )
         self.assertStatus('200 OK')
 
     def test_monitor_blank(self):
-        self.getPage(
-            "/certifications/monitor?tools=1_2_3&start_row=100&show_table_header=0"
-        )
+        with self.patch_session():
+            self.getPage(
+                "/certifications/monitor?tools=1_2_3&start_row=100&show_table_header=0"
+            )
         self.assertStatus('200 OK')
 
     def test_all_certification_list(self):
-        self.getPage("/certifications/all")
+        with self.patch_session():
+            self.getPage("/certifications/all")
         self.assertStatus('200 OK')
 
     def test_team_certification(self):
-        self.getPage('/certifications/team?team_id=1')
+        with self.patch_session():
+            self.getPage('/certifications/team?team_id=1')
         self.assertStatus('200 OK')
 
     def test_team_certification_badteam(self):
-        self.getPage('/certifications/team?team_id=35')
+        with self.patch_session():
+            self.getPage('/certifications/team?team_id=35')
         self.assertStatus('200 OK')
 
     def test_user_certification(self):
-        self.getPage('/certifications/user?barcode=100091')
+        with self.patch_session():
+            self.getPage('/certifications/user?barcode=100091')

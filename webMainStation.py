@@ -11,8 +11,6 @@ class WebMainStation(WebBase):
     def index(self, error=''):
         with self.dbConnect() as dbConnection:
             (_, keyholder_name) = self.engine.accounts.getActiveKeyholder(dbConnection)
-            barcode = self.getBarcodeNoLogin()
-            logoLink = f'/links/?barcode={barcode}' if barcode else f'/links/'
 
             return self.template('station.mako',
                                  todaysTransactions=self.engine.reports.transactionsToday(
@@ -24,7 +22,6 @@ class WebMainStation(WebBase):
                                  keyholder_name=keyholder_name,
                                  stewards=self.engine.accounts.getPresentWithRole(
                                      dbConnection, Role.SHOP_STEWARD),
-                                 logoLink=logoLink,
                                  error=error)
 
     @cherrypy.expose
