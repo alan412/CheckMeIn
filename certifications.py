@@ -176,6 +176,17 @@ class Certifications(object):
 
     def getTeamUserList(self, dbConnection, team_id):
         users = {}
+        # This is because SQLITE doesn't support RIGHT JOIN
+        for row in dbConnection.execute(
+            '''
+                SELECT team_members.barcode, displayName, type FROM
+                team_members
+                INNER JOIN members ON members.barcode=team_members.barcode
+                WHERE (team_id == ?)
+                ORDER BY type DESC, displayName ASC
+            ''', (team_id,)):
+            users[row[0]] = ToolUser(row[1], row[0])
+
         for row in dbConnection.execute(
             '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
                                             INNER JOIN members ON members.barcode=user_id
@@ -188,6 +199,8 @@ class Certifications(object):
             except KeyError:
                 users[row[0]] = ToolUser(row[4], row[0])
                 users[row[0]].addTool(row[1], row[2], row[3])
+        # This is because SQLITE doesn't support RIGHT JOIN
+
         return users
 
     def getUserList(self, dbConnection, user_id):
