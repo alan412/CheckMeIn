@@ -208,7 +208,6 @@ class Certifications(object):
         for row in dbConnection.execute(
             '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
                                             INNER JOIN members ON members.barcode=user_id
-                                            INNER JOIN team_members ON members.barcode=team_members.barcode
                                             WHERE user_id = ?
                                             ORDER BY team_members.type DESC, members.displayName ASC''',
                 (user_id, )):
