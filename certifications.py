@@ -208,8 +208,7 @@ class Certifications(object):
         for row in dbConnection.execute(
             '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
                                             INNER JOIN members ON members.barcode=user_id
-                                            WHERE user_id = ?
-                                            ORDER BY team_members.type DESC, members.displayName ASC''',
+                                            WHERE user_id = ?''',
                 (user_id, )):
             try:
                 users[row[0]].addTool(row[1], row[2], row[3])
