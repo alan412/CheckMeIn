@@ -30,11 +30,14 @@ class WebAdminStation(WebBase):
             if barcode:
                 (_, lastBulkUpdateName) = self.engine.members.getName(
                     dbConnection, barcode)
+            grace_period = self.engine.config.get(dbConnection, 'grace_period')
 
         return self.template('admin.mako', forgotDates=forgotDates,
                              lastBulkUpdateDate=lastBulkUpdateDate,
                              lastBulkUpdateName=lastBulkUpdateName,
-                             teamList=teamList, error=error, username=Cookie('username').get(''))
+                             teamList=teamList, error=error,
+                             grace_period=grace_period,
+                             username=Cookie('username').get(''))
 
     @cherrypy.expose
     def emptyBuilding(self):
@@ -42,6 +45,15 @@ class WebAdminStation(WebBase):
             self.engine.visits.emptyBuilding(dbConnection, "")
             self.engine.accounts.removeKeyholder(dbConnection)
         return "Building Empty"
+
+    @cherrypy.expose
+    def setGracePeriod(self, grace):
+        self.checkPermissions()
+        with self.dbConnect() as dbConnection:
+            self.engine.config.update(dbConnection, "grace_period", grace)
+            self.engine.logEvents.addEvent(
+                dbConnection, "Grace changed", self.getBarcode("/admin"))
+        return self.index()
 
     @cherrypy.expose
     def bulkAddMembers(self, csvfile):
