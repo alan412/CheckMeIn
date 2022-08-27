@@ -12,8 +12,9 @@ from accounts import Accounts
 from devices import Devices
 from unlocks import Unlocks
 from logEvents import LogEvents
+from config import Config
 
-SCHEMA_VERSION = 13
+SCHEMA_VERSION = 14
 
 # This is the engine for all of the backend
 
@@ -29,6 +30,7 @@ class Engine(object):
         self.accounts = Accounts()
         self.devices = Devices()
         self.unlocks = Unlocks()
+        self.config = Config()
         # needs path since it will open read only
         self.customReports = CustomReports(self.database)
         self.certifications = Certifications()
@@ -52,6 +54,7 @@ class Engine(object):
 
     def migrate(self, dbConnection, db_schema_version):
         if db_schema_version < SCHEMA_VERSION:
+            self.config.migrate(dbConnection, db_schema_version)
             self.visits.migrate(dbConnection, db_schema_version)
             self.members.migrate(dbConnection, db_schema_version)
             self.guests.migrate(dbConnection, db_schema_version)
@@ -79,7 +82,8 @@ class Engine(object):
             "accounts": self.accounts,
             "devices": self.devices,
             "unlocks": self.unlocks,
-            "logEvents": self.logEvents
+            "logEvents": self.logEvents,
+            "config": self.config
         }
 
         for (key, member) in areas.items():

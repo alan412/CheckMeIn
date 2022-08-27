@@ -87,6 +87,10 @@ class AdminTest(CPtest.CPTest):
         with self.patch_session():
             self.getPage("/admin/addUser?user=&barcode=100042")
 
+    def test_changeGracePeriod(self):
+        with self.patch_session():
+            self.getPage("/admin/setGracePeriod?grace=30")
+
     def test_deleteUser(self):
         with self.patch_session():
             self.getPage("/admin/deleteUser?barcode=100093")

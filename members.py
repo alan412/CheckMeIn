@@ -36,6 +36,17 @@ class Members(object):
             dbConnection.execute('''DROP TABLE members''')
             dbConnection.execute(
                 '''ALTER TABLE new_members RENAME TO members''')
+        if db_schema_version < 14:
+            dbConnection.execute('''
+                CREATE VIEW v_current_members (
+                    barcode,
+                    displayName
+                )
+                AS SELECT barcode, displayName
+                FROM members
+                WHERE membershipExpires > date() + 
+                (SELECT value FROM config WHERE key="grace_period");
+                ''')
 
     def injectData(self, dbConnection, data):
         for datum in data:
@@ -105,12 +116,9 @@ class Members(object):
         listUsers = []
         for row in dbConnection.execute(
                 '''SELECT displayName, barcode
-            FROM members
-            WHERE (membershipExpires > ?)
-            ORDER BY displayName''', (datetime.datetime.now(), )):
+            FROM v_current_members'''):
             listUsers.append([row[0], row[1]])
         return listUsers
-
 
 # TODO: should this check for inactive?
 

@@ -28,6 +28,17 @@ ${self.logo()}<br/>
 </form>
 <br/>
 
+<fieldset>
+    <legend>Set Grace Period</legend>
+    <form action="setGracePeriod" method="post" enctype="multipart/form-data">
+      <label class="normal" for="grace">Grace Period:</label>
+      <input type="number" id="grace" name="grace" min="0" max="180" step="5" value="${grace_period}"><br/>
+    <br/>
+    <input type="submit" value="Set"/>
+    </form>
+</fieldset>
+<br/>
+
 <H2>Fix "forgot" data</H2>
 %if len(forgotDates):
   <FORM action="fixData">

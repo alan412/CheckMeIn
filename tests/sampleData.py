@@ -160,5 +160,9 @@ def testData():
             "mac": "87:65:43:21",
             "name": "Phone",
             "barcode": "100091"
+        }],
+        "config": [{
+            "key": "grace_period",
+            "value": "15"
         }]
     }
