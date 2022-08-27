@@ -128,9 +128,9 @@ class Accounts(object):
         for row in dbConnection.execute(
                 '''SELECT displayName, accounts.barcode
             FROM accounts
-            INNER JOIN members ON (members.barcode = accounts.barcode)
-            WHERE (membershipExpires > ?) AND (role & ? != 0)
-            ORDER BY displayName''', (datetime.datetime.now(), role)):
+            INNER JOIN v_current_members ON (v_current_members.barcode = accounts.barcode)
+            WHERE (role & ? != 0)
+            ORDER BY displayName''', (role, )):
             listUsers.append([row[0], row[1]])
         return listUsers
 
@@ -139,10 +139,10 @@ class Accounts(object):
         for row in dbConnection.execute(
                 '''SELECT displayName, accounts.barcode
             FROM accounts
-            INNER JOIN members ON (members.barcode = accounts.barcode)
+            INNER JOIN v_current_members ON (v_current_members.barcode = accounts.barcode)
             INNER JOIN visits ON (visits.barcode = accounts.barcode)
-            WHERE visits.status = "In" AND (membershipExpires > ?) AND (role & ? != 0)
-            ORDER BY displayName''', (datetime.datetime.now(), role)):
+            WHERE visits.status = "In" AND (role & ? != 0)
+            ORDER BY displayName''', (role, )):
             listUsers.append([row[0], row[1]])
         return listUsers
 
@@ -247,11 +247,11 @@ class Accounts(object):
     def getNonAccounts(self, dbConnection):
         dictUsers = {}
         for row in dbConnection.execute(
-                '''SELECT members.barcode, displayName
-            FROM members
+                '''SELECT v_current_members.barcode, displayName
+            FROM v_current_members
             LEFT JOIN accounts USING (barcode)
-            WHERE (user is NULL) AND (membershipExpires > ?)
-            ORDER BY displayName''', (datetime.datetime.now(), )):
+            WHERE (user is NULL) 
+            ORDER BY displayName'''):
             dictUsers[row[0]] = row[1]
         return dictUsers
 

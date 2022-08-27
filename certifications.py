@@ -147,11 +147,9 @@ class Certifications(object):
     def getAllUserList(self, dbConnection):
         users = {}
         for row in dbConnection.execute(
-            '''SELECT user_id, tool_id, date, level, members.displayName FROM certifications
-                                            INNER JOIN members ON members.barcode=user_id
-                                            WHERE membershipExpires > ?
-                                            ORDER BY members.displayName''',
-                (datetime.datetime.now(), )):
+            '''SELECT user_id, tool_id, date, level, v_current_members.displayName FROM certifications
+                                            INNER JOIN v_current_members ON v_current_members.barcode=user_id
+                                            ORDER BY v_current_members.displayName'''):
             try:
                 users[row[0]].addTool(row[1], row[2], row[3])
             except KeyError:

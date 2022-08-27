@@ -55,4 +55,7 @@ Each area (if present) contains a list of data to inject
   * time (python datetime object)
   * location (text string)
   * barcode
+* config
+  * key
+  * value
 
