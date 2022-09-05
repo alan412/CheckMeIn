@@ -45,9 +45,15 @@ class GuestTest(CPtest.CPTest):
             self.getPage("/guests/returnGuest?guest_id=error")
         self.assertStatus('200 OK')
 
-    def test_leaveGuest(self):
+    def test_leaveGuestNoComments(self):
         with self.patch_session():
             self.getPage("/guests/leaveGuest?guest_id=202107310001")
+        self.assertStatus('200 OK')
+
+    def test_leaveGuestWithComments(self):
+        with self.patch_session():
+            self.getPage(
+                "/guests/leaveGuest?guest_id=202107310001&comments=Interested%20in%20donating")
         self.assertStatus('200 OK')
 
     def test_leaveGuestError(self):

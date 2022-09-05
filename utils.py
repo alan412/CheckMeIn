@@ -2,13 +2,16 @@ from email.mime.text import MIMEText
 import email.utils
 import smtplib
 
-FROM_EMAIL = "tfi@ev3hub.com"
+FROM_EMAIL = "tfi@checkmein.site"
 FROM_NAME = "TFI CheckMeIn"
 
 
-def sendEmail(toName, toEmail, subject, message):
+def sendEmail(toName, toEmail, subject, message, ccName="", ccEmail=""):
     msg = MIMEText(message)
     msg['To'] = email.utils.formataddr((toName, toEmail))
+    if ccEmail:
+        msg['Cc'] = email.utils.formataddr((ccName, ccEmail))
+
     msg['From'] = email.utils.formataddr((FROM_NAME, FROM_EMAIL))
     msg['Subject'] = subject
 

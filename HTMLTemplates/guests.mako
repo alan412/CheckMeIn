@@ -85,7 +85,9 @@
    % for guest in inBuilding:
       '<option value="${guest.guest_id}">${guest.displayName}</option>' +
    % endfor
-    '<CENTER></select><br/><br/><input type="submit" class="button" value="Check Out"/></CENTER></form>');
+    '<CENTER></select><br/><br/>' +
+    '<textarea rows = "5" cols = "60" name = "comments" placeholder="Enter comments here..."></textarea><br>' +
+    '<input type="submit" class="button" value="Check Out"/></CENTER></form>');
   modal.style.display = "block";
     });
   });
