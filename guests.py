@@ -17,7 +17,7 @@ class Guests(object):
         self.date = 0
         self.num = 1
 
-    def migrate(self, dbConnection, db_schema_version):  
+    def migrate(self, dbConnection, db_schema_version):
         if db_schema_version <= 2:
             dbConnection.execute('''CREATE TABLE guests
                                 (guest_id TEXT UNIQUE,
@@ -65,6 +65,16 @@ class Guests(object):
     def getName(self, dbConnection, guest_id):
         data = dbConnection.execute(
             "SELECT displayName FROM guests WHERE guest_id==?",
+            (guest_id, )).fetchone()
+        if data is None:
+            return ('Invalid: ' + guest_id, None)
+        else:
+            # Add code here for inactive
+            return ('', data[0])
+
+    def getEmail(self, dbConnection, guest_id):
+        data = dbConnection.execute(
+            "SELECT email FROM guests WHERE guest_id==?",
             (guest_id, )).fetchone()
         if data is None:
             return ('Invalid: ' + guest_id, None)
