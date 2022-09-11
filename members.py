@@ -47,6 +47,18 @@ class Members(object):
                 WHERE membershipExpires > date() + 
                 (SELECT value FROM config WHERE key="grace_period");
                 ''')
+        if db_schema_version < 15:
+            dbConnection.execute('''DROP VIEW v_current_members''')
+            dbConnection.execute('''
+                CREATE VIEW v_current_members (
+                    barcode,
+                    displayName,
+                    membershipExpires
+                )
+                AS SELECT barcode, displayName, membershipExpires
+                FROM members
+                WHERE membershipExpires > date('now','-' || (SELECT value FROM config WHERE key="grace_period") ||' days' )    
+            ''')
 
     def injectData(self, dbConnection, data):
         for datum in data:
@@ -116,7 +128,7 @@ class Members(object):
         listUsers = []
         for row in dbConnection.execute(
                 '''SELECT displayName, barcode
-            FROM v_current_members'''):
+            FROM v_current_members ORDER BY displayName ASC'''):
             listUsers.append([row[0], row[1]])
         return listUsers
 

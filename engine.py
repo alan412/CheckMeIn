@@ -14,7 +14,7 @@ from unlocks import Unlocks
 from logEvents import LogEvents
 from config import Config
 
-SCHEMA_VERSION = 14
+SCHEMA_VERSION = 15
 
 # This is the engine for all of the backend
 
