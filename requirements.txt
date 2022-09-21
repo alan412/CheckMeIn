@@ -38,7 +38,7 @@ pytest==6.2.5
 pytest-cov==2.12.1
 python-dateutil==2.7.3
 pytz==2018.5
-scrypt==0.8.18
+scrypt==0.8.20
 six==1.11.0
 tempora==1.13
 toml==0.10.2
