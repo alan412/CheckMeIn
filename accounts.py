@@ -261,11 +261,18 @@ class Accounts(object):
             (Status.inactive, Status.active))
 
     def setActiveKeyholder(self, dbConnection, barcode):
+        # If current barcode is a keyholder
         if barcode:
-            self.removeKeyholder(dbConnection)
-            dbConnection.execute(
-                "UPDATE accounts SET activeKeyholder = ? WHERE (barcode==?) AND (role & ? != 0)",
-                (Status.active, barcode, Role.KEYHOLDER))
+            (keyholderBarcode, _) = self.getActiveKeyholder(dbConnection)
+            if barcode != keyholderBarcode:
+                dbConnection.execute(
+                    "UPDATE accounts SET activeKeyholder = ? WHERE (barcode==?) AND (role & ? != 0)",
+                    (Status.active, barcode, Role.KEYHOLDER))
+                if keyholderBarcode:
+                    dbConnection.execute(
+                        '''UPDATE accounts SET activeKeyholder = ? WHERE (barcode==?) AND changes() > 0''',
+                        (Status.inactive, keyholderBarcode)
+                    )
 
     def getActiveKeyholder(self, dbConnection):
         """Returns the (barcode, name) of the active keyholder"""
