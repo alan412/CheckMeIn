@@ -36,9 +36,11 @@ class Visits(object):
 
     def enterGuest(self, dbConnection, guest_id):
         now = datetime.datetime.now()
-        if not self.inBuilding(dbConnection, guest_id):
-            dbConnection.execute("INSERT INTO visits VALUES (?,?,?,'In')",
-                                 (now, now, guest_id))
+        dbConnection.execute('''
+            INSERT INTO visits(start, leave, barcode, status) 
+            SELECT ?, ?, ?, 'In'
+            WHERE NOT EXISTS (SELECT 1 FROM visits WHERE (barcode == ?) AND (status == 'In'))''',
+                             (now, now, guest_id, guest_id))
 
     def leaveGuest(self, dbConnection, guest_id):
         now = datetime.datetime.now()
