@@ -269,7 +269,7 @@ class Accounts(object):
                 dbConnection.execute(
                     "UPDATE accounts SET activeKeyholder = ? WHERE (barcode==?) AND (role & ? != 0)",
                     (Status.active, barcode, Role.KEYHOLDER))
-                data = dbConnection.execute('SELECT changes();')
+                data = dbConnection.execute('SELECT changes();').fetchone()
                 if data and data[0]:   # There were changes from the last update statement
                     returnValue = True
                     if keyholderBarcode:
