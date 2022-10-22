@@ -86,7 +86,8 @@ class WebTeams(WebBase):
         if member:
             self.checkPermissions(team_id)
             with self.dbConnect() as dbConnection:
-                self.engine.teams.addMember(dbConnection, team_id, member, type)
+                self.engine.teams.addMember(
+                    dbConnection, team_id, member, type)
 
         raise cherrypy.HTTPRedirect("/teams?team_id="+team_id)
 
@@ -141,8 +142,8 @@ class WebTeams(WebBase):
             for barcode in checkIn:
                 error = self.engine.visits.checkInMember(dbConnection, barcode)
                 if not current_keyholder_bc:
-                    self.engine.accounts.setActiveKeyholder(
-                        dbConnection, barcode)
+                    if self.engine.accounts.setActiveKeyholder(dbConnection, barcode):
+                        current_keyholder_bc = barcode
             for barcode in checkOut:
                 if barcode == current_keyholder_bc:
                     currentKeyholderLeaving = True
