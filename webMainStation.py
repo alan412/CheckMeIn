@@ -94,9 +94,9 @@ class WebMainStation(WebBase):
         with self.dbConnect() as dbConnection:
             self.engine.visits.checkInMember(
                 dbConnection, barcode)  # make sure checked in
-            error = self.engine.accounts.setActiveKeyholder(
+            result = self.engine.accounts.setActiveKeyholder(
                 dbConnection, barcode)
-            if error:  # pragma: no cover # TODO after this case is added, remove no cover
+            if result == False:
                 return self.template('keyholder.mako', error=error)
         raise cherrypy.HTTPRedirect("/station")
 
