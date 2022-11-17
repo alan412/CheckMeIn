@@ -155,7 +155,9 @@ class WebAdminStation(WebBase):
             try:
                 self.engine.accounts.addUser(
                     dbConnection, user, tempPassword, barcode, role)
-                self.engine.accounts.forgotPassword(dbConnection, user)
+                email = self.engine.accounts.forgotPassword(dbConnection, user)
+                self.engine.logEvents.addEvent(dbConnection,
+                                               "Forgot password request", f"{email} for {user}")
             except sqlite3.IntegrityError:
                 error = "Username already in use"
         return self.users(error)
