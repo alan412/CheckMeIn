@@ -6,6 +6,7 @@ import random
 import datetime
 import urllib
 import utils
+import sys
 
 
 class Status(IntEnum):
@@ -171,7 +172,8 @@ class Accounts(object):
             " This expires in 24 hours.\n\nThank you,\nTFI"
 
         utils.sendEmail(username, emailAddress, 'Forgotten Password', msg)
-        return ''
+
+        return emailAddress
 
     def forgotPassword(self, dbConnection, username):
         data = dbConnection.execute(
@@ -179,12 +181,11 @@ class Accounts(object):
             (username, )).fetchone()
 
         if data == None:
-            return
+            return f'No email sent due to not finding user: {username}'
         if data[0] != None:
             longAgo = datetime.datetime.now() - data[0]
-            if longAgo.total_seconds(
-            ) < 60:  # to keep people from spamming others...
-                return
+            if longAgo.total_seconds() < 60:  # to keep people from spamming others...
+                return 'No email sent due to one sent in last minute'
         chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
         forgotID = ''.join(random.SystemRandom().choice(chars)
                            for _ in range(8))
@@ -192,8 +193,7 @@ class Accounts(object):
         dbConnection.execute(
             '''UPDATE accounts SET forgot = ?, forgotTime = ? WHERE user = ?''',
             (pwd_context.hash(forgotID), datetime.datetime.now(), username))
-
-        self.emailToken(dbConnection, username, forgotID)
+        return self.emailToken(dbConnection, username, forgotID)
 
     def verify_forgot(self, dbConnection, username, forgot, newPassword):
         data = dbConnection.execute(

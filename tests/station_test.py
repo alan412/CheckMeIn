@@ -60,8 +60,13 @@ class StationTest(CPtest.CPTest):
 
     def test_makeKeyholder(self):
         with self.patch_session():
+            self.getPage("/station/makeKeyholder?barcode=100091")
+            self.assertStatus('200 OK')
+
+    def test_makeKeyholder_invalid(self):
+        with self.patch_session():
             self.getPage("/station/makeKeyholder?barcode=100090")
-            self.assertStatus('303 See Other')
+            self.assertStatus('200 OK')
 
     def test_scanned_keyholder_from_keyholder(self):
         with self.patch_session():

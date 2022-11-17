@@ -43,7 +43,11 @@ class WebProfile(WebBase):
     @cherrypy.expose
     def forgotPassword(self, user):
         with self.dbConnect() as dbConnection:
-            self.engine.accounts.forgotPassword(dbConnection, user)
+            email = self.engine.accounts.forgotPassword(
+                dbConnection, user)
+            self.engine.logEvents.addEvent(
+                dbConnection,
+                "Forgot password request", f"{email} for {user}")
         return "You have been e-mailed a way to reset your password.  It will only be good for 24 hours."
 
     @cherrypy.expose
@@ -55,7 +59,8 @@ class WebProfile(WebBase):
         if newPass1 != newPass2:
             return self.template('newPassword.mako', error='Passwords must match', user=user, token=token)
         with self.dbConnect() as dbConnection:
-            worked = self.engine.accounts.verify_forgot(dbConnection, user, token, newPass1)
+            worked = self.engine.accounts.verify_forgot(
+                dbConnection, user, token, newPass1)
         if worked:
             raise cherrypy.HTTPRedirect("/profile/login")
         return "Token not correct.  Try link again"
