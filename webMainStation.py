@@ -96,8 +96,10 @@ class WebMainStation(WebBase):
                 dbConnection, barcode)  # make sure checked in
             result = self.engine.accounts.setActiveKeyholder(
                 dbConnection, barcode)
+            whoIsHere = self.engine.reports.whoIsHere(dbConnection)
+
             if result == False:
-                return self.template('keyholder.mako', error=error)
+                return self.template('keyholder.mako', whoIsHere=whoIsHere)
         raise cherrypy.HTTPRedirect("/station")
 
     @cherrypy.expose
