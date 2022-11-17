@@ -155,7 +155,7 @@ class WebAdminStation(WebBase):
             try:
                 self.engine.accounts.addUser(
                     dbConnection, user, tempPassword, barcode, role)
-                # self.engine.accounts.forgotPassword(dbConnection, user)
+                self.engine.accounts.forgotPassword(dbConnection, user)
             except sqlite3.IntegrityError:
                 error = "Username already in use"
         return self.users(error)

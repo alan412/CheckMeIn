@@ -63,6 +63,14 @@ def testData():
             "lastName": "Joe",
             "email": "fake@email.com",
             "membershipExpires": timeAgo(days=-30)
+        },
+            {
+            "barcode": "100093",
+            "displayName": "Fred N",
+            "firstName": "Fred",
+            "lastName": "Name",
+            "email": "fakeFreddie@email.com",
+            "membershipExpires": timeAgo(days=-30),
         }],
         "accounts": [{
             "user": "admin",
