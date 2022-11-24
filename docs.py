@@ -9,11 +9,11 @@ class Doc:
 def getDocumentation():
     return [
         Doc('CheckIn', '/station/checkin?barcode=<barcode>',
-            returns='Returns the station webpage',
+            returns='Returns Links',
             notes=['This checks the specified barcode into the building, if already checked in then it does nothing',
                    'If you are the first keyholder checking in, it will make you the keyholder']),
         Doc('CheckOut', '/station/checkout?barcode=<barcode>',
-            returns='Returns the station webpage',
+            returns='Returns Links',
             notes=['This checks the specified barcode out of the building, if already checked out then it does nothing',
                    "If you are the active keyholder and you checkout AND you are not the only one in the building then you'll"
                    "get a list of who is in the building and a chance to checkout or cancel. "

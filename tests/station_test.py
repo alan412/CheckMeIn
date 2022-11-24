@@ -36,7 +36,6 @@ class StationTest(CPtest.CPTest):
         with self.patch_session():
             self.getPage(
                 "/station/bulkUpdate?inBarcodes=100090+100091&outBarcodes=")
-            self.assertStatus('303 See Other')
 
     def test_bulkUpdateAllOut(self):
         with self.patch_session():
@@ -46,7 +45,6 @@ class StationTest(CPtest.CPTest):
                 "/station/bulkUpdate?inBarcodes=100090+100091&outBarcodes=")
             self.getPage(
                 "/station/bulkUpdate?inBarcodes=&outBarcodes=100090+100091")
-            self.assertStatus('303 See Other')
 
     def test_scanned_bogus(self):
         with self.patch_session():

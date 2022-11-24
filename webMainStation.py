@@ -49,18 +49,8 @@ class WebMainStation(WebBase):
         raise cherrypy.HTTPRedirect("/station")
 
     @cherrypy.expose
-    def checkin(self, barcode):
-        return self.bulkUpdate(inBarcodes=barcode)
-
-    @cherrypy.expose
-    def checkout(self, barcode):
-        return self.bulkUpdate(outBarcodes=barcode)
-
-    @cherrypy.expose
-    def bulkUpdate(self, inBarcodes="", outBarcodes=""):
-        inBarcodeList = inBarcodes.split()
-        outBarcodeList = outBarcodes.split()
-        currentKeyholderLeaving = False
+    def checkin(self, barcode, called=False):
+        inBarcodeList = barcode.split()
         with self.dbConnect() as dbConnection:
             (current_keyholder_bc, _) = self.engine.accounts.getActiveKeyholder(
                 dbConnection)
@@ -74,6 +64,17 @@ class WebMainStation(WebBase):
                         self.engine.accounts.setActiveKeyholder(
                             dbConnection, barcode)
                         current_keyholder_bc = barcode
+        if not called:
+            raise cherrypy.HTTPRedirect(f"/links?barcode={inBarcodeList[0]}")
+
+    @cherrypy.expose
+    def checkout(self, barcode, called=False):
+        outBarcodeList = barcode.split()
+        currentKeyholderLeaving = False
+
+        with self.dbConnect() as dbConnection:
+            (current_keyholder_bc, _) = self.engine.accounts.getActiveKeyholder(
+                dbConnection)
             for barcode in outBarcodeList:
                 if barcode == current_keyholder_bc:
                     currentKeyholderLeaving = True
@@ -85,7 +86,14 @@ class WebMainStation(WebBase):
                 self.engine.visits.emptyBuilding(
                     dbConnection, current_keyholder_bc)
                 self.engine.accounts.removeKeyholder(dbConnection)
-        raise cherrypy.HTTPRedirect("/station")
+        if not called:
+            raise cherrypy.HTTPRedirect(f"/links?barcode={outBarcodeList[0]}")
+
+    @cherrypy.expose
+    def bulkUpdate(self, inBarcodes="", outBarcodes=""):
+        self.checkin(inBarcodes, called=True)
+        self.checkout(outBarcodes, called=True)
+        return "Bulk Update success"
 
     @cherrypy.expose
     def makeKeyholder(self, barcode):
@@ -100,7 +108,7 @@ class WebMainStation(WebBase):
 
             if result == False:
                 return self.template('keyholder.mako', whoIsHere=whoIsHere)
-        raise cherrypy.HTTPRedirect("/station")
+        raise cherrypy.HTTPRedirect(f"/links?barcode={bc}")
 
     @cherrypy.expose
     def keyholder(self, barcode):
