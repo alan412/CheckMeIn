@@ -60,9 +60,12 @@ class CheckMeIn(WebBase):
     def links(self, barcode=None):
         activeTeamsCoached = None
         role = Role(0)
+        loggedInBarcode = Cookie('barcode').get(None)
+        if not barcode:
+            barcode = loggedInBarcode
+
         with self.dbConnect() as dbConnection:
             if barcode:
-                loggedInBarcode = Cookie('barcode').get(None)
                 if barcode == loggedInBarcode:
                     role = Role(Cookie('role').get(0))
 
