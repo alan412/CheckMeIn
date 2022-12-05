@@ -15,14 +15,21 @@ from webReports import WebReports
 from webProfile import WebProfile
 from docs import getDocumentation
 from accounts import Role
+from cherrypy_SSE import Portier
 
 
 class CheckMeIn(WebBase):
+    def update(self, msg):
+        fullMessage = f"event: update\ndata: {msg}\n\n"
+        cherrypy.engine.publish(self.updateChannel, fullMessage)
+
     def __init__(self):
         self.lookup = TemplateLookup(
             directories=['HTMLTemplates'], default_filters=['h'])
+        self.updateChannel = 'updates'
         self.engine = engine.Engine(
-            cherrypy.config["database.path"], cherrypy.config["database.name"])
+            cherrypy.config["database.path"], cherrypy.config["database.name"], self.update)
+
         super().__init__(self.lookup, self.engine)
         self.station = WebMainStation(self.lookup, self.engine)
         self.guests = WebGuestStation(self.lookup, self.engine)
@@ -35,6 +42,11 @@ class CheckMeIn(WebBase):
     @cherrypy.expose
     def index(self):
         return self.links()
+
+    @cherrypy.expose
+    def test(self, str):
+        self.update(str)
+        return f"Posted {str}"
 
     @cherrypy.expose
     def whoishere(self):
@@ -83,6 +95,29 @@ class CheckMeIn(WebBase):
         return self.template('links.mako', barcode=barcode, role=role,
                              activeTeamsCoached=activeTeamsCoached, inBuilding=inBuilding,
                              displayName=displayName, activeMembers=activeMembers)
+
+    @cherrypy.expose
+    def updateSSE(self):
+        """
+        publishes data from the subscribed channel..
+        """
+        print("Entering SSE")
+        doorman = Portier(self.updateChannel)
+
+        cherrypy.response.headers["Content-Type"] = "text/event-stream"
+
+        def pub():
+            for message in doorman.messages():
+                try:
+                    print(f"Sending Message: {message}")
+                    yield message
+                except GeneratorExit:
+                    # cherrypy shuts down the generator when the client
+                    # disconnects. Catch disconnect and unsubscribe to clean up
+                    doorman.unsubscribe()
+                    return
+        return pub()
+    updateSSE._cp_config = {'response.stream': True}
 
 
 if __name__ == '__main__':  # pragma: no cover

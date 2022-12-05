@@ -1,6 +1,16 @@
 <%def name="scripts()">
 <script>
 window.onload = setTimeout(function(){location.href="/station"},1000*60);  // every minute
+
+/*
+document.addEventListener('DOMContentLoaded', function () {
+		var source = new EventSource('/updateSSE');
+    source.addEventListener('update', function (event) {
+        location.href="/station";
+    });
+}, false);
+*/
+
 </script>
 </%def>
 <%def name="head()">

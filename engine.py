@@ -20,9 +20,10 @@ SCHEMA_VERSION = 15
 
 
 class Engine(object):
-    def __init__(self, dbPath, dbName):
+    def __init__(self, dbPath, dbName, update):
         self.database = dbPath + dbName
         self.dataPath = dbPath
+        self.update = update
         self.visits = Visits()
         self.guests = Guests()
         self.reports = Reports(self)
