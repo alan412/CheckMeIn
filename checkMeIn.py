@@ -49,6 +49,13 @@ class CheckMeIn(WebBase):
         return f"Posted {str}"
 
     @cherrypy.expose
+    def metrics(self):
+        with self.dbConnect() as dbConnection:
+            numberPresent = self.engine.reports.numberPresent(
+                dbConnection)
+            return self.template('metrics.mako', number_people_checked_in=numberPresent)
+
+    @cherrypy.expose
     def whoishere(self):
         with self.dbConnect() as dbConnection:
             (_, keyholder_name) = self.engine.accounts.getActiveKeyholder(dbConnection)
