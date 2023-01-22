@@ -51,6 +51,9 @@ class ProfileTest(CPtest.CPTest):
     def test_forgotPassword_noaccount(self):
         with self.patch_session():
             self.getPage("/profile/forgotPassword?user=noaccount")
+    def test_forgotPassword_email(self):
+        with self.patch_session():
+            self.getPage("/profile/forgotPassword?user=fake%40email.com")
 
     def test_resetPasswordToken(self):
         with self.patch_session():

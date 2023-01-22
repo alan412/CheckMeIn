@@ -20,6 +20,7 @@ ${self.logo()}<br/>
 <form action="forgotPassword">
 <fieldset>
    <legend>Forgot Password</legend>
+   If you don't remember your user name, you can put your email in here as well.<br/>
    <input id="user_id" type="text" name="user" placeholder="Login Name" /><br />
    <input type="submit" value="Forgot password"/>
 </fieldset>

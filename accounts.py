@@ -159,6 +159,12 @@ class Accounts(object):
             (username, )).fetchone()
         return data[0]
 
+    def getUser(self, dbConnection, email):
+        data = dbConnection.execute(
+            '''SELECT user from accounts INNER JOIN members ON accounts.barcode = members.barcode WHERE email = ?''',
+            (email, )).fetchone()
+        return data[0]
+
     def emailToken(self, dbConnection, username, token):
         emailAddress = self.getEmail(dbConnection, username)
 
@@ -169,6 +175,7 @@ class Accounts(object):
             safe_username + "&token=" + token + " to reset your password.  If you" + \
             " did not request that you had forgotten " + \
             "your password, then you can safely ignore this e-mail." + \
+            "Your username is " + safe_username + "." + \
             " This expires in 24 hours.\n\nThank you,\nTFI"
 
         utils.sendEmail(username, emailAddress, 'Forgotten Password', msg)
@@ -179,7 +186,11 @@ class Accounts(object):
         data = dbConnection.execute(
             '''SELECT forgotTime from accounts WHERE user = ?''',
             (username, )).fetchone()
-
+        if data == None:
+          username = self.getUser(dbConnection, username)
+          data = dbConnection.execute(
+              '''SELECT forgotTime from accounts WHERE user = ?''',
+              (username, )).fetchone()
         if data == None:
             return f'No email sent due to not finding user: {username}'
         if data[0] != None:
