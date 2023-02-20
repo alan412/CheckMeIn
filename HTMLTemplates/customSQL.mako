@@ -53,4 +53,9 @@ ${sql}
    <input type="submit" value="Save Report"/>
  </fieldset>
 </FORM>
+% else:
+<H3>Code for this report</H3>
+     <pre>
+${sql}
+     </pre>
 % endif
