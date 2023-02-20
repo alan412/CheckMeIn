@@ -38,12 +38,12 @@ class CustomReports:
             data = c.execute("SELECT * FROM reports WHERE (report_id=?)",
                              (report_id, )).fetchone()
             if data:
-                cur = c.cursor()
-                cur.execute(data[2])
-                header = [i[0] for i in cur.description]
-                rows = [list(i) for i in cur.fetchall()]
-                return (data[1], data[2], header, rows)
-        return ("Couldn't find report", "", None)
+                title = data[1]
+                sql = data[2]
+                (header, rows) = self.customSQL(sql)
+
+                return (title, sql, header, rows)
+        return ("Couldn't find report", "", None, None)
 
     def saveCustomSQL(self, dbConnection, sql, name):
         try:
