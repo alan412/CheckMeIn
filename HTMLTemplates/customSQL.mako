@@ -30,8 +30,13 @@ ${sql}
 %if not report_title:
 <H2>Output</H2>
 %endif
-<H3>Num results: ${len(data) - 1}</H3>
+<H3>Num results: ${len(data)}</H3>
 <table class="SQLoutput">
+<TR>
+% for col in header:
+  <TH>${col}</TH>
+% endfor
+</TR>
 % for row in data:
 <tr>
   % for datum in row:

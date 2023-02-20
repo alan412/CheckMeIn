@@ -6,7 +6,7 @@ class CustomReports:
     def __init__(self, database):
         self.database = database
 
-    def migrate(self, dbConnection, db_schema_version):  
+    def migrate(self, dbConnection, db_schema_version):
         if db_schema_version < 7:
             dbConnection.execute('''CREATE TABLE reports
                                  (report_id INTEGER PRIMARY KEY,
@@ -31,9 +31,7 @@ class CustomReports:
             cur.execute(sql)
             header = [i[0] for i in cur.description]
             rows = [list(i) for i in cur.fetchall()]
-            # append header to rows
-            rows.insert(0, header)
-        return rows
+        return (header, rows)
 
     def customReport(self, report_id):
         with self.readOnlyConnect() as c:
@@ -44,9 +42,7 @@ class CustomReports:
                 cur.execute(data[2])
                 header = [i[0] for i in cur.description]
                 rows = [list(i) for i in cur.fetchall()]
-                # append header to rows
-                rows.insert(0, header)
-                return (data[1], data[2], rows)
+                return (data[1], data[2], header, rows)
         return ("Couldn't find report", "", None)
 
     def saveCustomSQL(self, dbConnection, sql, name):

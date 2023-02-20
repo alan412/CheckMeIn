@@ -73,21 +73,23 @@ class WebReports(WebBase):
         title = "Error"
         sql = ""
         try:
-            (title, sql, data) = self.engine.customReports.customReport(report_id)
+            (title, sql, header, data) = self.engine.customReports.customReport(report_id)
         except sqlite3.OperationalError as e:
             data = repr(e)
+            header = ["Error"]
 
-        return self.template('customSQL.mako', report_title=title, sql=sql, data=data)
+        return self.template('customSQL.mako', report_title=title, sql=sql, data=data, header=header)
 
     @cherrypy.expose
     def customSQLReport(self, sql):
         self.checkPermissions()
         try:
-            data = self.engine.customReports.customSQL(sql)
+            (header, data) = self.engine.customReports.customSQL(sql)
         except sqlite3.OperationalError as e:
             data = repr(e)
+            header = ["Error"]
 
-        return self.template('customSQL.mako', sql=sql, data=data)
+        return self.template('customSQL.mako', sql=sql, header=header, data=data)
 
     @cherrypy.expose
     def teamList(self):
