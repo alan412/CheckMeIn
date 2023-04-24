@@ -74,6 +74,7 @@ class WebAdminStation(WebBase):
 
     @cherrypy.expose
     def oops(self):
+        super().checkPermissions(Role.KEYHOLDER, "/")
         self.checkPermissions()
         with self.dbConnect() as dbConnection:
             self.engine.visits.oopsForgot(dbConnection)
