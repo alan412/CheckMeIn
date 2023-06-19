@@ -154,7 +154,7 @@ class WebTeams(WebBase):
             if currentKeyholderLeaving:
                 whoIsHere = self.engine.reports.whoIsHere(dbConnection)
                 if len(whoIsHere) > 1:
-                    return self.template('keyholderCheckout.mako', barcode=current_keyholder_bc, whoIsHere=self.engine.reports.whoIsHere(dbConnection))
+                    return self.template('keyholderCheckout.mako', barcode=current_keyholder_bc, whoIsHere=whoIsHere)
                 self.engine.accounts.removeKeyholder(dbConnection)
                 error = self.engine.visits.checkOutMember(
                     dbConnection, current_keyholder_bc)

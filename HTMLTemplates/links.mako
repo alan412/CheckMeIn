@@ -51,6 +51,7 @@ ${self.logo()}<br/>
       <LI><A HREF="http://10.0.0.10">Upstairs Door (Works ONLY when at BFF)</A></LI>
 
       <LI><A HREF="/station/makeKeyholder?barcode=${barcode}">Make ME Keyholder</A></LI>
+      <LI><A HREF="/station/updatePresent">Update who is in building</A></LI>
       <LI><A HREF="/admin/oops">Oops (Didn't meant to close building)</A></LI>
    </fieldset><br/>
    % endif

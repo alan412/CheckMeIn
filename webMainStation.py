@@ -38,7 +38,7 @@ class WebMainStation(WebBase):
                     whoIsHere = self.engine.reports.whoIsHere(dbConnection)
                     if (bc == current_keyholder_bc) and len(whoIsHere) == 1:
                         self.checkout(bc)
-                    return self.template('keyholder.mako', whoIsHere=self.engine.reports.whoIsHere(dbConnection))
+                    return self.template('keyholder.mako', whoIsHere=whoIsHere)
                 else:
                     error = self.engine.visits.scannedMember(dbConnection, bc)
                     if not current_keyholder_bc:
