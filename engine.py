@@ -102,3 +102,23 @@ class Engine(object):
         ]
 
         return (building_guests, guests_not_here)
+
+    # This returns whether the current keyholder would be leaving
+    def bulkUpdate(self, dbConnection, check_ins, check_outs):
+        currentKeyholderLeaving = False
+        (current_keyholder_bc, _) = self.accounts.getActiveKeyholder(
+            dbConnection)
+        for barcode in check_ins:
+            error = self.visits.checkInMember(dbConnection, barcode)
+            if not current_keyholder_bc:
+                if self.accounts.setActiveKeyholder(dbConnection, barcode):
+                    current_keyholder_bc = barcode
+        for barcode in check_outs:
+            if barcode == current_keyholder_bc:
+                currentKeyholderLeaving = True
+            else:
+                error = self.visits.checkOutMember(
+                    dbConnection, barcode)
+        if currentKeyholderLeaving:
+            return current_keyholder_bc
+        return False

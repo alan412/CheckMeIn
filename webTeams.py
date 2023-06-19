@@ -135,28 +135,17 @@ class WebTeams(WebBase):
             else:
                 checkOut.append(param)
 
-        currentKeyholderLeaving = False
         with self.dbConnect() as dbConnection:
-            (current_keyholder_bc, _) = self.engine.accounts.getActiveKeyholder(
-                dbConnection)
-            for barcode in checkIn:
-                error = self.engine.visits.checkInMember(dbConnection, barcode)
-                if not current_keyholder_bc:
-                    if self.engine.accounts.setActiveKeyholder(dbConnection, barcode):
-                        current_keyholder_bc = barcode
-            for barcode in checkOut:
-                if barcode == current_keyholder_bc:
-                    currentKeyholderLeaving = True
-                else:
-                    error = self.engine.visits.checkOutMember(
-                        dbConnection, barcode)
+            leaving_keyholder_bc = self.engine.bulkUpdate(
+                dbConnection, checkIn, checkOut)
+
         with self.dbConnect() as dbConnection:
-            if currentKeyholderLeaving:
+            if leaving_keyholder_bc:
                 whoIsHere = self.engine.reports.whoIsHere(dbConnection)
                 if len(whoIsHere) > 1:
-                    return self.template('keyholderCheckout.mako', barcode=current_keyholder_bc, whoIsHere=whoIsHere)
+                    return self.template('keyholderCheckout.mako', barcode=leaving_keyholder_bc, whoIsHere=whoIsHere)
                 self.engine.accounts.removeKeyholder(dbConnection)
                 error = self.engine.visits.checkOutMember(
-                    dbConnection, current_keyholder_bc)
+                    dbConnection, leaving_keyholder_bc)
 
         raise cherrypy.HTTPRedirect("/teams?team_id="+team_id)
