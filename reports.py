@@ -1,3 +1,5 @@
+from guests import Guest
+import matplotlib.pyplot as plt
 import sqlite3
 import datetime
 from io import BytesIO
@@ -6,15 +8,15 @@ from collections import namedtuple
 import matplotlib
 # The pylint disable is because it doesn't like the use before other imports
 matplotlib.use('Agg')   # pylint: disable=C0413
-import matplotlib.pyplot as plt
-
-from guests import Guest
 
 
 Transaction = namedtuple('Transaction', ['name', 'time', 'description'])
 Datum = namedtuple('Datum', ['rowid', 'start', 'leave', 'name', 'status'])
 
 VisitorsAtTime = namedtuple('VisitorsAtTime', ['startTime', 'numVisitors'])
+
+PersonInBuilding = namedtuple(
+    'PersonInBuilding', ['displayName', 'barcode', 'start'])
 
 
 def daterange(start_date, end_date):
@@ -176,7 +178,8 @@ class Reports(object):
             if(row[2] in keyholders):
                 displayName = displayName + "(Keyholder)"
             listPresent.append(
-                displayName + ' - ( ' + row[1].strftime("%I:%M %p") + ' )')
+                PersonInBuilding(displayName=displayName,
+                                 barcode=row[2], start=row[1]))
         return listPresent
 
     def whichTeamMembersHere(self, dbConnection, team_id, startTime, endTime):
