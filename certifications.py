@@ -123,6 +123,15 @@ class Certifications(object):
                                   date          TIMESTAMP,
                                   level         INTEGER default 0)''')
             self.addTools(dbConnection)
+        if db_schema_version < 16:
+            self.addTool(dbConnection, 19, 3, "Grinder")
+            dbConnection.execute(
+                "UPDATE tools SET name='Sander' WHERE id=10")
+            for row in dbConnection.execute(
+                '''SELECT user_id, tool_id, date, level, certifier_id FROM certifications
+                                        WHERE tool_id=10'''):
+                self.addCertification(dbConnection, row[0], 19, row[3], row[2],
+                                      row[4])
 
     def injectData(self, dbConnection, data):
         for datum in data:
@@ -218,7 +227,7 @@ class Certifications(object):
     def getAllTools(self, dbConnection):
         tools = []
         for row in dbConnection.execute(
-                'SELECT id, name, grouping FROM tools ORDER BY id ASC', ()):
+                'SELECT id, name, grouping FROM tools ORDER BY grouping, id ASC', ()):
             tools.append([row[0], row[1], row[2]])
         return tools
 
