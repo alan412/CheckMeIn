@@ -163,7 +163,9 @@ class Accounts(object):
         data = dbConnection.execute(
             '''SELECT user from accounts INNER JOIN members ON accounts.barcode = members.barcode WHERE email = ?''',
             (email, )).fetchone()
-        return data[0]
+        if data:
+            return data[0]
+        return None
 
     def emailToken(self, dbConnection, username, token):
         emailAddress = self.getEmail(dbConnection, username)
@@ -187,10 +189,10 @@ class Accounts(object):
             '''SELECT forgotTime from accounts WHERE user = ?''',
             (username, )).fetchone()
         if data == None:
-          username = self.getUser(dbConnection, username)
-          data = dbConnection.execute(
-              '''SELECT forgotTime from accounts WHERE user = ?''',
-              (username, )).fetchone()
+            username = self.getUser(dbConnection, username)
+            data = dbConnection.execute(
+                '''SELECT forgotTime from accounts WHERE user = ?''',
+                (username, )).fetchone()
         if data == None:
             return f'No email sent due to not finding user: {username}'
         if data[0] != None:
