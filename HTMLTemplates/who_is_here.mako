@@ -18,9 +18,16 @@
   <H2>${len(whoIsHere)} people</H2>
   % endif
 
+ %if makeForm:
+ <form action="checkout_who_is_here">
+ %endif
   <table class="members">
       % for member in whoIsHere:
-        <TR><TD><input type="checkbox"/></TD><TD>${member.displayName}</TD>
+        <TR><TD><input type="checkbox" name="${member.barcode}" value="out"/></TD><TD>${member.displayName}</TD>
         <TD>${member.start.strftime("%I:%M %p")}</TD></TR>
       % endfor
   </table>
+%if makeForm:
+<input type="submit" value="Check Out"/>
+</form>
+%endif

@@ -135,3 +135,8 @@ class AdminTest(CPtest.CPTest):
                 "/admin/editTeam?teamId=100&programName=FRC&programNumber=3459&startDate=2021-07-31"
             )
             self.assertStatus("303 See Other")
+
+    def test_removeFromWhoIsHere(self):
+        with self.patch_session():
+            self.getPage("/checkout_who_is_here?100091=100091")
+            self.assertStatus("200 OK")
