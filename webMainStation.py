@@ -52,39 +52,23 @@ class WebMainStation(WebBase):
     def checkin(self, barcode, called=False):
         inBarcodeList = barcode.split()
         with self.dbConnect() as dbConnection:
-            (current_keyholder_bc, _) = self.engine.accounts.getActiveKeyholder(
-                dbConnection)
-            if not current_keyholder_bc:
-                keyholders = self.engine.accounts.getKeyholderBarcodes(
-                    dbConnection)
-            for barcode in inBarcodeList:
-                error = self.engine.visits.checkInMember(dbConnection, barcode)
-                if not current_keyholder_bc:
-                    if barcode in keyholders:
-                        self.engine.accounts.setActiveKeyholder(
-                            dbConnection, barcode)
-                        current_keyholder_bc = barcode
+            self.engine.checkin(dbConnection, inBarcodeList)
         if not called:
             raise cherrypy.HTTPRedirect(f"/links?barcode={inBarcodeList[0]}")
 
     @cherrypy.expose
     def checkout(self, barcode, called=False):
         outBarcodeList = barcode.split()
-        currentKeyholderLeaving = False
-
         with self.dbConnect() as dbConnection:
             (current_keyholder_bc, _) = self.engine.accounts.getActiveKeyholder(
                 dbConnection)
-            for barcode in outBarcodeList:
-                if barcode == current_keyholder_bc:
-                    currentKeyholderLeaving = True
-                else:
-                    error = self.engine.visits.checkOutMember(
-                        dbConnection, barcode)
+            leaving_keyholder_bc = self.engine.checkout(
+                dbConnection, current_keyholder_bc, outBarcodeList)
+
         with self.dbConnect() as dbConnection:
-            if currentKeyholderLeaving:
+            if leaving_keyholder_bc:
                 self.engine.visits.emptyBuilding(
-                    dbConnection, current_keyholder_bc)
+                    dbConnection, leaving_keyholder_bc)
                 self.engine.accounts.removeKeyholder(dbConnection)
         if not called:
             raise cherrypy.HTTPRedirect(f"/links?barcode={outBarcodeList[0]}")

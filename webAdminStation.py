@@ -80,6 +80,14 @@ class WebAdminStation(WebBase):
         return self.index('Oops is fixed. :-)')
 
     @cherrypy.expose
+    def updatePresent(self, checked_out):
+        super().checkPermissions(Role.KEYHOLDER, "/")
+        with self.dbConnect() as dbConnection:
+            
+            self.engine.visits.oopsForgot(dbConnection)
+        return self.index('Oops is fixed. :-)')
+
+    @cherrypy.expose
     def fixed(self, output):
         self.checkPermissions()
         with self.dbConnect() as dbConnection:
