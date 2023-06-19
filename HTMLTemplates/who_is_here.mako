@@ -20,6 +20,7 @@
 
   <table class="members">
       % for member in whoIsHere:
-        <TR><TD><input type="checkbox"/></TD><TD>${member}</TD></TR>
+        <TR><TD><input type="checkbox"/></TD><TD>${member.displayName}</TD>
+        <TD>${member.start.strftime("%I:%M %p")}</TD></TR>
       % endfor
   </table>

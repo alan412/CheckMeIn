@@ -19,7 +19,7 @@ another keyholder and then checkout.
 <br/><b>Make sure you are the only one in the building.</b>  The following people haven't checked out:
 <UL>
 % for member in whoIsHere:
-<LI>${member}</LI>
+<LI>${member.displayName}</LI>
 % endfor
 </UL>
 % endif
