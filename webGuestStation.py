@@ -18,6 +18,8 @@ class WebGuestStation(WebBase):
     def addGuest(self, first, last, email, reason, other_reason, newsletter):
         if first == '' or last == '':
             return self.showGuestPage('Need a first and last name')
+        if first > 32:
+            return self.showGuestPage('First name limited to 32 characters')
 
         displayName = first + ' ' + last[0] + '.'
         with self.dbConnect() as dbConnection:
