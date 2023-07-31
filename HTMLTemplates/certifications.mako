@@ -23,7 +23,9 @@
 % endif
 % for user, user_tools in certifications.items():
    <TR>
+   % if show_name:
    <TD>${user_tools.displayName}</TD>
+   % endif
    % for tool in tools:
       ${user_tools.getHTMLCellTool(tool[0]) | n}
    % endfor

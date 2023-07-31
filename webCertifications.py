@@ -4,11 +4,12 @@ from webBase import WebBase
 
 class WebCertifications(WebBase):
     # Certifications
-    def showCertifications(self, message, tools, certifications, show_table_header=True):
+    def showCertifications(self, message, tools, certifications, show_table_header=True, show_names=True):
         return self.template('certifications.mako',
                              message=message,
                              tools=tools,
                              show_table_header=show_table_header,
+                             show_names=show_names,
                              certifications=certifications)
 
     @cherrypy.expose
@@ -34,19 +35,23 @@ class WebCertifications(WebBase):
         with self.dbConnect() as dbConnection:
             self.engine.certifications.addNewCertification(dbConnection,
                                                            member_id, tool_id, level, certifier_id)
-        with self.dbConnect() as dbConnection:  #separate out committing from getting
-            memberName = self.engine.members.getName(dbConnection, member_id)[1]
-            certifierName = self.engine.members.getName(dbConnection, certifier_id)[1]
+        with self.dbConnect() as dbConnection:  # separate out committing from getting
+            memberName = self.engine.members.getName(
+                dbConnection, member_id)[1]
+            certifierName = self.engine.members.getName(
+                dbConnection, certifier_id)[1]
             level = self.engine.certifications.getLevelName(level)
-            tool=self.engine.certifications.getToolName(dbConnection, tool_id)
+            tool = self.engine.certifications.getToolName(
+                dbConnection, tool_id)
 
-            self.engine.certifications.emailCertifiers(memberName, tool, level, certifierName)
+            self.engine.certifications.emailCertifiers(
+                memberName, tool, level, certifierName)
 
         return self.template('congrats.mako', message='',
-                                 certifier_id=certifier_id,
-                                 memberName=memberName,
-                                 level=level,
-                                 tool=tool)
+                             certifier_id=certifier_id,
+                             memberName=memberName,
+                             level=level,
+                             tool=tool)
 
     @cherrypy.expose
     def index(self):
@@ -80,8 +85,9 @@ class WebCertifications(WebBase):
                 dbConnection, user_id=barcode)
 
             return self.showCertifications(message, tools, certifications)
+
     @cherrypy.expose
-    def monitor(self, tools, start_row=0, show_table_header="True"):
+    def monitor(self, tools, start_row=0, show_names="True", show_table_header="True"):
         message = ''
         with self.dbConnect() as dbConnection:
             certifications = self.engine.certifications.getInBuildingUserList(
@@ -98,11 +104,13 @@ class WebCertifications(WebBase):
                 return self.template("blank.mako")
             if show_table_header == '0' or show_table_header.upper() == 'FALSE':
                 show_table_header = False
+            if show_names == '0' or show_names.upper() == 'FALSE':
+                show_names = False
 
             tools = self.engine.certifications.getToolsFromList(
                 dbConnection, tools)
 
-            return self.showCertifications(message, tools, certifications, show_table_header)
+            return self.showCertifications(message, tools, certifications, show_table_header, show_names)
 
     @cherrypy.expose
     def all(self):
