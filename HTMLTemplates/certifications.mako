@@ -15,7 +15,9 @@
 <TABLE class="certifications">
 % if show_table_header:
 <TR>
+% if show_name:
    <TH></TH>
+% endif
 % for tool in tools:
    <TH>${tool[1]}</TH>
 % endfor
