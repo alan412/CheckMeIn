@@ -15,23 +15,28 @@
 <TABLE class="certifications">
 % if show_table_header:
 <TR>
-% if show_name:
+% if show_left_names:
    <TH></TH>
 % endif
 % for tool in tools:
    <TH>${tool[1]}</TH>
 % endfor
+% if show_right_names:
+   <TH></TH>
+% endif
 </TR>
 % endif
 % for user, user_tools in certifications.items():
    <TR>
-   % if show_name:
+   % if show_left_names:
    <TD>${user_tools.displayName}</TD>
    % endif
    % for tool in tools:
       ${user_tools.getHTMLCellTool(tool[0]) | n}
    % endfor
+   % if show_right_names:
    <TD>${user_tools.displayName}</TD>
+   % endif
    </TR>
 % endfor
 </TABLE>

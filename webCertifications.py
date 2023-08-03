@@ -4,12 +4,13 @@ from webBase import WebBase
 
 class WebCertifications(WebBase):
     # Certifications
-    def showCertifications(self, message, tools, certifications, show_table_header=True, show_names=True):
+    def showCertifications(self, message, tools, certifications, show_table_header=True, show_left_names=True, show_right_names=True):
         return self.template('certifications.mako',
                              message=message,
                              tools=tools,
                              show_table_header=show_table_header,
-                             show_names=show_names,
+                             show_left_names=show_left_names,
+                             show_right_names=show_right_names,
                              certifications=certifications)
 
     @cherrypy.expose
@@ -86,8 +87,13 @@ class WebCertifications(WebBase):
 
             return self.showCertifications(message, tools, certifications)
 
+    def getBoolean(self, term):
+        if term == '0' or term.upper() == 'FALSE':
+            return False
+        return True
+
     @cherrypy.expose
-    def monitor(self, tools, start_row=0, show_names="True", show_table_header="True"):
+    def monitor(self, tools, start_row=0, show_left_names="True", show_right_names="True", show_table_header="True"):
         message = ''
         with self.dbConnect() as dbConnection:
             certifications = self.engine.certifications.getInBuildingUserList(
@@ -102,15 +108,15 @@ class WebCertifications(WebBase):
                 certifications = subsetCerts
             else:
                 return self.template("blank.mako")
-            if show_table_header == '0' or show_table_header.upper() == 'FALSE':
-                show_table_header = False
-            if show_names == '0' or show_names.upper() == 'FALSE':
-                show_names = False
+
+            show_table_header = self.getBoolean(show_table_header)
+            show_left_names = self.getBoolean(show_left_names)
+            show_right_names = self.getBoolean(show_right_names)
 
             tools = self.engine.certifications.getToolsFromList(
                 dbConnection, tools)
 
-            return self.showCertifications(message, tools, certifications, show_table_header, show_names)
+            return self.showCertifications(message, tools, certifications, show_table_header, show_left_names, show_right_names)
 
     @cherrypy.expose
     def all(self):

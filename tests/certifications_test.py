@@ -37,7 +37,7 @@ class CertificationsTest(CPtest.CPTest):
     def test_monitor_noname(self):
         with self.patch_session():
             self.getPage(
-                "/certifications/monitor?tools=1_2_3&show_names=False")
+                "/certifications/monitor?tools=1_2_3&show_left_names=False&show_right_names=False")
         self.assertStatus('200 OK')
 
     def test_monitor_noheader(self):
